@@ -1,0 +1,99 @@
+// Pages/Sign.js
+import React, { useState } from 'react';
+import './Login.css';
+import { Link, useNavigate } from 'react-router-dom';
+
+// here setting Signup data
+import axios from 'axios';
+
+const SignUp = () => {
+const [formData, setFormData] = useState({
+  email: '',
+  password: '',
+  confirmPassword: ''
+});
+
+const navigate = useNavigate(' '); // Initialize useNavigate
+
+
+const handleChange = (e) => {
+  setFormData({
+    ...formData, [e.target.name]: e.target.value
+  });
+};
+
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (formData.password !== formData.confirmPassword) {
+    alert("Password do not match");
+    return;
+  }
+  
+  try {
+    const response = await axios.post("http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/signup", formData);
+    console.log("response", response.data);
+
+    if(response.data.token || response.data.user){
+      localStorage.setItem('authToken', response.data.token || JSON.stringify(response.data.user));
+
+      setTimeout(() => {
+        localStorage.removeItem('authToken');
+        alert('Session expired. Please log in again.');
+        navigate('/')
+      }, 60000);
+      navigate('/Home')
+    }
+    
+    
+  } catch (error) {
+    console.log("error sending data", error);
+  }
+};
+
+
+
+
+
+  return (
+    <div className="main-container">
+      <div className="container">
+        <div className="heading">Sign Up</div>
+        <form className="form" onSubmit={handleSubmit}>
+          <input required className="input" type="email" name="email" placeholder="E-mail" value={formData.email} onChange={handleChange} />
+          <input required className="input" type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} />
+          <input required className="input" type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} />
+          <input className="login-button" type="submit" value="Sign Up" />
+        </form>
+
+        <div className="social-account-container">
+          <span className="title">Or Sign up with</span>
+          <div className="social-accounts">
+            <button className="social-button google">
+              <svg className="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                <path d="M488 261.8C488 403.3..."></path>
+              </svg>
+            </button>
+            <button className="social-button apple">
+              <svg className="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                <path d="M318.7 268.7c-.2-36.7..."></path>
+              </svg>
+            </button>
+            <button className="social-button twitter">
+              <svg className="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path d="M389.2 48h70.6..."></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <span className="agreement">
+          <p>Already have an account? <Link to="/">Login</Link></p>
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export default SignUp;
