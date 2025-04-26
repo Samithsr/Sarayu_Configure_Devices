@@ -1,5 +1,5 @@
 // Pages/Sign.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -13,8 +13,16 @@ const [formData, setFormData] = useState({
   confirmPassword: ''
 });
 
+const [error, setError] = useState({});
 const navigate = useNavigate(' '); // Initialize useNavigate
 
+
+useEffect(() => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    navigate ('/Home');
+  }
+}, [navigate]);
 
 const handleChange = (e) => {
   setFormData({
@@ -32,17 +40,14 @@ const handleSubmit = async (e) => {
   }
   
   try {
-    const response = await axios.post("http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/signup", formData);
+    const response = await axios.post("http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/signup", {email: formData.email,
+      password: formData.email,});
     console.log("response", response.data);
 
     if(response.data.token || response.data.user){
       localStorage.setItem('authToken', response.data.token || JSON.stringify(response.data.user));
 
-      setTimeout(() => {
-        localStorage.removeItem('authToken');
-        alert('Session expired. Please log in again.');
-        navigate('/')
-      }, 60000);
+      
       navigate('/Home')
     }
     

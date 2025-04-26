@@ -1,5 +1,5 @@
 // Pages/Login.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -15,6 +15,14 @@ const [formData, setFormData] = useState({
 
 const [error, setError] = useState('');
 const navigate = useNavigate(' '); // Initialize useNavigate
+
+
+useEffect(() => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    navigate ('/Home');
+  }
+}, [navigate]);
 
 
 const handleChange = (e) => {
