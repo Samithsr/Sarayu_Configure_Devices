@@ -1,96 +1,183 @@
 .page-wrapper {
-    min-height: 100vh;
-    background-color: #eef2f5;
-    font-family: Arial, sans-serif;
-  }
-  
-  /* Navbar styling */
-  .navbar {
+    height: 100vh;
+    background-color: #f5f7fa;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Navbar styling */
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 40px;
-    background-color: #093e69ee;
+    padding: 12px 50px;
+    background: linear-gradient(90deg, #1a3c6b 0%, #2a5c9b 100%);
     color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .navbar h1 {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.navbar h1 {
     margin: 0;
-    font-size: 22px;
-    font-weight: 600;
-  }
-  /* Icon-only logout button */
-.logout-icon-button {
-    background: transparent;
-    border: none;
-    color: white;  /* Default color is white */
-    cursor: pointer;
     font-size: 24px;
+    font-weight: 500;
+}
+
+/* Logout button */
+.logout-icon-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.logout-icon-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ff4d4f;
+}
+
+/* Form container - Aligned to left */
+.home-container {
+    max-width: 450px;
+    margin: 30px 0 30px 50px; /* Adjusted to align left with padding from edge */
+    padding: 25px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.266);
+    transition: filter 0.3s ease;
+}
+
+/* Blur effect */
+.blur-background {
+    filter: blur(5px);
+}
+
+/* Form styles */
+.broker-form .form-group {
+    margin-bottom: 20px;
+}
+
+.broker-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.broker-form input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.broker-form input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+.broker-form button {
+    width: 100%;
+    padding: 12px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.broker-form button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 6px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  
-  /* Hover state for logout icon */
-  .logout-icon-button:hover {
-    /* background-color: rgba(220, 53, 69, 0.2);  */
-    color: #b52a37; 
-  }
-  
-  
-  /* Form container aligned to left */
-  .home-container {
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
     width: 100%;
     max-width: 400px;
-    margin: 40px 40px 0;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Form styles */
-  .broker-form .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .broker-form label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: bold;
-    color: #555;
-  }
-  
-  .broker-form input {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    transition: border 0.2s;
-  }
-  
-  .broker-form input:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-  
-  .broker-form button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease-out;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+.modal-text {
+    color: #6b7280;
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.modal-button {
+    padding: 10px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .broker-form button:hover {
-    background-color: #0056b3;
-  }
-  
+    transition: all 0.3s ease;
+}
+
+.cancel-button {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.cancel-button:hover {
+    background: #e5e7eb;
+}
+
+.confirm-button {
+    background: #dc2626;
+    color: white;
+}
+
+.confirm-button:hover {
+    background: #b91c1c;
+}
+
+/* Animation */
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
