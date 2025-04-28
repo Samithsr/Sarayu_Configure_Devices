@@ -40,7 +40,7 @@ const handleSubmit = async (e) => {
   }
   
   try {
-    const response = await axios.post("http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/signup", {email: formData.email,
+    const response = await axios.post("http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/auth/signup", {email: formData.email,
       password: formData.email,});
     console.log("response", response.data);
 
