@@ -5,7 +5,6 @@ import LogoutModal from "../Pages/LogoutModel";
 import Navbar from "../Pages/Navbar";
 import Table from "../Components/Table";
 
-
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,6 +17,49 @@ const Home = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+
+  // Table data and pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+  const tableData = [
+    { id: "01", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "02", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "03", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "04", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "05", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "06", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "07", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "08", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "09", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "10", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "11", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "12", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "13", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "14", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+    { id: "15", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
+  ];
+
+  // Calculate pagination
+  const totalPages = Math.ceil(tableData.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const currentData = tableData.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   const handleInputChange = (e) => {
     setError("");
@@ -45,7 +87,6 @@ const Home = () => {
     setError("");
     setSuccess("");
 
-    // Validate form fields
     if (!validateForm()) return;
 
     const authToken = localStorage.getItem("authToken");
@@ -94,7 +135,6 @@ const Home = () => {
         label: "",
       });
 
-      // Hide the success message after 3 seconds
       setTimeout(() => {
         setSuccess("");
       }, 3000);
@@ -208,101 +248,57 @@ const Home = () => {
         onCancel={handleCancel}
       />
 
-<div className="alluser_inbox_all_cred_container">
-        <div className="alluser_inbox_all_cred_scrollable-table">
-            <table className="alluser_inbox_all_cred_table">
-                    <tr>
-                        <th>Employee No</th>
-                        <th>Name</th>
-                        <th>email</th>
-                        <th>Phone no</th>
-                        <th>Visit</th>
-                    </tr>
-                
-                    <tr>
-                        <td>01</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>Samith S R</td>
-                        <td>samithrgowda@gmail.com</td>
-                        <td>987654321</td>
-                        <td>Yes</td>
-                    </tr>
-    
-              
-            </table>
+      <div className="unique-table-container">
+        <div className="unique-table-scrollable">
+          <table className="unique-table" style={{ marginTop: "30px" }}>
+            <thead>
+              <tr>
+                <th>Broker IP</th>
+                <th>Port Number</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Label</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentData.map((row, index) => (
+                <tr key={index}>
+                  <td>{row.id}</td>
+                  <td>{row.name}</td>
+                  <td>{row.email}</td>
+                  <td>{row.phone}</td>
+                  <td>{row.visit}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="pagination">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="pagination-button"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`pagination-button ${currentPage === page ? "active" : ""}`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="pagination-button"
+            >
+              Next
+            </button>
+          </div>
         </div>
-    </div>
-
-     
+      </div>
     </div>
   );
 };
