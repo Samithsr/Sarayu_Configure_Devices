@@ -3,6 +3,8 @@ import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
 import Navbar from "../Pages/Navbar";
+import Table from "../Components/Table";
+
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -18,25 +20,48 @@ const Home = () => {
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
+    setError("");
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validateForm = () => {
+    if (!formData.brokerIp) {
+      setError("Broker IP is required.");
+      return false;
+    }
+    if (!formData.portNumber) {
+      setError("Port is required.");
+      return false;
+    }
+    if (!formData.label) {
+      setError("Label is required.");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async () => {
     setError("");
     setSuccess("");
+
+    // Validate form fields
+    if (!validateForm()) return;
+
     const authToken = localStorage.getItem("authToken");
     if (!authToken) {
       setError("Authentication token is missing. Please log in again.");
       navigate("/");
       return;
     }
+
     const payload = {
       ...formData,
       portNumber: formData.portNumber
         ? parseInt(formData.portNumber, 10)
         : undefined,
     };
+
     try {
       const response = await fetch(
         "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
@@ -68,6 +93,11 @@ const Home = () => {
         password: "",
         label: "",
       });
+
+      // Hide the success message after 3 seconds
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
     } catch (err) {
       console.error("Error connecting to broker:", err);
       setError(
@@ -92,9 +122,10 @@ const Home = () => {
 
   const handleKeyDown = (e, nextFieldId) => {
     if (e.key === "Enter") {
-        document.getElementById(nextFieldId).focus();
+      document.getElementById(nextFieldId).focus();
     }
   };
+
   return (
     <div className="page-wrapper-left-side">
       <div className={`home-container ${showModal ? "blur-background" : ""}`}>
@@ -161,10 +192,11 @@ const Home = () => {
           </div>
           {error && <p className="error-message">{error}</p>}
           {success && <p className="success-message">{success}</p>}
-          <button type="button" onClick={handleSubmit}
-           onKeyUp={(e) => e.key === "Enter" && handleSubmit()}
-           >
-            
+          <button
+            type="button"
+            onClick={handleSubmit}
+            onKeyUp={(e) => e.key === "Enter" && handleSubmit()}
+          >
             Connect
           </button>
         </div>
@@ -176,13 +208,101 @@ const Home = () => {
         onCancel={handleCancel}
       />
 
-
-      <div className="page-wrapper-right-side-container">
-        <div className="page-wrapper-right-side">
-            <h1>hello</h1>
+<div className="alluser_inbox_all_cred_container">
+        <div className="alluser_inbox_all_cred_scrollable-table">
+            <table className="alluser_inbox_all_cred_table">
+                    <tr>
+                        <th>Employee No</th>
+                        <th>Name</th>
+                        <th>email</th>
+                        <th>Phone no</th>
+                        <th>Visit</th>
+                    </tr>
+                
+                    <tr>
+                        <td>01</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Samith S R</td>
+                        <td>samithrgowda@gmail.com</td>
+                        <td>987654321</td>
+                        <td>Yes</td>
+                    </tr>
+    
+              
+            </table>
         </div>
-        
-      </div>
+    </div>
+
+     
     </div>
   );
 };
