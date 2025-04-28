@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
 import Navbar from "../Pages/Navbar";
-import Table from "../Components/Table";
+import RightSideTable from "../Components/RightSideTable";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -16,50 +16,72 @@ const Home = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [tableData, setTableData] = useState([]);
   const navigate = useNavigate();
 
-  // Table data and pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
-  const tableData = [
-    { id: "01", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "02", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "03", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "04", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "05", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "06", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "07", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "08", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "09", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "10", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "11", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "12", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "13", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "14", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-    { id: "15", name: "Samith S R", email: "samithrgowda@gmail.com", phone: "987654321", visit: "Yes" },
-  ];
+  // Fetch table data on component mount
+  useEffect(() => {
+    const fetchTableData = async () => {
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) {
+        setError("Authentication token is missing. Please log in again.");
+        navigate("/");
+        return;
+      }
 
-  // Calculate pagination
-  const totalPages = Math.ceil(tableData.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
-  const currentData = tableData.slice(startIndex, endIndex);
+      try {
+        const response = await fetch(
+          "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+        if (!response.ok) {
+          let errorMessage = `HTTP error! status: ${response.status}`;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorData.error || errorMessage;
+          } catch (jsonError) {
+            errorMessage = response.statusText || errorMessage;
+          }
+          throw new Error(errorMessage);
+        }
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+        const data = await response.json();
+        // Handle different response structures
+        let dataArray = [];
+        if (Array.isArray(data)) {
+          dataArray = data;
+        } else if (data && typeof data === "object") {
+          if (data.data && Array.isArray(data.data)) {
+            dataArray = data.data;
+          } else {
+            dataArray = [data];
+          }
+        }
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+        // Map API data to table structure
+        const mappedData = dataArray.map((item) => ({
+          brokerip: item.brokerIp || "N/A",
+          port: item.portNumber ? item.portNumber.toString() : "N/A",
+          user: item.username || "N/A",
+          password: item.password || "N/A",
+          label: item.label || "N/A",
+        }));
+        setTableData(mappedData);
+      } catch (err) {
+        console.error("Error fetching table data:", err);
+        setError(err.message || "An error occurred while fetching table data.");
+      }
+    };
+
+    fetchTableData();
+  }, [navigate]);
 
   const handleInputChange = (e) => {
     setError("");
@@ -104,6 +126,10 @@ const Home = () => {
     };
 
     try {
+      // Store form data in localStorage
+      localStorage.setItem("brokerFormData", JSON.stringify(payload));
+
+      // POST request to API
       const response = await fetch(
         "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
         {
@@ -115,6 +141,7 @@ const Home = () => {
           body: JSON.stringify(payload),
         }
       );
+
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
@@ -125,8 +152,46 @@ const Home = () => {
         }
         throw new Error(errorMessage);
       }
+
       const result = await response.json();
       setSuccess("Successfully connected to the broker!");
+
+      // Fetch updated table data
+      const updatedResponse = await fetch(
+        "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      if (updatedResponse.ok) {
+        const updatedData = await updatedResponse.json();
+        let dataArray = [];
+        if (Array.isArray(updatedData)) {
+          dataArray = updatedData;
+        } else if (updatedData && typeof updatedData === "object") {
+          if (updatedData.data && Array.isArray(updatedData.data)) {
+            dataArray = updatedData.data;
+          } else {
+            dataArray = [updatedData];
+          }
+        }
+
+        const mappedData = dataArray.map((item) => ({
+          brokerip: item.brokerIp || "N/A",
+          port: item.portNumber ? item.portNumber.toString() : "N/A",
+          user: item.username || "N/A",
+          password: item.password || "N/A",
+          label: item.label || "N/A",
+        }));
+        setTableData(mappedData);
+      }
+
+      // Clear form
       setFormData({
         brokerIp: "",
         portNumber: "",
@@ -135,6 +200,7 @@ const Home = () => {
         label: "",
       });
 
+      // Hide success message after 3 seconds
       setTimeout(() => {
         setSuccess("");
       }, 3000);
@@ -152,6 +218,7 @@ const Home = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
+    localStorage.removeItem("brokerFormData");
     setShowModal(false);
     navigate("/");
   };
@@ -248,57 +315,7 @@ const Home = () => {
         onCancel={handleCancel}
       />
 
-      <div className="unique-table-container">
-        <div className="unique-table-scrollable">
-          <table className="unique-table" style={{ marginTop: "30px" }}>
-            <thead>
-              <tr>
-                <th>Broker IP</th>
-                <th>Port Number</th>
-                <th>Username</th>
-                <th>Password</th>
-                <th>Label</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentData.map((row, index) => (
-                <tr key={index}>
-                  <td>{row.id}</td>
-                  <td>{row.name}</td>
-                  <td>{row.email}</td>
-                  <td>{row.phone}</td>
-                  <td>{row.visit}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="pagination">
-            <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className="pagination-button"
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`pagination-button ${currentPage === page ? "active" : ""}`}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className="pagination-button"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
+      <RightSideTable tableData={tableData} />
     </div>
   );
 };
