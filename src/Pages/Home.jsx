@@ -1,57 +1,54 @@
-import React, { useState } from 'react';
-import './Home.css';
-import { RiLogoutCircleRLine } from 'react-icons/ri';
-import { useNavigate } from 'react-router-dom';
-import LogoutModal from '../Pages/LogoutModel';
+import React, { useState } from "react";
+import "./Home.css";
+import { useNavigate } from "react-router-dom";
+import LogoutModal from "../Pages/LogoutModel";
+import Navbar from "../Pages/Navbar";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    brokerIp: '',
-    portNumber: '',
-    username: '',
-    password: '',
-    label: '',
+    brokerIp: "",
+    portNumber: "",
+    username: "",
+    password: "",
+    label: "",
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
-    setError('');
-    setSuccess('');
-
-    // Check for auth token
-    const authToken = localStorage.getItem('authToken');
+    setError("");
+    setSuccess("");
+    const authToken = localStorage.getItem("authToken");
     if (!authToken) {
-      setError('Authentication token is missing. Please log in again.');
-      navigate('/');
+      setError("Authentication token is missing. Please log in again.");
+      navigate("/");
       return;
     }
-
-    // Prepare payload, converting portNumber to integer
     const payload = {
       ...formData,
-      portNumber: formData.portNumber ? parseInt(formData.portNumber, 10) : undefined,
+      portNumber: formData.portNumber
+        ? parseInt(formData.portNumber, 10)
+        : undefined,
     };
-
     try {
-      const response = await fetch('http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
+      const response = await fetch(
+        "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
@@ -62,50 +59,45 @@ const Home = () => {
         }
         throw new Error(errorMessage);
       }
-
       const result = await response.json();
-      setSuccess('Successfully connected to the broker!');
-      // Reset form
+      setSuccess("Successfully connected to the broker!");
       setFormData({
-        brokerIp: '',
-        portNumber: '',
-        username: '',
-        password: '',
-        label: '',
+        brokerIp: "",
+        portNumber: "",
+        username: "",
+        password: "",
+        label: "",
       });
     } catch (err) {
-      console.error('Error connecting to broker:', err);
-      setError(err.message || 'An error occurred while connecting to the broker.');
+      console.error("Error connecting to broker:", err);
+      setError(
+        err.message || "An error occurred while connecting to the broker."
+      );
     }
   };
 
-  // Handle logout click
   const handleLogoutClick = () => {
     setShowModal(true);
   };
 
-  // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem("authToken");
     setShowModal(false);
-    navigate('/');
+    navigate("/");
   };
 
-  // Handle modal cancel
   const handleCancel = () => {
     setShowModal(false);
   };
 
+  const handleKeyDown = (e, nextFieldId) => {
+    if (e.key === "Enter") {
+        document.getElementById(nextFieldId).focus();
+    }
+  };
   return (
-    <div className="page-wrapper">
-      <nav className="navbar">
-        <h1>MQTT Connection Settings</h1>
-        <button className="logout-icon-button" onClick={handleLogoutClick}>
-          <RiLogoutCircleRLine size={24} />
-        </button>
-      </nav>
-
-      <div className={`home-container ${showModal ? 'blur-background' : ''}`}>
+    <div className="page-wrapper-left-side">
+      <div className={`home-container ${showModal ? "blur-background" : ""}`}>
         <div className="broker-form">
           <div className="form-group">
             <label htmlFor="brokerIp">Broker IP *:</label>
@@ -116,6 +108,7 @@ const Home = () => {
               placeholder="Enter broker IP"
               value={formData.brokerIp}
               onChange={handleInputChange}
+              onKeyUp={(e) => handleKeyDown(e, "portNumber")}
             />
           </div>
           <div className="form-group">
@@ -127,6 +120,7 @@ const Home = () => {
               placeholder="Enter port number"
               value={formData.portNumber}
               onChange={handleInputChange}
+              onKeyUp={(e) => handleKeyDown(e, "username")}
             />
           </div>
           <div className="form-group">
@@ -138,6 +132,7 @@ const Home = () => {
               placeholder="Enter username"
               value={formData.username}
               onChange={handleInputChange}
+              onKeyUp={(e) => handleKeyDown(e, "password")}
             />
           </div>
           <div className="form-group">
@@ -149,6 +144,7 @@ const Home = () => {
               placeholder="Enter password"
               value={formData.password}
               onChange={handleInputChange}
+              onKeyUp={(e) => handleKeyDown(e, "label")}
             />
           </div>
           <div className="form-group">
@@ -160,11 +156,15 @@ const Home = () => {
               placeholder="Enter Label"
               value={formData.label}
               onChange={handleInputChange}
+              onKeyUp={(e) => handleKeyDown(e, "submitButton")}
             />
           </div>
           {error && <p className="error-message">{error}</p>}
           {success && <p className="success-message">{success}</p>}
-          <button type="button" onClick={handleSubmit}>
+          <button type="button" onClick={handleSubmit}
+           onKeyUp={(e) => e.key === "Enter" && handleSubmit()}
+           >
+            
             Connect
           </button>
         </div>
@@ -175,6 +175,14 @@ const Home = () => {
         onConfirm={handleLogout}
         onCancel={handleCancel}
       />
+
+
+      <div className="page-wrapper-right-side-container">
+        <div className="page-wrapper-right-side">
+            <h1>hello</h1>
+        </div>
+        
+      </div>
     </div>
   );
 };

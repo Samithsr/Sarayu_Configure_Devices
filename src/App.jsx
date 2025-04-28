@@ -6,6 +6,8 @@ import Login from './Authentication/Login';
 import Signup from './Authentication/SignUp';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './Pages/Home';
+import Navbar from "./Pages/Navbar";
+
 
 const App = () => {
   const ProtectedRoute = () => {
@@ -13,6 +15,9 @@ const App = () => {
     return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
   };
   return (
+    <>
+    <Navbar />
+    
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
@@ -21,6 +26,7 @@ const App = () => {
       <Route path="/home" element={<Home />} />
       </Route>
     </Routes>
+    </>
   );
 };
 
