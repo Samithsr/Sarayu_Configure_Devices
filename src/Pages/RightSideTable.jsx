@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import './RightSideTable.css';
-// import "../../Pages/Home.css";
 
 const RightSideTable = ({ tableData, onAssign }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  // Calculate pagination
   const totalPages = Math.ceil(tableData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
@@ -62,6 +60,7 @@ const RightSideTable = ({ tableData, onAssign }) => {
             ))}
           </tbody>
         </table>
+
         <div className="pagination">
           <button
             onClick={handlePrevPage}

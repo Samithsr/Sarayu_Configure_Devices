@@ -1,12 +1,17 @@
-.dashboard-container {
-    width: 100%;
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 30% 70%;
     height: 100vh;
-    display: flex;
-    flex-direction: column;  /* Vertical layout */
-    justify-content: start;
+  }
+  
+  .dashboard-sidebar {
+    display: grid;
     gap: 20px;
     padding: 20px;
-    height: 100vh; /* Optional: centers vertically on full screen */
+    margin: 0 20px;
+    margin-top: 40px;
+    background-color: #f0f0f0;
+    align-content: start;
   }
   
   .dashboard-button {
@@ -18,10 +23,56 @@
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    width: 200px; /* Optional: consistent button width */
+    width: 65%;
   }
   
   .dashboard-button:hover {
     background-color: #45a049;
+  }
+  
+  .dashboard-main {
+    padding: 20px;
+    height: 100vh;
+    margin: 15px 10px;
+    overflow-y: auto;
+  }
+  
+  .dashboard-form-horizontal {
+    display: flex;
+    gap: 40px;
+    margin-top: 30px;  /* Reduced from 50px */
+    margin-left: 100px;
+    align-items: flex-end;
+  }
+  
+  .dashboard-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;  /* Reduced from 6px */
+  }
+  
+  .dashboard-form-group label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .dashboard-form-group input {
+    padding: 8px; /* Reduced from 10px */
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    min-width: 200px;
+  }
+  
+  .dashboard-form-group input:focus {
+    border-color: #4CAF50;
+  }
+  
+  /* Optional: Reduce space between rows if multiple form-horizontal sections exist */
+  .dashboard-form-horizontal + .dashboard-form-horizontal {
+    margin-top: 20px; /* Reduced from 30px */
   }
   
