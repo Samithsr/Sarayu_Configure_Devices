@@ -19,7 +19,6 @@ const Home = () => {
   const [tableData, setTableData] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch table data on component mount
   useEffect(() => {
     const fetchTableData = async () => {
       const authToken = localStorage.getItem("authToken");
@@ -53,7 +52,6 @@ const Home = () => {
         }
 
         const data = await response.json();
-        // Handle different response structures
         let dataArray = [];
         if (Array.isArray(data)) {
           dataArray = data;
@@ -65,7 +63,6 @@ const Home = () => {
           }
         }
 
-        // Map API data to table structure
         const mappedData = dataArray.map((item) => ({
           brokerip: item.brokerIp || "N/A",
           port: item.portNumber ? item.portNumber.toString() : "N/A",
@@ -75,7 +72,6 @@ const Home = () => {
           label: item.label || "N/A",
         }));
 
-        // Remove duplicates based on brokerIp and port
         const uniqueData = Array.from(
           new Map(
             mappedData.map((item) => [
@@ -137,7 +133,6 @@ const Home = () => {
     };
 
     try {
-      // POST request to API
       const response = await fetch(
         "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
         {
@@ -164,66 +159,9 @@ const Home = () => {
       const result = await response.json();
       setSuccess("Successfully connected to the broker!");
 
-      // Fetch updated table data
-      const updatedResponse = await fetch(
-        "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      // Immediately navigate to dashboard
+      navigate("/dashboard");
 
-      if (updatedResponse.ok) {
-        const updatedData = await updatedResponse.json();
-        let dataArray = [];
-        if (Array.isArray(updatedData)) {
-          dataArray = updatedData;
-        } else if (updatedData && typeof updatedData === "object") {
-          if (updatedData.data && Array.isArray(updatedData.data)) {
-            dataArray = updatedData.data;
-          } else {
-            dataArray = [updatedData];
-          }
-        }
-
-        // Map API data to table structure
-        const mappedData = dataArray.map((item) => ({
-          brokerip: item.brokerIp || "N/A",
-          port: item.portNumber ? item.portNumber.toString() : "N/A",
-          user: item.username || "N/A",
-          password: item.password ? "*".repeat(item.password.length) : "N/A",
-          rawPassword: item.password || "",
-          label: item.label || "N/A",
-        }));
-
-        // Remove duplicates based on brokerIp and port
-        const uniqueData = Array.from(
-          new Map(
-            mappedData.map((item) => [
-              `${item.brokerip}:${item.port}`,
-              item,
-            ])
-          ).values()
-        );
-        setTableData(uniqueData);
-      }
-
-      // Clear form
-      setFormData({
-        brokerIp: "",
-        portNumber: "",
-        username: "",
-        password: "",
-        label: "",
-      });
-
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        setSuccess("");
-      }, 3000);
     } catch (err) {
       console.error("Error connecting to broker:", err);
       setError(
@@ -329,6 +267,7 @@ const Home = () => {
           {error && <p className="error-message">{error}</p>}
           {success && <p className="success-message">{success}</p>}
           <button
+            id="submitButton"
             type="button"
             onClick={handleSubmit}
             onKeyUp={(e) => e.key === "Enter" && handleSubmit()}

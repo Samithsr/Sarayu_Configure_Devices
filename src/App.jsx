@@ -1,4 +1,4 @@
-// App.js
+
 import React from 'react';
 // import { Route, Routes } from 'react-router-dom';
 import { Navigate, Outlet } from 'react-router-dom';
@@ -7,6 +7,7 @@ import Signup from './Authentication/SignUp';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './Pages/Home';
 import Navbar from "./Pages/Navbar";
+import Dashboard from './Pages/Dashboard';
 
 
 const App = () => {
@@ -24,6 +25,7 @@ const App = () => {
       <Route element={<ProtectedRoute />} >
       
       <Route path="/home" element={<Home />} />
+      <Route path='/dashboard' element={<Dashboard />} />
       </Route>
     </Routes>
     </>

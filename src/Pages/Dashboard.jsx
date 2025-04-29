@@ -1,23 +1,15 @@
-import React from 'react'
-import './Dashboard.css '
+import React from 'react';
+import './Dashboard.css';
 
 const Dashboard = () => {
   return (
-    <div>
-        <div>
-            <button>Publish</button>
-        </div>
-        <div>
-            <button></button>
-        </div>
-        <div>
-            <button></button>
-        </div>
-        <div>
-            <button></button>
-        </div>
+    <div className="dashboard-container">
+      <button className="dashboard-button">Publish</button>
+      <button className="dashboard-button">Subscribe</button>
+      <button className="dashboard-button">Com Configuration</button>
+      <button className="dashboard-button">Wi-Fi</button>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
