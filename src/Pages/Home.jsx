@@ -3,7 +3,7 @@ import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
 import Navbar from "../Pages/Navbar";
-import RightSideTable from "../Components/RightSideTable";
+import RightSideTable from "../Pages/RightSideTable";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -70,10 +70,21 @@ const Home = () => {
           brokerip: item.brokerIp || "N/A",
           port: item.portNumber ? item.portNumber.toString() : "N/A",
           user: item.username || "N/A",
-          password: item.password || "N/A",
+          password: item.password ? "*".repeat(item.password.length) : "N/A",
+          rawPassword: item.password || "",
           label: item.label || "N/A",
         }));
-        setTableData(mappedData);
+
+        // Remove duplicates based on brokerIp and port
+        const uniqueData = Array.from(
+          new Map(
+            mappedData.map((item) => [
+              `${item.brokerip}:${item.port}`,
+              item,
+            ])
+          ).values()
+        );
+        setTableData(uniqueData);
       } catch (err) {
         console.error("Error fetching table data:", err);
         setError(err.message || "An error occurred while fetching table data.");
@@ -126,9 +137,6 @@ const Home = () => {
     };
 
     try {
-      // Store form data in localStorage
-      localStorage.setItem("brokerFormData", JSON.stringify(payload));
-
       // POST request to API
       const response = await fetch(
         "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
@@ -181,14 +189,26 @@ const Home = () => {
           }
         }
 
+        // Map API data to table structure
         const mappedData = dataArray.map((item) => ({
           brokerip: item.brokerIp || "N/A",
           port: item.portNumber ? item.portNumber.toString() : "N/A",
           user: item.username || "N/A",
-          password: item.password || "N/A",
+          password: item.password ? "*".repeat(item.password.length) : "N/A",
+          rawPassword: item.password || "",
           label: item.label || "N/A",
         }));
-        setTableData(mappedData);
+
+        // Remove duplicates based on brokerIp and port
+        const uniqueData = Array.from(
+          new Map(
+            mappedData.map((item) => [
+              `${item.brokerip}:${item.port}`,
+              item,
+            ])
+          ).values()
+        );
+        setTableData(uniqueData);
       }
 
       // Clear form
@@ -212,13 +232,22 @@ const Home = () => {
     }
   };
 
+  const handleAssign = (row) => {
+    setFormData({
+      brokerIp: row.brokerip !== "N/A" ? row.brokerip : "",
+      portNumber: row.port !== "N/A" ? row.port : "",
+      username: row.user !== "N/A" ? row.user : "",
+      password: row.rawPassword,
+      label: row.label !== "N/A" ? row.label : "",
+    });
+  };
+
   const handleLogoutClick = () => {
     setShowModal(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
-    localStorage.removeItem("brokerFormData");
     setShowModal(false);
     navigate("/");
   };
@@ -315,7 +344,7 @@ const Home = () => {
         onCancel={handleCancel}
       />
 
-      <RightSideTable tableData={tableData} />
+      <RightSideTable tableData={tableData} onAssign={handleAssign} />
     </div>
   );
 };

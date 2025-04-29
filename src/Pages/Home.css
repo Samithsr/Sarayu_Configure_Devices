@@ -1,9 +1,11 @@
 .page-wrapper-left-side {
     display: grid;
-    grid-template-columns: 30% 70%;
-    height: 100px;
+    grid-template-columns: 0.8fr 2.4fr; /* Proportional columns for responsiveness */
+    height: 100vh; /* Full viewport height */
     background-color: white;
+    gap: 30px;
     font-family: 'Roboto', sans-serif;
+    overflow: hidden; /* Prevent overflow of the entire layout */
 }
 
 /* Logout button */
@@ -27,7 +29,7 @@
     max-width: 400px;
     min-height: 535px;
     max-height: 535px;
-    margin: 30px 0 30px 50px;
+    margin: 30px 0 30px 20px; /* Reduced left margin for smaller screens */
     padding: 25px;
     background-color: white;
     border-radius: 12px;
@@ -174,90 +176,33 @@
     text-align: center;
 }
 
-/* Table styles */
-.unique-table-container {
-    width: 1100px;
-}
-
-.unique-table-scrollable {
-    border-radius: 20px;
-}
-
-.unique-table {
-    width: 100%;
-    border-collapse: collapse;
-    box-shadow: -1px 12px 12px -6px rgba(0, 0, 0, 0.5);
-}
-
-.unique-table th,
-.unique-table td {
-    padding: 20px;
-    border: 1px solid lightgray;
-    text-align: center;
-}
-
-.unique-table th {
-    background-color: rgb(45, 113, 158);
-    color: white;
-    font-weight: 600;
-}
-
-.unique-table td {
-    font-size: 18px;
-}
-
-.unique-table tbody tr:nth-child(odd) {
-    background-color: rgb(255, 255, 255);
-}
-
-.unique-table tbody tr:nth-child(even) {
-    background-color: rgb(246, 253, 255);
-}
-
-/* Pagination styles */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px;
-}
-
-.pagination-button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    background-color: #f3f4f6;
-    color: #374151;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.pagination-button:hover {
-    background-color: #e5e7eb;
-}
-
-.pagination-button.active {
-    background-color: #2563eb;
-    color: white;
-}
-
-.pagination-button:disabled {
-    background-color: #e5e7eb;
-    color: #9ca3af;
-    cursor: not-allowed;
-}
-
 /* Animation */
 @keyframes slideIn {
     from {
         transform: translateY(-20px);
-        opacity: 0;
+        perdido: 0;
     }
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .page-wrapper-left-side {
+        grid-template-columns: 1fr; /* Stack form and table vertically */
+        height: auto;
+    }
+
+    .home-container {
+        max-width: 90%;
+        margin: 20px auto;
+    }
+
+    .error-message,
+    .success-message {
+        width: 90%;
+        font-size: 12px;
     }
 }

@@ -58,6 +58,7 @@ const handleSubmit = async (e) => {
       <div className="container">
         <div className="heading">Sign In</div>
         <form className="form" onSubmit={handleSubmit}>
+          <label htmlFor="">Email</label>
           <input required className="input" type="email" name="email" placeholder="E-mail" value={formData.email} onChange={handleChange} />
           <input required className="input" type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} />
           <span className="forgot-password">
