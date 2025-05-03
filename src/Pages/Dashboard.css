@@ -4,7 +4,6 @@
   height: 100vh;
 }
 
-
 .dashboard-sidebar {
   display: grid;
   gap: 20px;
@@ -30,9 +29,6 @@
 .dashboard-button:hover {
   background-color: #45a049;
 }
-
-
-
 
 .dashboard-main {
   padding: 20px;
@@ -62,7 +58,6 @@
   margin-top: 20px;
 }
 
-
 .fixed-buttons {
   position: sticky;
   bottom: 0;
@@ -74,7 +69,6 @@
   border-top: 1px solid #ddd;
   z-index: 1;
 }
-
 
 .dashboard-form-horizontal {
   display: flex;
@@ -110,11 +104,9 @@
   border-color: #4CAF50;
 }
 
-
 .dashboard-form-horizontal + .dashboard-form-horizontal {
   margin-top: 20px; 
 }
-
 
 .dashboard-form-group select {
   padding: 8px;
@@ -130,12 +122,6 @@
   border-color: #4CAF50;
 }
 
-
-
-
- 
-
-
 .dashboard-form-buttons {
   display: flex;
   justify-content: center;
@@ -149,7 +135,7 @@
   border: none;
   padding: 10px 30px;
   font-size: 16px;
-  margin:0 5px;
+  margin: 0 5px;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -162,21 +148,23 @@
 .error-message {
   background-color: #ffe6e6;
   color: #d32f2f;
-  /* padding: 8px 16px; */
   border-radius: 6px;
   font-size: 14px;
-  /* text-align: center; */
   width: fit-content;
-  /* margin: 10px 0 0 0; */
 }
 
 .success-message {
   background-color: #e6ffe6;
   color: #2e7d32;
-  /* padding: 8px 16px; */
   border-radius: 6px;
   font-size: 14px;
   text-align: center;
   width: fit-content;
   margin: 10px 0 0 0;
+}
+
+/* User info */
+.user-info h3 {
+  font-size: 1.5em;
+  color: #333;
 }

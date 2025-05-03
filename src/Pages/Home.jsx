@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
-import Navbar from "../Pages/Navbar";
 import RightSideTable from "../Pages/RightSideTable";
 
 const Home = () => {
@@ -17,53 +16,47 @@ const Home = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [tableData, setTableData] = useState([]);
+  const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTableData = async () => {
       const authToken = localStorage.getItem("authToken");
-      if (!authToken) {
-        setError("Authentication token is missing. Please log in again.");
+      const userId = localStorage.getItem("userId");
+      const email = localStorage.getItem("userEmail");
+
+      if (!authToken || !userId) {
+        setError("Authentication token or user ID is missing. Please log in again.");
         navigate("/");
         return;
       }
 
+      setUserEmail(email || "User");
+
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/brokers",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
+        const response = await fetch("http://localhost:5000/api/brokers", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
 
         if (!response.ok) {
-          let errorMessage = `HTTP error! status: ${response.status}`;
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || errorMessage;
-          } catch (jsonError) {
-            errorMessage = response.statusText || errorMessage;
+          if (response.status === 401) {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("userEmail");
+            setError("Session expired. Please log in again.");
+            navigate("/");
+            return;
           }
-          throw new Error(errorMessage);
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        let dataArray = [];
-        if (Array.isArray(data)) {
-          dataArray = data;
-        } else if (data && typeof data === "object") {
-          if (data.data && Array.isArray(data.data)) {
-            dataArray = data.data;
-          } else {
-            dataArray = [data];
-          }
-        }
-
-        const mappedData = dataArray.map((item) => ({
+        const mappedData = data.map((item) => ({
           brokerip: item.brokerIp || "N/A",
           port: item.portNumber ? item.portNumber.toString() : "N/A",
           user: item.username || "N/A",
@@ -72,15 +65,7 @@ const Home = () => {
           label: item.label || "N/A",
         }));
 
-        const uniqueData = Array.from(
-          new Map(
-            mappedData.map((item) => [
-              `${item.brokerip}:${item.port}`,
-              item,
-            ])
-          ).values()
-        );
-        setTableData(uniqueData);
+        setTableData(mappedData);
       } catch (err) {
         console.error("Error fetching table data:", err);
         setError(err.message || "An error occurred while fetching table data.");
@@ -92,6 +77,7 @@ const Home = () => {
 
   const handleInputChange = (e) => {
     setError("");
+    setSuccess("");
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -119,55 +105,82 @@ const Home = () => {
     if (!validateForm()) return;
 
     const authToken = localStorage.getItem("authToken");
-    if (!authToken) {
-      setError("Authentication token is missing. Please log in again.");
+    const userId = localStorage.getItem("userId");
+    if (!authToken || !userId) {
+      setError("Authentication token or user ID is missing. Please log in again.");
       navigate("/");
       return;
     }
 
     const payload = {
-      ...formData,
-      portNumber: formData.portNumber
-        ? parseInt(formData.portNumber, 10)
-        : undefined,
+      brokerIp: formData.brokerIp,
+      portNumber: parseInt(formData.portNumber, 10),
+      username: formData.username || undefined,
+      password: formData.password || undefined,
+      label: formData.label,
     };
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/brokers",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/brokers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
-        let errorMessage = `HTTP error! status: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (jsonError) {
-          errorMessage = response.statusText || errorMessage;
+        if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userEmail");
+          setError("Session expired. Please log in again.");
+          navigate("/");
+          return;
         }
-        throw new Error(errorMessage);
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
       setSuccess("Successfully connected to the broker!");
 
-      // Immediately navigate to dashboard
-      navigate("/dashboard");
-      
+      // Refresh table data
+      const fetchTableData = async () => {
+        try {
+          const response = await fetch("http://localhost:5000/api/brokers", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const mappedData = data.map((item) => ({
+            brokerip: item.brokerIp || "N/A",
+            port: item.portNumber ? item.portNumber.toString() : "N/A",
+            user: item.username || "N/A",
+            password: item.password ? "*".repeat(item.password.length) : "N/A",
+            rawPassword: item.password || "",
+            label: item.label || "N/A",
+          }));
+          setTableData(mappedData);
+        } catch (err) {
+          console.error("Error refreshing table data:", err);
+        }
+      };
+
+      await fetchTableData();
+      navigate("/dashboard", { state: { brokerId: result._id, userId } });
     } catch (err) {
-      navigate("/dashboard");
       console.error("Error connecting to broker:", err);
-      setError(
-        err.message || "An error occurred while connecting to the broker."
-      );
+      setError(err.message || "An error occurred while connecting to the broker.");
     }
   };
 
@@ -187,6 +200,8 @@ const Home = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userEmail");
     setShowModal(false);
     navigate("/");
   };
@@ -204,6 +219,9 @@ const Home = () => {
   return (
     <div className="page-wrapper-left-side">
       <div className={`home-container ${showModal ? "blur-background" : ""}`}>
+        <div className="user-info" style={{ marginBottom: '20px', textAlign: 'center' }}>
+          {/* <h3>Welcome, {userEmail}</h3> */}
+        </div>
         <div className="broker-form">
           <div className="form-group">
             <label htmlFor="brokerIp">Broker IP *:</label>
