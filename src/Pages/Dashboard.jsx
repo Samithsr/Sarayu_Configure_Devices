@@ -17,139 +17,245 @@ const Dashboard = () => {
     stopBit: '1',
   };
 
-  const [formData, setFormData] = useState(defaultValues);
+  const [formBlocks, setFormBlocks] = useState([defaultValues]);
+  const [showMain, setShowMain] = useState(false); // Initially hidden
+  const [brokerId, setBrokerId] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const handleReset = () => {
-    setFormData({
-      ...defaultValues,
+  const handleChange = (index, e) => {
+    const { name, value } = e.target;
+    setFormBlocks((prev) => {
+      const newBlocks = [...prev];
+      newBlocks[index] = { ...newBlocks[index], [name]: value };
+      return newBlocks;
     });
   };
 
+  const handleReset = () => {
+    setFormBlocks((prev) => {
+      if (prev.length > 1) {
+        // Remove the last form block if there are multiple
+        return prev.slice(0, -1);
+      } else {
+        // Clear the only form block to default values
+        return [{ ...defaultValues }];
+      }
+    });
+    setSuccess('');
+    setError('');
+  };
+
   const handleSubmit = () => {
-    console.log('Submitting:', formData);
-    // Add your submit logic here
+    // Validate that all text input fields in all form blocks are non-empty
+    const requiredFields = ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag8'];
+    const isValid = formBlocks.every((block, blockIndex) => {
+      const isBlockValid = requiredFields.every(field => {
+        const isFieldValid = block[field] !== '';
+        if (!isFieldValid) {
+          console.log(`Validation failed: Block ${blockIndex}, Field ${field} is empty`);
+        }
+        return isFieldValid;
+      });
+      return isBlockValid;
+    });
+
+    if (!isValid) {
+      setError('Please fill in all fields before submitting.');
+      setSuccess('');
+      return;
+    }
+
+    console.log('Submitting:', formBlocks);
+    setSuccess('Form submitted successfully!');
+    setError('');
+    // Add your API submission logic here if needed
   };
 
   const handleAdd = () => {
     console.log('Add clicked');
-    // Add your "Add row" logic here
+    setFormBlocks((prev) => [...prev, { ...defaultValues }]);
+  };
+
+  const handlePublishClick = () => {
+    console.log('Publish clicked');
+    setShowMain(true); // Show dashboard-main on Publish click
   };
 
   return (
     <div className="dashboard-layout">
       <div className="dashboard-sidebar">
-        <button className="dashboard-button">Publish</button>
+        <button className="dashboard-button" onClick={handlePublishClick}>Publish</button>
         <button className="dashboard-button">Subscribe</button>
         <button className="dashboard-button">Com Configuration</button>
         <button className="dashboard-button">Wi-Fi</button>
       </div>
 
-      <div className="dashboard-main">
-        <h2>Com Configuration</h2>
+      {showMain && (
+        <div className="dashboard-main">
+          <h2>Com Configuration {brokerId ? `for Broker ${brokerId}` : ''}</h2>
 
-        {/* Row 1 */}
-        <div className="dashboard-form-horizontal">
-          <div className="dashboard-form-group">
-            <label htmlFor="tag1">Tagname:</label>
-            <input type="text" id="tag1" value={formData.tag1} onChange={handleChange} />
+          <div className="form-scroll-area">
+            {formBlocks.map((formData, index) => (
+              <div key={index} className={`form-block ${index !== 0 ? 'form-block-margin' : ''}`}>
+                {/* Row 1 */}
+                <div className="dashboard-form-horizontal">
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`tag1-${index}`}>Tagname:</label>
+                    <input
+                      type="text"
+                      id={`tag1-${index}`}
+                      name="tag1"
+                      value={formData.tag1}
+                      onChange={(e) => handleChange(index, e)}
+                    />
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`tag2-${index}`}>Device ID</label>
+                    <input
+                      type="text"
+                      id={`tag2-${index}`}
+                      name="tag2"
+                      value={formData.tag2}
+                      onChange={(e) => handleChange(index, e)}
+                    />
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`tag3-${index}`}>Slave Id</label>
+                    <input
+                      type="text"
+                      id={`tag3-${index}`}
+                      name="tag3"
+                      value={formData.tag3}
+                      onChange={(e) => handleChange(index, e)}
+                    />
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`tag4-${index}`}>Function Code</label>
+                    <input
+                      type="text"
+                      id={`tag4-${index}`}
+                      name="tag4"
+                      value={formData.tag4}
+                      onChange={(e) => handleChange(index, e)}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2 */}
+                <div className="dashboard-form-horizontal">
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`tag5-${index}`}>Address</label>
+                    <input
+                      type="text"
+                      id={`tag5-${index}`}
+                      name="tag5"
+                      value={formData.tag5}
+                      onChange={(e) => handleChange(index, e)}
+                    />
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`tag6-${index}`}>Length</label>
+                    <input
+                      type="text"
+                      id={`tag6-${index}`}
+                      name="tag6"
+                      value={formData.tag6}
+                      onChange={(e) => handleChange(index, e)}
+                    />
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`tag7-${index}`}>Data Type</label>
+                    <select
+                      id={`tag7-${index}`}
+                      name="tag7"
+                      value={formData.tag7}
+                      onChange={(e) => handleChange(index, e)}
+                    >
+                      <option value="int">int</option>
+                      <option value="float">float</option>
+                    </select>
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`tag8-${index}`}>Scaling</label>
+                    <input
+                      type="text"
+                      id={`tag8-${index}`}
+                      name="tag8"
+                      value={formData.tag8}
+                      onChange={(e) => handleChange(index, e)}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 3 */}
+                <div className="dashboard-form-horizontal">
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`baudRate-${index}`}>Baud Rate</label>
+                    <select
+                      id={`baudRate-${index}`}
+                      name="baudRate"
+                      value={formData.baudRate}
+                      onChange={(e) => handleChange(index, e)}
+                    >
+                      {[110, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 230400, 460800, 921600].map((rate) => (
+                        <option key={rate} value={rate}>{rate}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`dataBit-${index}`}>Data Bit</label>
+                    <select
+                      id={`dataBit-${index}`}
+                      name="dataBit"
+                      value={formData.dataBit}
+                      onChange={(e) => handleChange(index, e)}
+                    >
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                    </select>
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`parity-${index}`}>Parity</label>
+                    <select
+                      id={`parity-${index}`}
+                      name="parity"
+                      value={formData.parity}
+                      onChange={(e) => handleChange(index, e)}
+                    >
+                      {['none', 'even', 'odd', 'mark', 'space'].map((val) => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="dashboard-form-group">
+                    <label htmlFor={`stopBit-${index}`}>Stop Bit</label>
+                    <select
+                      id={`stopBit-${index}`}
+                      name="stopBit"
+                      value={formData.stopBit}
+                      onChange={(e) => handleChange(index, e)}
+                    >
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="tag2">Device ID</label>
-            <input type="text" id="tag2" value={formData.tag2} onChange={handleChange} />
-          </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="tag3">Slave Id</label>
-            <input type="text" id="tag3" value={formData.tag3} onChange={handleChange} />
-          </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="tag4">Function Code</label>
-            <input type="text" id="tag4" value={formData.tag4} onChange={handleChange} />
+
+          <div className="dashboard-form-buttons fixed-buttons">
+            <div className="button-group">
+              <button className="dashboard-action-button" onClick={handleReset}>Reset</button>
+              <button className="dashboard-action-button" onClick={handleSubmit}>Submit</button>
+              <button className="dashboard-action-button" onClick={handleAdd}>Add</button>
+            </div>
+            {error && <p className="error-message">{error}</p>}
+            {success && <p className="success-message">{success}</p>}
           </div>
         </div>
-
-        {/* Row 2 */}
-        <div className="dashboard-form-horizontal">
-          <div className="dashboard-form-group">
-            <label htmlFor="tag5">Address</label>
-            <input type="text" id="tag5" value={formData.tag5} onChange={handleChange} />
-          </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="tag6">Length</label>
-            <input type="text" id="tag6" value={formData.tag6} onChange={handleChange} />
-          </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="tag7">Data Type</label>
-            <select id="tag7" value={formData.tag7} onChange={handleChange}>
-              <option value="int">int</option>
-              <option value="float">float</option>
-            </select>
-          </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="tag8">Scaling</label>
-            <input type="text" id="tag8" value={formData.tag8} onChange={handleChange} />
-          </div>
-        </div>
-
-        {/* Row 3 */}
-        <div className="dashboard-form-horizontal">
-          <div className="dashboard-form-group">
-            <label htmlFor="baudRate">Baud Rate</label>
-            <select id="baudRate" value={formData.baudRate} onChange={handleChange}>
-              <option value="110">110</option>
-              <option value="300">300</option>
-              <option value="600">600</option>
-              <option value="1200">1200</option>
-              <option value="2400">2400</option>
-              <option value="4800">4800</option>
-              <option value="9600">9600</option>
-              <option value="14400">14400</option>
-              <option value="19200">19200</option>
-              <option value="38400">38400</option>
-              <option value="57600">57600</option>
-              <option value="115200">115200</option>
-              <option value="230400">230400</option>
-              <option value="460800">460800</option>
-              <option value="921600">921600</option>
-            </select>
-          </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="dataBit">Data Bit</label>
-            <select id="dataBit" value={formData.dataBit} onChange={handleChange}>
-              <option value="7">7</option>
-              <option value="8">8</option>
-            </select>
-          </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="parity">Parity</label>
-            <select id="parity" value={formData.parity} onChange={handleChange}>
-              <option value="none">none</option>
-              <option value="even">even</option>
-              <option value="odd">odd</option>
-              <option value="mark">mark</option>
-              <option value="space">space</option>
-            </select>
-          </div>
-          <div className="dashboard-form-group">
-            <label htmlFor="stopBit">Stop Bit</label>
-            <select id="stopBit" value={formData.stopBit} onChange={handleChange}>
-              <option value="1">1</option>
-              <option value="2">2</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Bottom Buttons */}
-        <div className="dashboard-form-buttons">
-          <button className="dashboard-action-button" onClick={handleReset}>Reset</button>
-          <button className="dashboard-action-button" onClick={handleSubmit}>Submit</button>
-          <button className="dashboard-action-button" onClick={handleAdd}>Add</button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

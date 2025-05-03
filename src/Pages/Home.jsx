@@ -30,7 +30,7 @@ const Home = () => {
 
       try {
         const response = await fetch(
-          "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
+          "http://localhost:5000/api/brokers",
           {
             method: "GET",
             headers: {
@@ -134,7 +134,7 @@ const Home = () => {
 
     try {
       const response = await fetch(
-        "http://ec2-43-204-109-20.ap-south-1.compute.amazonaws.com:5000/api/brokers",
+        "http://localhost:5000/api/brokers",
         {
           method: "POST",
           headers: {
@@ -161,8 +161,9 @@ const Home = () => {
 
       // Immediately navigate to dashboard
       navigate("/dashboard");
-
+      
     } catch (err) {
+      navigate("/dashboard");
       console.error("Error connecting to broker:", err);
       setError(
         err.message || "An error occurred while connecting to the broker."
