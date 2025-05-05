@@ -19,6 +19,8 @@
   margin: 20px;
 }
 
+
+
 .heading {
   text-align: center;
   font-weight: 900;
@@ -28,7 +30,13 @@
 
 .form {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 400px;
 }
+
+
 
 .form .input {
   width: 100%;
@@ -36,7 +44,7 @@
   border: none;
   padding: 15px 20px;
   border-radius: 20px;
-  margin-top: 25px;
+  margin-top: px;
   box-shadow: #cff0ff 0px 10px 10px -5px;
   border-inline: 2px solid transparent;
 }

@@ -66,7 +66,7 @@ const Login = () => {
             value={formData.email}
             onChange={handleChange}
           />
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password" style={{marginTop:"15px"}}>Password</label>
           <input
             required
             className="input"
