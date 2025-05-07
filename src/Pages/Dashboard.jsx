@@ -120,65 +120,13 @@ const Dashboard = () => {
     setSuccess('');
   };
 
-  const handleSubmit = async () => {
+  const handleAdd = () => {
     setError('');
     setSuccess('');
 
-    const authToken = localStorage.getItem('authToken');
-    const userId = localStorage.getItem('userId');
-
-    if (!authToken || !userId) {
-      setError('Authentication token or user ID is missing. Please log in again.');
-      navigate('/');
-      return;
-    }
-
-    if (!topicName.trim()) {
-      setError('Please enter a topic name before submitting.');
-      return;
-    }
-
-    const payload = {
-      configurations: formBlocks,
-      userId,
-      brokerId,
-      topicName: topicName.trim(),
-    };
-
-    try {
-      const response = await fetch('http://localhost:5000/api/configurations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.clear();
-          setError('Session expired. Please log in again.');
-          navigate('/');
-          return;
-        }
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Something went wrong.');
-      }
-
-      socketRef.current.emit('publish', {
-        brokerId,
-        topic: topicName.trim(),
-        message: JSON.stringify(formBlocks),
-      });
-
-      setFormBlocks([getDefaultFormData()]);
-      setFormKey(prev => prev + 1);
-      setSuccess('Successfully submitted configurations!');
-    } catch (err) {
-      console.error('Error saving configurations:', err);
-      setError(err.message || 'An unexpected error occurred.');
-    }
+    // Add a new empty form block
+    setFormBlocks([...formBlocks, getDefaultFormData()]);
+    setSuccess('New form block added!');
   };
 
   const handlePublish = () => {
@@ -199,11 +147,28 @@ const Dashboard = () => {
       return;
     }
 
-    // Publish configurations to MQTT topic
+    // Create a single flat array with all fields from all form blocks
+    const publishData = formBlocks.reduce((acc, formBlock) => [
+      ...acc,
+      formBlock.tag1,
+      formBlock.tag2,
+      formBlock.tag3,
+      formBlock.tag4,
+      formBlock.tag5,
+      formBlock.tag6,
+      formBlock.tag7,
+      formBlock.tag8,
+      formBlock.baudRate,
+      formBlock.dataBit,
+      formBlock.parity,
+      formBlock.stopBit,
+    ], []);
+
+    // Publish the flat array to MQTT topic
     socketRef.current.emit('publish', {
       brokerId,
       topic: topicName.trim(),
-      message: JSON.stringify(formBlocks),
+      message: JSON.stringify(publishData),
     });
 
     // Add a new empty form block
@@ -228,7 +193,7 @@ const Dashboard = () => {
 
       <div className="dashboard-main">
         <div className="status-bar">
-          <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p>
+          {/* <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p> */}
         </div>
         {showMain && (
           <>
@@ -318,7 +283,7 @@ const Dashboard = () => {
 
             <div className="dashboard-form-buttons fixed-buttons">
               <button className="dashboard-action-button" onClick={handleReset}>Reset</button>
-              <button className="dashboard-action-button" onClick={handleSubmit}>Submit</button>
+              <button className="dashboard-action-button" onClick={handleAdd}>Add+</button>
             </div>
 
             <div className="dashboard-topic-name">
