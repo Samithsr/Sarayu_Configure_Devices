@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import { useLocation, useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
 
 const getDefaultFormData = () => ({
   tag1: '',
@@ -25,9 +26,13 @@ const Dashboard = () => {
   const [success, setSuccess] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [topicName, setTopicName] = useState('');
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const location = useLocation();
   const navigate = useNavigate();
   const { brokerId } = location.state || {};
+  const socket = io('http://localhost:5000', {
+    auth: { token: `Bearer ${localStorage.getItem('authToken')}` },
+  });
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -41,7 +46,37 @@ const Dashboard = () => {
     }
 
     setUserEmail(email || 'User');
-  }, [navigate]);
+
+    // Socket.IO event listeners
+    socket.on('connect', () => {
+      console.log('Socket.IO connected');
+    });
+
+    socket.on('mqtt_status', ({ brokerId: receivedBrokerId, status }) => {
+      if (receivedBrokerId === brokerId) {
+        setConnectionStatus(status);
+      }
+    });
+
+    socket.on('subscribed', ({ topic, brokerId: receivedBrokerId }) => {
+      if (receivedBrokerId === brokerId) {
+        setSuccess(`Subscribed to topic ${topic}`);
+      }
+    });
+
+    socket.on('error', ({ message, brokerId: receivedBrokerId }) => {
+      if (receivedBrokerId === brokerId) {
+        setError(message);
+      }
+    });
+
+    return () => {
+      socket.off('connect');
+      socket.off('mqtt_status');
+      socket.off('subscribed');
+      socket.off('error');
+    };
+  }, [navigate, socket, brokerId]);
 
   const handleChange = (index, e) => {
     const { id, value } = e.target;
@@ -108,8 +143,10 @@ const Dashboard = () => {
 
       setFormBlocks([getDefaultFormData()]);
       setFormKey(prev => prev + 1);
-      setTopicName('');
-      setSuccess('Successfully submitted!');
+      setSuccess('Successfully submitted configurations!');
+
+      // Automatically subscribe to the topic after submission
+      socket.emit('subscribe', { brokerId, topic: topicName.trim() });
     } catch (err) {
       console.error('Error saving configurations:', err);
       setError(err.message || 'An unexpected error occurred.');
@@ -138,6 +175,9 @@ const Dashboard = () => {
       </div>
 
       <div className="dashboard-main">
+        <div className="status-bar">
+          <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p>
+        </div>
         {showMain && (
           <>
             <h2>Com Configuration</h2>
@@ -147,7 +187,6 @@ const Dashboard = () => {
             <div className="form-scroll-area" key={formKey}>
               {formBlocks.map((formData, index) => (
                 <div key={index} className={`form-block ${index !== 0 ? 'form-block-margin' : ''}`}>
-                  {/* First row */}
                   <div className="dashboard-form-horizontal">
                     <div className="dashboard-form-group">
                       <label htmlFor="tag1">Tagname:</label>
@@ -167,7 +206,6 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Second row */}
                   <div className="dashboard-form-horizontal">
                     <div className="dashboard-form-group">
                       <label htmlFor="tag5">Address</label>
@@ -190,7 +228,6 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Third row */}
                   <div className="dashboard-form-horizontal">
                     <div className="dashboard-form-group">
                       <label htmlFor="baudRate">Baud Rate</label>

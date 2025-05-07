@@ -3,6 +3,7 @@ import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
 import RightSideTable from "../Pages/RightSideTable";
+import io from "socket.io-client";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -18,7 +19,17 @@ const Home = () => {
   const [status, setStatus] = useState("");
   const [tableData, setTableData] = useState([]);
   const [userEmail, setUserEmail] = useState("");
+  const [connectionStatuses, setConnectionStatuses] = useState({});
   const navigate = useNavigate();
+  const socket = io("http://localhost:5000", {
+    auth: { token: `Bearer ${localStorage.getItem("authToken")}` },
+  });
+
+  // Validate IPv4 address
+  const isValidIPv4 = (ip) => {
+    const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    return ipv4Regex.test(ip);
+  };
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -56,12 +67,14 @@ const Home = () => {
 
         const data = await response.json();
         const mappedData = data.map((item) => ({
+          brokerId: item._id,
           brokerip: item.brokerIp || "N/A",
           port: item.portNumber ? item.portNumber.toString() : "N/A",
           user: item.username || "N/A",
           password: item.password ? "*".repeat(item.password.length) : "N/A",
           rawPassword: item.password || "",
           label: item.label || "N/A",
+          connectionStatus: item.connectionStatus || "disconnected",
         }));
 
         setTableData(mappedData);
@@ -72,7 +85,43 @@ const Home = () => {
     };
 
     fetchTableData();
-  }, [navigate]);
+
+    socket.on("connect", () => {
+      console.log("Socket.IO connected");
+    });
+
+    socket.on("mqtt_status", ({ brokerId, status }) => {
+      setConnectionStatuses((prev) => ({ ...prev, [brokerId]: status }));
+      setTableData((prev) =>
+        prev.map((row) =>
+          row.brokerId === brokerId ? { ...row, connectionStatus: status } : row
+        )
+      );
+      if (status === "connected") {
+        setSuccess(`Broker ${brokerId} connected successfully!`);
+        socket.emit("subscribe", { brokerId, topic: "default/topic" });
+      } else if (status === "error") {
+        setError(`Failed to connect to broker ${brokerId}.`);
+      } else if (status === "disconnected") {
+        setError(`Broker ${brokerId} disconnected.`);
+      }
+    });
+
+    socket.on("subscribed", ({ topic, brokerId }) => {
+      setSuccess(`Subscribed to topic ${topic} for broker ${brokerId}`);
+    });
+
+    socket.on("error", ({ message, brokerId }) => {
+      setError(message);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("mqtt_status");
+      socket.off("subscribed");
+      socket.off("error");
+    };
+  }, [navigate, socket]);
 
   const handleInputChange = (e) => {
     setError("");
@@ -83,9 +132,26 @@ const Home = () => {
   };
 
   const validateForm = () => {
-    if (!formData.brokerIp) return setError("Broker IP is required."), false;
-    if (!formData.portNumber) return setError("Port is required."), false;
-    if (!formData.label) return setError("Label is required."), false;
+    if (!formData.brokerIp) {
+      setError("Broker IP is required.");
+      return false;
+    }
+    if (!isValidIPv4(formData.brokerIp)) {
+      setError("Invalid IP address format. Please enter a valid IPv4 address (e.g., 192.168.1.100).");
+      return false;
+    }
+    if (!formData.portNumber) {
+      setError("Port is required.");
+      return false;
+    }
+    if (isNaN(formData.portNumber) || formData.portNumber < 1 || formData.portNumber > 65535) {
+      setError("Port must be a number between 1 and 65535.");
+      return false;
+    }
+    if (!formData.label) {
+      setError("Label is required.");
+      return false;
+    }
     return true;
   };
 
@@ -118,7 +184,7 @@ const Home = () => {
 
       return true;
     } catch (err) {
-      setError(err.message || "Broker IP is not available. Please check the IP and port.");
+      setError(err.message || "Broker is not available. Please check the IP and port.");
       return false;
     }
   };
@@ -133,7 +199,6 @@ const Home = () => {
       return;
     }
 
-    // Test broker availability
     const isAvailable = await testBrokerAvailability();
     if (!isAvailable) {
       setStatus("");
@@ -182,10 +247,8 @@ const Home = () => {
       }
 
       const result = await response.json();
-      setSuccess("Successfully connected to the broker!");
       setStatus("");
 
-      // Fetch the updated brokers list
       const dataResponse = await fetch("http://localhost:5000/api/brokers", {
         headers: {
           "Content-Type": "application/json",
@@ -195,16 +258,17 @@ const Home = () => {
 
       const data = await dataResponse.json();
       const mappedData = data.map((item) => ({
+        brokerId: item._id,
         brokerip: item.brokerIp || "N/A",
         port: item.portNumber ? item.portNumber.toString() : "N/A",
         user: item.username || "N/A",
         password: item.password ? "*".repeat(item.password.length) : "N/A",
         rawPassword: item.password || "",
         label: item.label || "N/A",
+        connectionStatus: item.connectionStatus || "disconnected",
       }));
       setTableData(mappedData);
 
-      // Navigate to dashboard
       navigate("/dashboard", { state: { brokerId: result._id, userId } });
     } catch (err) {
       console.error("Connection error:", err);
@@ -225,6 +289,7 @@ const Home = () => {
 
   const handleLogoutClick = () => setShowModal(true);
   const handleLogout = () => {
+    socket.disconnect();
     localStorage.clear();
     setShowModal(false);
     navigate("/");
@@ -250,6 +315,7 @@ const Home = () => {
               value={formData.brokerIp}
               onChange={handleInputChange}
               onKeyUp={(e) => handleKeyDown(e, "portNumber")}
+              placeholder="e.g., 192.168.1.100"
             />
           </div>
           <div className="form-group">
@@ -261,6 +327,8 @@ const Home = () => {
               value={formData.portNumber}
               onChange={handleInputChange}
               onKeyUp={(e) => handleKeyDown(e, "username")}
+              min="1"
+              max="65535"
             />
           </div>
           <div className="form-group">
@@ -313,7 +381,13 @@ const Home = () => {
       </div>
 
       <LogoutModal isOpen={showModal} onConfirm={handleLogout} onCancel={handleCancel} />
-      <RightSideTable tableData={tableData} onAssign={handleAssign} />
+      <RightSideTable
+        tableData={tableData.map((row) => ({
+          ...row,
+          connectionStatus: connectionStatuses[row.brokerId] || row.connectionStatus,
+        }))}
+        onAssign={handleAssign}
+      />
     </div>
   );
 };
