@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
 import RightSideTable from "../Pages/RightSideTable";
 import io from "socket.io-client";
+
+// Initialize socket outside component to ensure single instance
+const socket = io("http://localhost:5000", {
+  auth: { token: `Bearer ${localStorage.getItem("authToken")}` },
+  autoConnect: false, // Prevent auto-connect until component mounts
+});
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -21,9 +27,7 @@ const Home = () => {
   const [userEmail, setUserEmail] = useState("");
   const [connectionStatuses, setConnectionStatuses] = useState({});
   const navigate = useNavigate();
-  const socket = io("http://localhost:5000", {
-    auth: { token: `Bearer ${localStorage.getItem("authToken")}` },
-  });
+  const socketRef = useRef(socket); // Use ref to maintain socket instance
 
   // Validate IPv4 address
   const isValidIPv4 = (ip) => {
@@ -32,6 +36,51 @@ const Home = () => {
   };
 
   useEffect(() => {
+    // Update socket auth token in case it changes
+    socketRef.current.auth.token = `Bearer ${localStorage.getItem("authToken")}`;
+
+    // Connect socket only once on mount
+    socketRef.current.connect();
+
+    // Socket event handlers
+    socketRef.current.on("connect", () => {
+      console.log("Socket.IO connected:", socketRef.current.id);
+    });
+
+    socketRef.current.on("error", ({ message }) => {
+      console.error("Socket error:", message);
+      setError(message);
+      if (message.includes("Another session is active")) {
+        // Stop further connection attempts and alert user
+        socketRef.current.disconnect();
+        alert("Another session is active. Please close other tabs or sessions and try again.");
+      }
+    });
+
+    socketRef.current.on("disconnect", () => {
+      console.log("Socket.IO disconnected");
+    });
+
+    socketRef.current.on("broker_status", ({ brokerId, status }) => {
+      setConnectionStatuses((prev) => ({ ...prev, [brokerId]: status }));
+      setTableData((prev) =>
+        prev.map((row) =>
+          row.brokerId === brokerId ? { ...row, connectionStatus: status } : row
+        )
+      );
+      if (status === "connected") {
+        setSuccess(`Broker ${brokerId} connected successfully!`);
+        socketRef.current.emit("subscribe", { brokerId, topic: "default/topic" });
+      } else if (status === "disconnected") {
+        setError(`Broker ${brokerId} disconnected.`);
+      }
+    });
+
+    socketRef.current.on("subscribed", ({ topic, brokerId }) => {
+      setSuccess(`Subscribed to topic ${topic} for broker ${brokerId}`);
+    });
+
+    // Fetch table data
     const fetchTableData = async () => {
       const authToken = localStorage.getItem("authToken");
       const userId = localStorage.getItem("userId");
@@ -86,42 +135,16 @@ const Home = () => {
 
     fetchTableData();
 
-    socket.on("connect", () => {
-      console.log("Socket.IO connected");
-    });
-
-    socket.on("mqtt_status", ({ brokerId, status }) => {
-      setConnectionStatuses((prev) => ({ ...prev, [brokerId]: status }));
-      setTableData((prev) =>
-        prev.map((row) =>
-          row.brokerId === brokerId ? { ...row, connectionStatus: status } : row
-        )
-      );
-      if (status === "connected") {
-        setSuccess(`Broker ${brokerId} connected successfully!`);
-        socket.emit("subscribe", { brokerId, topic: "default/topic" });
-      } else if (status === "error") {
-        setError(`Failed to connect to broker ${brokerId}.`);
-      } else if (status === "disconnected") {
-        setError(`Broker ${brokerId} disconnected.`);
-      }
-    });
-
-    socket.on("subscribed", ({ topic, brokerId }) => {
-      setSuccess(`Subscribed to topic ${topic} for broker ${brokerId}`);
-    });
-
-    socket.on("error", ({ message, brokerId }) => {
-      setError(message);
-    });
-
+    // Cleanup on unmount
     return () => {
-      socket.off("connect");
-      socket.off("mqtt_status");
-      socket.off("subscribed");
-      socket.off("error");
+      socketRef.current.off("connect");
+      socketRef.current.off("error");
+      socketRef.current.off("disconnect");
+      socketRef.current.off("broker_status");
+      socketRef.current.off("subscribed");
+      socketRef.current.disconnect();
     };
-  }, [navigate, socket]);
+  }, [navigate]);
 
   const handleInputChange = (e) => {
     setError("");
@@ -249,6 +272,9 @@ const Home = () => {
       const result = await response.json();
       setStatus("");
 
+      // Emit connect_broker event to initiate MQTT connection
+      socketRef.current.emit("connect_broker", { brokerId: result._id });
+
       const dataResponse = await fetch("http://localhost:5000/api/brokers", {
         headers: {
           "Content-Type": "application/json",
@@ -285,11 +311,13 @@ const Home = () => {
       password: row.rawPassword,
       label: row.label !== "N/A" ? row.label : "",
     });
+    // Emit connect_broker event for existing broker
+    socketRef.current.emit("connect_broker", { brokerId: row.brokerId });
   };
 
   const handleLogoutClick = () => setShowModal(true);
   const handleLogout = () => {
-    socket.disconnect();
+    socketRef.current.disconnect();
     localStorage.clear();
     setShowModal(false);
     navigate("/");
