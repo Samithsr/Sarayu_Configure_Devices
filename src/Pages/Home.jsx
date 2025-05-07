@@ -3,13 +3,7 @@ import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
 import RightSideTable from "../Pages/RightSideTable";
-import io from "socket.io-client";
-
-// Initialize socket outside component to ensure single instance
-const socket = io("http://localhost:5000", {
-  auth: { token: `Bearer ${localStorage.getItem("authToken")}` },
-  autoConnect: false, // Prevent auto-connect until component mounts
-});
+import socket from "../Pages/Socket"; // Import shared socket
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -27,7 +21,7 @@ const Home = () => {
   const [userEmail, setUserEmail] = useState("");
   const [connectionStatuses, setConnectionStatuses] = useState({});
   const navigate = useNavigate();
-  const socketRef = useRef(socket); // Use ref to maintain socket instance
+  const socketRef = useRef(socket);
 
   // Validate IPv4 address
   const isValidIPv4 = (ip) => {
@@ -36,10 +30,10 @@ const Home = () => {
   };
 
   useEffect(() => {
-    // Update socket auth token in case it changes
+    // Update socket auth token
     socketRef.current.auth.token = `Bearer ${localStorage.getItem("authToken")}`;
 
-    // Connect socket only once on mount
+    // Connect socket
     socketRef.current.connect();
 
     // Socket event handlers
@@ -51,7 +45,6 @@ const Home = () => {
       console.error("Socket error:", message);
       setError(message);
       if (message.includes("Another session is active")) {
-        // Stop further connection attempts and alert user
         socketRef.current.disconnect();
         alert("Another session is active. Please close other tabs or sessions and try again.");
       }
@@ -135,14 +128,14 @@ const Home = () => {
 
     fetchTableData();
 
-    // Cleanup on unmount
+    // Cleanup: Do not disconnect socket to maintain connection
     return () => {
       socketRef.current.off("connect");
       socketRef.current.off("error");
       socketRef.current.off("disconnect");
       socketRef.current.off("broker_status");
       socketRef.current.off("subscribed");
-      socketRef.current.disconnect();
+      // Do not disconnect: socketRef.current.disconnect();
     };
   }, [navigate]);
 
@@ -311,7 +304,6 @@ const Home = () => {
       password: row.rawPassword,
       label: row.label !== "N/A" ? row.label : "",
     });
-    // Emit connect_broker event for existing broker
     socketRef.current.emit("connect_broker", { brokerId: row.brokerId });
   };
 

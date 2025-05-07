@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Dashboard.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import io from 'socket.io-client';
+import socket from '../Pages/Socket'; // Import shared socket
 
 const getDefaultFormData = () => ({
   tag1: '',
@@ -30,9 +30,7 @@ const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { brokerId } = location.state || {};
-  const socket = io('http://localhost:5000', {
-    auth: { token: `Bearer ${localStorage.getItem('authToken')}` },
-  });
+  const socketRef = useRef(socket);
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -47,36 +45,63 @@ const Dashboard = () => {
 
     setUserEmail(email || 'User');
 
+    // Update socket auth token
+    socketRef.current.auth.token = `Bearer ${authToken}`;
+
+    // Ensure socket is connected
+    if (!socketRef.current.connected) {
+      socketRef.current.connect();
+    }
+
     // Socket.IO event listeners
-    socket.on('connect', () => {
-      console.log('Socket.IO connected');
+    socketRef.current.on('connect', () => {
+      console.log('Socket.IO connected:', socketRef.current.id);
+      if (brokerId) {
+        socketRef.current.emit('connect_broker', { brokerId });
+      }
     });
 
-    socket.on('mqtt_status', ({ brokerId: receivedBrokerId, status }) => {
+    socketRef.current.on('error', ({ message }) => {
+      console.error('Socket error:', message);
+      setError(message);
+      if (message.includes('Another session is active')) {
+        socketRef.current.disconnect();
+        alert('Another session is active. Please close other tabs or sessions and try again.');
+      }
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('Socket.IO disconnected');
+    });
+
+    socketRef.current.on('mqtt_status', ({ brokerId: receivedBrokerId, status }) => {
       if (receivedBrokerId === brokerId) {
         setConnectionStatus(status);
       }
     });
 
-    socket.on('subscribed', ({ topic, brokerId: receivedBrokerId }) => {
+    socketRef.current.on('subscribed', ({ topic, brokerId: receivedBrokerId }) => {
       if (receivedBrokerId === brokerId) {
         setSuccess(`Subscribed to topic ${topic}`);
       }
     });
 
-    socket.on('error', ({ message, brokerId: receivedBrokerId }) => {
+    socketRef.current.on('published', ({ topic, brokerId: receivedBrokerId }) => {
       if (receivedBrokerId === brokerId) {
-        setError(message);
+        setSuccess(`Published configurations to topic ${topic}`);
       }
     });
 
     return () => {
-      socket.off('connect');
-      socket.off('mqtt_status');
-      socket.off('subscribed');
-      socket.off('error');
+      socketRef.current.off('connect');
+      socketRef.current.off('error');
+      socketRef.current.off('disconnect');
+      socketRef.current.off('mqtt_status');
+      socketRef.current.off('subscribed');
+      socketRef.current.off('published');
+      // Do not disconnect: socketRef.current.disconnect();
     };
-  }, [navigate, socket, brokerId]);
+  }, [navigate, brokerId]);
 
   const handleChange = (index, e) => {
     const { id, value } = e.target;
@@ -141,22 +166,49 @@ const Dashboard = () => {
         throw new Error(errorData.message || 'Something went wrong.');
       }
 
+      socketRef.current.emit('publish', {
+        brokerId,
+        topic: topicName.trim(),
+        message: JSON.stringify(formBlocks),
+      });
+
       setFormBlocks([getDefaultFormData()]);
       setFormKey(prev => prev + 1);
       setSuccess('Successfully submitted configurations!');
-
-      // Automatically subscribe to the topic after submission
-      socket.emit('subscribe', { brokerId, topic: topicName.trim() });
     } catch (err) {
       console.error('Error saving configurations:', err);
       setError(err.message || 'An unexpected error occurred.');
     }
   };
 
-  const handleAdd = () => {
-    setFormBlocks([...formBlocks, getDefaultFormData()]);
+  const handlePublish = () => {
     setError('');
     setSuccess('');
+
+    const authToken = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+
+    if (!authToken || !userId) {
+      setError('Authentication token or user ID is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    if (!topicName.trim()) {
+      setError('Please enter a topic name before publishing.');
+      return;
+    }
+
+    // Publish configurations to MQTT topic
+    socketRef.current.emit('publish', {
+      brokerId,
+      topic: topicName.trim(),
+      message: JSON.stringify(formBlocks),
+    });
+
+    // Add a new empty form block
+    setFormBlocks([...formBlocks, getDefaultFormData()]);
+    setSuccess('Successfully published configurations!');
   };
 
   const handlePublishClick = () => {
@@ -267,7 +319,6 @@ const Dashboard = () => {
             <div className="dashboard-form-buttons fixed-buttons">
               <button className="dashboard-action-button" onClick={handleReset}>Reset</button>
               <button className="dashboard-action-button" onClick={handleSubmit}>Submit</button>
-              <button className="dashboard-action-button" onClick={handleAdd}>Add</button>
             </div>
 
             <div className="dashboard-topic-name">
@@ -279,7 +330,7 @@ const Dashboard = () => {
                 value={topicName}
                 onChange={(e) => setTopicName(e.target.value)}
               />
-              <button onClick={handleSubmit}>Add</button>
+              <button onClick={handlePublish}>Publish</button>
             </div>
           </>
         )}
