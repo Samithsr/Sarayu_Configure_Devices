@@ -46,7 +46,7 @@ const Dashboard = () => {
     setUserEmail(email || 'User');
 
     // Update socket auth token
-    socketRef.current.auth.token = `Bearer ${authToken}`;
+    socketRef.current.auth = { token: `Bearer ${authToken}` };
 
     // Ensure socket is connected
     if (!socketRef.current.connected) {
@@ -63,20 +63,28 @@ const Dashboard = () => {
 
     socketRef.current.on('error', ({ message }) => {
       console.error('Socket error:', message);
-      setError(message);
       if (message.includes('Another session is active')) {
         socketRef.current.disconnect();
-        alert('Another session is active. Please close other tabs or sessions and try again.');
+        setError('Another session is active. Please close other tabs or sessions and try again.');
+      } else {
+        setError(`Socket error: ${message}`);
       }
     });
 
     socketRef.current.on('disconnect', () => {
       console.log('Socket.IO disconnected');
+      setConnectionStatus('disconnected');
     });
 
     socketRef.current.on('mqtt_status', ({ brokerId: receivedBrokerId, status }) => {
       if (receivedBrokerId === brokerId) {
+        console.log(`MQTT status for broker ${receivedBrokerId}: ${status}`);
         setConnectionStatus(status);
+        if (status === 'error' || status === 'disconnected') {
+          setError('Failed to connect to the selected broker. Please check the broker configuration or try another broker.');
+        }
+      } else {
+        console.log(`Ignoring MQTT status for unselected broker ${receivedBrokerId}: ${status}`);
       }
     });
 
@@ -120,7 +128,7 @@ const Dashboard = () => {
     setSuccess('');
   };
 
-  const handleAdd = () => {
+  const handleSubmit = () => {
     setError('');
     setSuccess('');
 
@@ -147,7 +155,12 @@ const Dashboard = () => {
       return;
     }
 
-    // Create a single flat array with all fields from all form blocks
+    if (connectionStatus !== 'connected') {
+      setError('Cannot publish: Broker is not connected. Please check the broker status.');
+      return;
+    }
+
+    // Create a single flat array with all 12 fields from all form blocks
     const publishData = formBlocks.reduce((acc, formBlock) => [
       ...acc,
       formBlock.tag1,
@@ -170,10 +183,6 @@ const Dashboard = () => {
       topic: topicName.trim(),
       message: JSON.stringify(publishData),
     });
-
-    // Add a new empty form block
-    setFormBlocks([...formBlocks, getDefaultFormData()]);
-    setSuccess('Successfully published configurations!');
   };
 
   const handlePublishClick = () => {
@@ -283,7 +292,7 @@ const Dashboard = () => {
 
             <div className="dashboard-form-buttons fixed-buttons">
               <button className="dashboard-action-button" onClick={handleReset}>Reset</button>
-              <button className="dashboard-action-button" onClick={handleAdd}>Add+</button>
+              <button className="dashboard-action-button" onClick={handleSubmit}>Add+</button>
             </div>
 
             <div className="dashboard-topic-name">
