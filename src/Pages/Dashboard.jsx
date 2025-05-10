@@ -37,8 +37,8 @@ const Dashboard = () => {
     const email = localStorage.getItem('userEmail');
     const authToken = localStorage.getItem('authToken');
 
-    if (!authToken || !userId) {
-      setError('Authentication token or user ID is missing. Please log in again.');
+    if (!authToken || !userId || !brokerId) {
+      setError('Authentication token, user ID, or broker ID is missing. Please log in again.');
       navigate('/');
       return;
     }
@@ -46,7 +46,7 @@ const Dashboard = () => {
     setUserEmail(email || 'User');
 
     // Update socket auth token
-    socketRef.current.auth = { token: `Bearer ${authToken}` };
+    socketRef.current.auth = { token: `Bearer ${authToken}`, userId, brokerId };
 
     // Ensure socket is connected
     if (!socketRef.current.connected) {
@@ -55,48 +55,50 @@ const Dashboard = () => {
 
     // Socket.IO event listeners
     socketRef.current.on('connect', () => {
-      console.log('Socket.IO connected:', socketRef.current.id);
-      if (brokerId) {
-        socketRef.current.emit('connect_broker', { brokerId });
-      }
+      console.log(`Socket.IO connected for user ${userId}, broker ${brokerId}:`, socketRef.current.id);
+      socketRef.current.emit('connect_broker', { brokerId, userId });
     });
 
-    socketRef.current.on('error', ({ message }) => {
-      console.error('Socket error:', message);
-      if (message.includes('Another session is active')) {
-        socketRef.current.disconnect();
-        setError('Another session is active. Please close other tabs or sessions and try again.');
-      } else {
-        setError(`Socket error: ${message}`);
+    socketRef.current.on('error', ({ message, brokerId: receivedBrokerId }) => {
+      if (receivedBrokerId === brokerId) {
+        console.error(`Socket error for user ${userId}, broker ${brokerId}: ${message}`);
+        setError(message);
+        if (message.includes('Another session is active')) {
+          socketRef.current.disconnect();
+          alert('Another session is active for this user. Please close other tabs or sessions.');
+        }
       }
     });
 
     socketRef.current.on('disconnect', () => {
-      console.log('Socket.IO disconnected');
-      setConnectionStatus('disconnected');
+      console.log(`Socket.IO disconnected for user ${userId}, broker ${brokerId}`);
     });
 
     socketRef.current.on('mqtt_status', ({ brokerId: receivedBrokerId, status }) => {
       if (receivedBrokerId === brokerId) {
-        console.log(`MQTT status for broker ${receivedBrokerId}: ${status}`);
+        console.log(`MQTT status update for user ${userId}, broker ${brokerId}: ${status}`);
         setConnectionStatus(status);
-        if (status === 'error' || status === 'disconnected') {
-          setError('Failed to connect to the selected broker. Please check the broker configuration or try another broker.');
-        }
-      } else {
-        console.log(`Ignoring MQTT status for unselected broker ${receivedBrokerId}: ${status}`);
       }
     });
 
     socketRef.current.on('subscribed', ({ topic, brokerId: receivedBrokerId }) => {
       if (receivedBrokerId === brokerId) {
+        console.log(`Subscribed to topic ${topic} for user ${userId}, broker ${brokerId}`);
         setSuccess(`Subscribed to topic ${topic}`);
       }
     });
 
     socketRef.current.on('published', ({ topic, brokerId: receivedBrokerId }) => {
       if (receivedBrokerId === brokerId) {
+        console.log(`Published to topic ${topic} for user ${userId}, broker ${brokerId}`);
         setSuccess(`Published configurations to topic ${topic}`);
+      }
+    });
+
+    socketRef.current.on('mqtt_message', ({ topic, message, brokerId: receivedBrokerId }) => {
+      if (receivedBrokerId === brokerId) {
+        console.log(`Received MQTT message on topic ${topic} for user ${userId}, broker ${brokerId}: ${message}`);
+        setSuccess(`Received message on topic ${topic}: ${message}`);
       }
     });
 
@@ -107,7 +109,7 @@ const Dashboard = () => {
       socketRef.current.off('mqtt_status');
       socketRef.current.off('subscribed');
       socketRef.current.off('published');
-      // Do not disconnect: socketRef.current.disconnect();
+      socketRef.current.off('mqtt_message');
     };
   }, [navigate, brokerId]);
 
@@ -128,11 +130,9 @@ const Dashboard = () => {
     setSuccess('');
   };
 
-  const handleSubmit = () => {
+  const handleAdd = () => {
     setError('');
     setSuccess('');
-
-    // Add a new empty form block
     setFormBlocks([...formBlocks, getDefaultFormData()]);
     setSuccess('New form block added!');
   };
@@ -155,12 +155,17 @@ const Dashboard = () => {
       return;
     }
 
-    if (connectionStatus !== 'connected') {
-      setError('Cannot publish: Broker is not connected. Please check the broker status.');
+    // Validate form blocks
+    const isValid = formBlocks.every(block =>
+      Object.values(block).every(value => value !== '')
+    );
+
+    if (!isValid) {
+      setError('Please fill in all fields before publishing.');
       return;
     }
 
-    // Create a single flat array with all 12 fields from all form blocks
+    // Create a single flat array with all fields from all form blocks
     const publishData = formBlocks.reduce((acc, formBlock) => [
       ...acc,
       formBlock.tag1,
@@ -178,17 +183,20 @@ const Dashboard = () => {
     ], []);
 
     // Publish the flat array to MQTT topic
+    console.log(`Emitting publish for user ${userId}, broker ${brokerId}, topic ${topicName}`);
     socketRef.current.emit('publish', {
       brokerId,
       topic: topicName.trim(),
       message: JSON.stringify(publishData),
+      userId,
     });
+
+    setSuccess('Successfully published configurations!');
   };
 
   const handlePublishClick = () => {
-    setShowMain(true);
-    setError('');
-    setSuccess('');
+    setShowMain(true); // Show the form
+    handlePublish(); // Trigger the publish action
   };
 
   return (
@@ -202,7 +210,7 @@ const Dashboard = () => {
 
       <div className="dashboard-main">
         <div className="status-bar">
-          {/* <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p> */}
+          <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p>
         </div>
         {showMain && (
           <>
@@ -292,7 +300,7 @@ const Dashboard = () => {
 
             <div className="dashboard-form-buttons fixed-buttons">
               <button className="dashboard-action-button" onClick={handleReset}>Reset</button>
-              <button className="dashboard-action-button" onClick={handleSubmit}>Add+</button>
+              <button className="dashboard-action-button" onClick={handleAdd}>Add+</button>
             </div>
 
             <div className="dashboard-topic-name">
