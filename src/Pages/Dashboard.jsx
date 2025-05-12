@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [userEmail, setUserEmail] = useState('');
   const [topicName, setTopicName] = useState('');
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [connectionError, setConnectionError] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
   const { brokerId } = location.state || {};
@@ -63,21 +64,33 @@ const Dashboard = () => {
       if (receivedBrokerId === brokerId) {
         console.error(`Socket error for user ${userId}, broker ${brokerId}: ${message}`);
         setError(message);
+        setConnectionError(message);
         if (message.includes('Another session is active')) {
           socketRef.current.disconnect();
           alert('Another session is active for this user. Please close other tabs or sessions.');
+          navigate('/');
         }
       }
     });
 
     socketRef.current.on('disconnect', () => {
       console.log(`Socket.IO disconnected for user ${userId}, broker ${brokerId}`);
+      setConnectionStatus('disconnected');
+      setConnectionError('Socket connection lost. Please check your network.');
     });
 
     socketRef.current.on('mqtt_status', ({ brokerId: receivedBrokerId, status }) => {
       if (receivedBrokerId === brokerId) {
         console.log(`MQTT status update for user ${userId}, broker ${brokerId}: ${status}`);
         setConnectionStatus(status);
+        if (status === 'connected') {
+          setConnectionError('');
+          setSuccess('MQTT broker connected successfully!');
+        } else if (status === 'disconnected') {
+          setConnectionError('MQTT broker disconnected. Please try reconnecting.');
+        } else if (status === 'connecting') {
+          setConnectionError('Attempting to connect to MQTT broker...');
+        }
       }
     });
 
@@ -137,6 +150,14 @@ const Dashboard = () => {
     setSuccess('New form block added!');
   };
 
+  const handleRetryConnection = () => {
+    const userId = localStorage.getItem('userId');
+    setError('');
+    setSuccess('');
+    setConnectionError('Attempting to reconnect to MQTT broker...');
+    socketRef.current.emit('connect_broker', { brokerId, userId });
+  };
+
   const handlePublish = () => {
     setError('');
     setSuccess('');
@@ -165,6 +186,11 @@ const Dashboard = () => {
       return;
     }
 
+    if (connectionStatus !== 'connected') {
+      setError('MQTT broker is not connected. Please wait until the connection is established or try reconnecting.');
+      return;
+    }
+
     // Create a single flat array with all fields from all form blocks
     const publishData = formBlocks.reduce((acc, formBlock) => [
       ...acc,
@@ -190,13 +216,12 @@ const Dashboard = () => {
       message: JSON.stringify(publishData),
       userId,
     });
-
-    setSuccess('Successfully published configurations!');
   };
 
   const handlePublishClick = () => {
     setShowMain(true); // Show the form
-    handlePublish(); // Trigger the publish action
+    setError('');
+    setSuccess('');
   };
 
   return (
@@ -211,7 +236,11 @@ const Dashboard = () => {
       <div className="dashboard-main">
         <div className="status-bar">
           <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p>
+          {connectionStatus !== 'connected' && (
+            <button className="retry-button" onClick={handleRetryConnection}>Retry Connection</button>
+          )}
         </div>
+        {connectionError && <p style={{ color: 'red', textAlign: 'center' }}>{connectionError}</p>}
         {showMain && (
           <>
             <h2>Com Configuration</h2>
@@ -312,7 +341,7 @@ const Dashboard = () => {
                 value={topicName}
                 onChange={(e) => setTopicName(e.target.value)}
               />
-              <button onClick={handlePublish}>Publish</button>
+              <button onClick={handlePublish} disabled={connectionStatus !== 'connected'}>Publish</button>
             </div>
           </>
         )}
