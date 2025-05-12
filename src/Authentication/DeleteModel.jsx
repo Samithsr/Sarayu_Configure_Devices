@@ -1,15 +1,15 @@
-// src/Pages/LogoutModal.jsx
+// src/Pages/DeleteModal.jsx
 import React from 'react';
-import './Home.css';
+// import './Home.css';
 
-const LogoutModal = ({ isOpen, onConfirm, onCancel }) => {
+const DeleteModal = ({ isOpen, onConfirm, onCancel }) => {
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2 className="modal-title">Confirm Logout</h2>
-        <p className="modal-text">Are you sure you want to log out?</p>
+        <h2 className="modal-title">Confirm Deletion</h2>
+        <p className="modal-text">Are you sure you want to delete this broker?</p>
         <div className="modal-buttons">
           <button
             className="modal-button cancel-button"
@@ -21,7 +21,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => {
             className="modal-button confirm-button"
             onClick={onConfirm}
           >
-            Logout
+            Delete
           </button>
         </div>
       </div>
@@ -29,4 +29,4 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => {
   );
 };
 
-export default LogoutModal;
+export default DeleteModal;

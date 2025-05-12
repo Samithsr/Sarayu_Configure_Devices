@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
+import DeleteModal from "../Authentication/DeleteModel";
 import RightSideTable from "../Pages/RightSideTable";
-import socket from "../Pages/Socket"; // Import shared socket
+import socket from "./Socket";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [brokerToDelete, setBrokerToDelete] = useState(null);
   const [formData, setFormData] = useState({
     brokerIp: "",
     portNumber: "",
@@ -30,13 +33,9 @@ const Home = () => {
   };
 
   useEffect(() => {
-    // Update socket auth token
-    socketRef.current.auth.token = `Bearer ${localStorage.getItem("authToken")}`;
-
-    // Connect socket
+    socketRef.current.auth = { token: `Bearer ${localStorage.getItem("authToken")}` };
     socketRef.current.connect();
 
-    // Socket event handlers
     socketRef.current.on("connect", () => {
       console.log("Socket.IO connected:", socketRef.current.id);
     });
@@ -73,7 +72,6 @@ const Home = () => {
       setSuccess(`Subscribed to topic ${topic} for broker ${brokerId}`);
     });
 
-    // Fetch table data
     const fetchTableData = async () => {
       const authToken = localStorage.getItem("authToken");
       const userId = localStorage.getItem("userId");
@@ -103,8 +101,16 @@ const Home = () => {
             navigate("/");
             return;
           }
-          const errorData = await response.json();
-          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          const contentType = response.headers.get("content-type");
+          let errorMessage = `HTTP error! status: ${response.status}`;
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          } else {
+            console.error("Non-JSON response:", await response.text());
+            errorMessage = "Server returned an unexpected response.";
+          }
+          throw new Error(errorMessage);
         }
 
         const data = await response.json();
@@ -128,14 +134,12 @@ const Home = () => {
 
     fetchTableData();
 
-    // Cleanup: Do not disconnect socket to maintain connection
     return () => {
       socketRef.current.off("connect");
       socketRef.current.off("error");
       socketRef.current.off("disconnect");
       socketRef.current.off("broker_status");
       socketRef.current.off("subscribed");
-      // Do not disconnect: socketRef.current.disconnect();
     };
   }, [navigate]);
 
@@ -194,8 +198,16 @@ const Home = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Broker is not available: ${errorData.error || "Unknown error"}`);
+        const contentType = response.headers.get("content-type");
+        let errorMessage = "Broker is not available.";
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } else {
+          console.error("Non-JSON response:", await response.text());
+          errorMessage = "Server returned an unexpected response.";
+        }
+        throw new Error(errorMessage);
       }
 
       return true;
@@ -258,14 +270,21 @@ const Home = () => {
           navigate("/");
           return;
         }
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const contentType = response.headers.get("content-type");
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } else {
+          console.error("Non-JSON response:", await response.text());
+          errorMessage = "Server returned an unexpected response.";
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
       setStatus("");
 
-      // Emit connect_broker event to initiate MQTT connection
       socketRef.current.emit("connect_broker", { brokerId: result._id });
 
       const dataResponse = await fetch("http://localhost:5000/api/brokers", {
@@ -274,6 +293,19 @@ const Home = () => {
           Authorization: `Bearer ${authToken}`,
         },
       });
+
+      if (!dataResponse.ok) {
+        const contentType = dataResponse.headers.get("content-type");
+        let errorMessage = `HTTP error! status: ${dataResponse.status}`;
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await dataResponse.json();
+          errorMessage = errorData.message || errorMessage;
+        } else {
+          console.error("Non-JSON response:", await dataResponse.text());
+          errorMessage = "Server returned an unexpected response.";
+        }
+        throw new Error(errorMessage);
+      }
 
       const data = await dataResponse.json();
       const mappedData = data.map((item) => ({
@@ -307,6 +339,80 @@ const Home = () => {
     socketRef.current.emit("connect_broker", { brokerId: row.brokerId });
   };
 
+  const handleEdit = (row) => {
+    setFormData({
+      brokerIp: row.brokerip !== "N/A" ? row.brokerip : "",
+      portNumber: row.port !== "N/A" ? row.port : "",
+      username: row.user !== "N/A" ? row.user : "",
+      password: row.rawPassword,
+      label: row.label !== "N/A" ? row.label : "",
+    });
+  };
+
+  const handleDeleteClick = (brokerId) => {
+    setBrokerToDelete(brokerId);
+    setShowDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      setError("Authentication token is missing. Please log in again.");
+      navigate("/");
+      setShowDeleteModal(false);
+      setBrokerToDelete(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerToDelete}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Failed to delete broker (Status: ${response.status})`;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } else {
+          const text = await response.text();
+          console.error("Non-JSON response:", text);
+          errorMessage = "Unable to delete broker. Please check the server and try again.";
+        }
+
+        if (response.status === 401) {
+          localStorage.clear();
+          setError("Session expired. Please log in again.");
+          navigate("/");
+          setShowDeleteModal(false);
+          setBrokerToDelete(null);
+          return;
+        }
+        throw new Error(errorMessage);
+      }
+
+      setTableData((prev) => prev.filter((row) => row.brokerId !== brokerToDelete));
+      setSuccess("Broker deleted successfully!");
+      setShowDeleteModal(false);
+      setBrokerToDelete(null);
+    } catch (err) {
+      console.error("Delete error:", err);
+      setError(err.message || "An error occurred while deleting the broker.");
+      setShowDeleteModal(false);
+      setBrokerToDelete(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setBrokerToDelete(null);
+  };
+
   const handleLogoutClick = () => setShowModal(true);
   const handleLogout = () => {
     socketRef.current.disconnect();
@@ -324,7 +430,7 @@ const Home = () => {
 
   return (
     <div className="page-wrapper-left-side">
-      <div className={`home-container ${showModal ? "blur-background" : ""}`}>
+      <div className={`home-container ${showModal || showDeleteModal ? "blur-background" : ""}`}>
         <div className="broker-form">
           <div className="form-group">
             <label htmlFor="brokerIp">Broker IP *:</label>
@@ -401,12 +507,15 @@ const Home = () => {
       </div>
 
       <LogoutModal isOpen={showModal} onConfirm={handleLogout} onCancel={handleCancel} />
+      <DeleteModal isOpen={showDeleteModal} onConfirm={handleDelete} onCancel={handleDeleteCancel} />
       <RightSideTable
         tableData={tableData.map((row) => ({
           ...row,
           connectionStatus: connectionStatuses[row.brokerId] || row.connectionStatus,
         }))}
         onAssign={handleAssign}
+        onEdit={handleEdit}
+        onDelete={handleDeleteClick}
       />
     </div>
   );

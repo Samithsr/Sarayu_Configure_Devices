@@ -70,19 +70,67 @@
     transform: translateY(-1px);
 }
 
-.assign-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+/* Action buttons container */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
 }
 
-.assign-button:active {
-    transform: translateY(0);
+/* Edit and Delete button styles */
+.edit-button,
+.delete-button {
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.assign-button:disabled {
-    background: #6ee7b7;
-    cursor: not-allowed;
-    transform: none;
+.edit-button {
+    background: #3b82f6;
+    color: white;
+}
+
+.edit-button:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.delete-button {
+    background: #ef4444;
+    color: white;
+}
+
+.delete-button:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* Status badges */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.connected {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.disconnected {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-badge.connecting {
+    background-color: #fef3c7;
+    color: #92400e;
 }
 
 /* Pagination styles */
@@ -135,6 +183,16 @@
 
     .assign-button {
         padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .action-buttons {
+        gap: 4px;
+    }
+
+    .edit-button,
+    .delete-button {
+        padding: 6px;
         font-size: 12px;
     }
 

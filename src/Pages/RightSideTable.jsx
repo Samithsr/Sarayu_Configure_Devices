@@ -1,7 +1,9 @@
+// src/Pages/RightSideTable.jsx
 import React, { useState } from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import './RightSideTable.css';
 
-const RightSideTable = ({ tableData, onAssign }) => {
+const RightSideTable = ({ tableData, onAssign, onEdit, onDelete }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -37,7 +39,9 @@ const RightSideTable = ({ tableData, onAssign }) => {
               <th>User</th>
               <th>Password</th>
               <th>Label</th>
-              <th>Action</th>
+              <th>Status</th>
+              <th>Actions</th>
+              <th>Edit/Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -49,12 +53,39 @@ const RightSideTable = ({ tableData, onAssign }) => {
                 <td>{row.password}</td>
                 <td>{row.label}</td>
                 <td>
+                  <span className={`status-badge ${row.connectionStatus}`}>
+                    {row.connectionStatus}
+                  </span>
+                </td>
+                <td>
                   <button
                     className="assign-button"
                     onClick={() => onAssign(row)}
+                    title="Assign"
                   >
                     Assign
                   </button>
+                </td>
+                <td>
+                  <div className="action-buttons">
+                    <button
+                      className="edit-button"
+                      onClick={() => onEdit(row)}
+                      title="Edit"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="delete-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(row.brokerId);
+                      }}
+                      title="Delete"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
