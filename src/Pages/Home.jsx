@@ -503,6 +503,8 @@ const Home = () => {
           >
             Connect
           </button>
+
+          <button>GetGateway</button>
         </div>
       </div>
 

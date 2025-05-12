@@ -1,18 +1,18 @@
 .page-wrapper-left-side {
     display: grid;
-    grid-template-columns: 0.8fr 2.4fr; /* Proportional columns for responsiveness */
-    height: 100vh; /* Full viewport height */
-    background-color: white;
-    gap: 30px;
+    grid-template-columns: 0.8fr 2.4fr;
+    height: 100vh;
+    background-color: #1A2533; /* Updated to dark blue */
+    gap: 0px;
     font-family: 'Roboto', sans-serif;
-    overflow: hidden; /* Prevent overflow of the entire layout */
+    overflow: hidden;
 }
 
 /* Logout button */
 .logout-icon-button {
     background: none;
     border: none;
-    color: white;
+    color: #FFFFFF; /* White text */
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
@@ -21,17 +21,17 @@
 
 .logout-icon-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    color: #ff4d4f;
+    color: #EF4444; /* Red on hover */
 }
 
 /* Form container - Aligned to left */
 .home-container {
-    max-width: 400px;
-    min-height: 535px;
-    max-height: 535px;
-    margin: 30px 0 30px 20px; /* Reduced left margin for smaller screens */
+    max-width: 340px; /* Reduced from 400px */
+    min-height: 450px; /* Reduced from 535px */
+    max-height: 521px; /* Reduced from 535px */
+    margin: 20px 0 20px 20px; /* Adjusted bottom margin for balance */
     padding: 25px;
-    background-color: white;
+    background-color: #252F3F; /* Updated to card background */
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(2, 2, 2, 0.511);
     transition: filter 0.3s ease;
@@ -53,29 +53,31 @@
     margin-bottom: 8px;
     font-size: 14px;
     font-weight: 500;
-    color: #333;
+    color: #FFFFFF; /* White text */
 }
 
 .broker-form input {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #4B5563; /* Updated to light gray border */
     border-radius: 8px;
     font-size: 14px;
+    background-color: #252F3F; /* Matching card background */
+    color: #FFFFFF; /* White text */
     transition: all 0.3s ease;
 }
 
 .broker-form input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: #3B82F6; /* Light blue on focus */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     outline: none;
 }
 
 .broker-form button {
-    width: 100%;
+    width: 50%;
     padding: 12px;
-    background: #2563eb;
-    color: white;
+    background: #3B82F6; /* Light blue button */
+    color: #FFFFFF; /* White text */
     font-size: 16px;
     font-weight: 500;
     border: none;
@@ -86,7 +88,7 @@
 }
 
 .broker-form button:hover {
-    background: #1d4ed8;
+    background: #2563EB; /* Darker blue on hover */
     transform: translateY(-1px);
 }
 
@@ -105,7 +107,7 @@
 }
 
 .modal-content {
-    background: white;
+    background: #252F3F; /* Updated to card background */
     padding: 25px;
     border-radius: 12px;
     width: 100%;
@@ -117,12 +119,12 @@
 .modal-title {
     font-size: 20px;
     font-weight: 600;
-    color: #1f2937;
+    color: #FFFFFF; /* White text */
     margin-bottom: 12px;
 }
 
 .modal-text {
-    color: #6b7280;
+    color: #A0AEC0; /* Light gray text */
     font-size: 15px;
     margin-bottom: 20px;
 }
@@ -144,21 +146,21 @@
 }
 
 .cancel-button {
-    background: #f3f4f6;
-    color: #374151;
+    background: #4B5563; /* Light gray */
+    color: #FFFFFF; /* White text */
 }
 
 .cancel-button:hover {
-    background: #e5e7eb;
+    background: #6B7280; /* Slightly lighter gray on hover */
 }
 
 .confirm-button {
-    background: #dc2626;
-    color: white;
+    background: #EF4444; /* Red */
+    color: #FFFFFF; /* White text */
 }
 
 .confirm-button:hover {
-    background: #b91c1c;
+    background: #DC2626; /* Darker red on hover */
 }
 
 /* Error and success messages */
@@ -167,15 +169,28 @@
     bottom: 65px;
     width: 87%;
     text-align: center;
-    margin-left: 40px;
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for true centering */
+    color: #FFFFFF; /* Changed to white */
+}
+
+.status-message {
+    position: absolute;
+    bottom: 65px;
+    width: 87%;
+    text-align: center;
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for true centering */
+    color: #FFFFFF; /* Added white color for status message */
 }
 
 .success-message {
     position: absolute;
-    /* bottom:65px; */
     width: 87%;
     text-align: center;
-
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for true centering */
+    color: #10B981; /* Green for success */
 }
 
 /* Animation */
@@ -193,17 +208,20 @@
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
     .page-wrapper-left-side {
-        grid-template-columns: 1fr; /* Stack form and table vertically */
+        grid-template-columns: 1fr;
         height: auto;
     }
 
     .home-container {
         max-width: 90%;
         margin: 20px auto;
+        min-height: 400px; /* Adjusted for smaller screens */
+        max-height: 400px; /* Adjusted for smaller screens */
     }
 
     .error-message,
-    .success-message {
+    .success-message,
+    .status-message {
         width: 90%;
         font-size: 12px;
     }
@@ -212,5 +230,5 @@
 /* User info */
 .user-info h3 {
     font-size: 1.5em;
-    color: #333;
+    color: #FFFFFF; /* White text */
 }
