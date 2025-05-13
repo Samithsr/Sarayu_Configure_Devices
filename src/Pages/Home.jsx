@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
-import LogoutModal from "../Pages/LogoutModel";
+import LogoutModal from "./LogoutModel";
 import DeleteModal from "../Authentication/DeleteModel";
 import EditModal from "../Authentication/EditModal";
-import RightSideTable from "../Pages/RightSideTable";
+import RightSideTable from "./RightSideTable";
 import socket from "../Pages/Socket";
 
 const Home = () => {
@@ -26,6 +26,8 @@ const Home = () => {
   const [tableData, setTableData] = useState([]);
   const [userEmail, setUserEmail] = useState("");
   const [connectionStatuses, setConnectionStatuses] = useState({});
+  const [view, setView] = useState("form");
+  const [isAssigned, setIsAssigned] = useState(false);
   const navigate = useNavigate();
   const socketRef = useRef(socket);
 
@@ -94,59 +96,10 @@ const Home = () => {
       setSuccess(`Broker ${broker._id} updated successfully!`);
     });
 
-    const fetchTableData = async () => {
-      const authToken = localStorage.getItem("authToken");
-      const userId = localStorage.getItem("userId");
-      const email = localStorage.getItem("userEmail");
-
-      if (!authToken || !userId) {
-        setError("Authentication token or user ID is missing. Please log in again.");
-        navigate("/");
-        return;
-      }
-
-      setUserEmail(email || "User");
-
-      try {
-        const response = await fetch("http://localhost:5000/api/brokers", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            localStorage.clear();
-            setError("Session expired. Please log in again.");
-            navigate("/");
-            return;
-          }
-          const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
-          throw new Error(errorMessage);
-        }
-
-        const data = await response.json();
-        const mappedData = data.map((item) => ({
-          brokerId: item._id,
-          brokerip: item.brokerIp || "N/A",
-          port: item.portNumber ? item.portNumber.toString() : "N/A",
-          user: item.username || "N/A",
-          password: item.password ? "*".repeat(item.password.length) : "N/A",
-          rawPassword: item.password || "",
-          label: item.label || "N/A",
-          connectionStatus: item.connectionStatus || "disconnected",
-        }));
-
-        setTableData(mappedData);
-      } catch (err) {
-        console.error("Error fetching table data:", err);
-        setError(err.message || "An error occurred while fetching table data.");
-      }
-    };
-
-    fetchTableData();
+    socketRef.current.on("broker_deleted", ({ brokerId }) => {
+      setTableData((prev) => prev.filter((row) => row.brokerId !== brokerId));
+      setSuccess(`Broker ${brokerId} deleted successfully!`);
+    });
 
     return () => {
       socketRef.current.off("connect");
@@ -155,8 +108,62 @@ const Home = () => {
       socketRef.current.off("broker_status");
       socketRef.current.off("subscribed");
       socketRef.current.off("broker_updated");
+      socketRef.current.off("broker_deleted");
     };
   }, [navigate]);
+
+  const fetchTableData = async () => {
+    const authToken = localStorage.getItem("authToken");
+    const userId = localStorage.getItem("userId");
+    const email = localStorage.getItem("userEmail");
+
+    if (!authToken || !userId) {
+      setError("Authentication token or user ID is missing. Please log in again.");
+      navigate("/");
+      return;
+    }
+
+    setUserEmail(email || "User");
+
+    try {
+      const response = await fetch("http://localhost:5000/api/brokers", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.clear();
+          setError("Session expired. Please log in again.");
+          navigate("/");
+          return;
+        }
+        const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      const mappedData = data.map((item) => ({
+        brokerId: item._id,
+        brokerip: item.brokerIp || "N/A",
+        port: item.portNumber ? item.portNumber.toString() : "N/A",
+        user: item.username || "N/A",
+        password: item.password ? "*".repeat(item.password.length) : "N/A",
+        rawPassword: item.password || "",
+        label: item.label || "N/A",
+        connectionStatus: item.connectionStatus || "disconnected",
+      }));
+
+      setTableData(mappedData);
+      setView("table");
+    } catch (err) {
+      console.error("Error fetching table data:", err);
+      setError(err.message || "An error occurred while fetching table data.");
+    }
+  };
 
   const handleInputChange = (e) => {
     setError("");
@@ -283,40 +290,46 @@ const Home = () => {
 
       const result = await response.json();
       setStatus("");
+      setSuccess(`Broker ${result._id} added successfully!`);
 
       socketRef.current.emit("connect_broker", { brokerId: result._id });
 
-      const dataResponse = await fetch("http://localhost:5000/api/brokers", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      await fetchTableData();
 
-      if (!dataResponse.ok) {
-        const errorMessage = await dataResponse.json().then((data) => data.message || `HTTP error! status: ${dataResponse.status}`);
-        throw new Error(errorMessage);
+      if (isAssigned) {
+        navigate("/dashboard", { state: { brokerId: result._id, userId } });
+        setIsAssigned(false);
+        setFormData({
+          brokerIp: "",
+          portNumber: "",
+          username: "",
+          password: "",
+          label: "",
+        });
+      } else {
+        setFormData({
+          brokerIp: "",
+          portNumber: "",
+          username: "",
+          password: "",
+          label: "",
+        });
       }
-
-      const data = await dataResponse.json();
-      const mappedData = data.map((item) => ({
-        brokerId: item._id,
-        brokerip: item.brokerIp || "N/A",
-        port: item.portNumber ? item.portNumber.toString() : "N/A",
-        user: item.username || "N/A",
-        password: item.password ? "*".repeat(item.password.length) : "N/A",
-        rawPassword: item.password || "",
-        label: item.label || "N/A",
-        connectionStatus: item.connectionStatus || "disconnected",
-      }));
-      setTableData(mappedData);
-
-      navigate("/dashboard", { state: { brokerId: result._id, userId } });
     } catch (err) {
       console.error("Connection error:", err);
       setError(err.message || "An error occurred while connecting to the broker.");
       setStatus("");
     }
+  };
+
+  const handleGetGateway = () => {
+    fetchTableData();
+  };
+
+  const handleBackToForm = () => {
+    setView("form");
+    setError("");
+    setSuccess("");
   };
 
   const handleAssign = (row) => {
@@ -327,14 +340,17 @@ const Home = () => {
       password: row.rawPassword,
       label: row.label !== "N/A" ? row.label : "",
     });
+    setIsAssigned(true);
+    setSuccess(`Broker ${row.brokerId} assigned to form.`);
+    setView("form");
     socketRef.current.emit("connect_broker", { brokerId: row.brokerId });
   };
 
   const handleEditClick = (row) => {
     setBrokerToEdit(row);
     setShowEditModal(true);
-    setError(""); // Clear any previous errors
-    setSuccess(""); // Clear any previous success messages
+    setError("");
+    setSuccess("");
   };
 
   const handleEdit = async (updatedData) => {
@@ -391,12 +407,12 @@ const Home = () => {
   const handleEditCancel = () => {
     setShowEditModal(false);
     setBrokerToEdit(null);
-    setError(""); // Clear errors on cancel
-    setSuccess(""); // Clear success messages on cancel
+    setError("");
+    setSuccess("");
   };
 
-  const handleDeleteClick = (brokerId) => {
-    setBrokerToDelete(brokerId);
+  const handleDeleteClick = (row) => {
+    setBrokerToDelete(row.brokerId);
     setShowDeleteModal(true);
   };
 
@@ -432,8 +448,7 @@ const Home = () => {
         throw new Error(errorMessage);
       }
 
-      setTableData((prev) => prev.filter((row) => row.brokerId !== brokerToDelete));
-      setSuccess("Broker deleted successfully!");
+      socketRef.current.emit("broker_deleted", { brokerId: brokerToDelete });
       setShowDeleteModal(false);
       setBrokerToDelete(null);
     } catch (err) {
@@ -465,84 +480,101 @@ const Home = () => {
   };
 
   return (
-    <div className="page-wrapper-left-side">
-      <div className={`home-container ${showModal || showDeleteModal || showEditModal ? "blur-background" : ""}`}>
-        <div className="broker-form">
-          <div className="form-group">
-            <label htmlFor="brokerIp">Broker IP *:</label>
-            <input
-              type="text"
-              id="brokerIp"
-              name="brokerIp"
-              value={formData.brokerIp}
-              onChange={handleInputChange}
-              onKeyUp={(e) => handleKeyDown(e, "portNumber")}
-              placeholder="e.g., 192.168.1.100"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="portNumber">Port *:</label>
-            <input
-              type="number"
-              id="portNumber"
-              name="portNumber"
-              value={formData.portNumber}
-              onChange={handleInputChange}
-              onKeyUp={(e) => handleKeyDown(e, "username")}
-              min="1"
-              max="65535"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              onKeyUp={(e) => handleKeyDown(e, "password")}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              onKeyUp={(e) => handleKeyDown(e, "label")}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="label">Label *:</label>
-            <input
-              type="text"
-              id="label"
-              name="label"
-              value={formData.label}
-              onChange={handleInputChange}
-              onKeyUp={(e) => handleKeyDown(e, "submitButton")}
-            />
-          </div>
+    <div className={`page-wrapper-left-side ${view === "table" ? "table-view" : ""}`}>
+      {view === "form" && (
+        <div className={`home-container ${showModal || showDeleteModal || showEditModal ? "blur-background" : ""}`}>
+          <div className="broker-form">
+            <div className="form-group">
+              <label htmlFor="brokerIp">Broker IP *:</label>
+              <input
+                type="text"
+                id="brokerIp"
+                name="brokerIp"
+                value={formData.brokerIp}
+                onChange={handleInputChange}
+                onKeyUp={(e) => handleKeyDown(e, "portNumber")}
+                placeholder="e.g., 192.168.1.100"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="portNumber">Port *:</label>
+              <input
+                type="number"
+                id="portNumber"
+                name="portNumber"
+                value={formData.portNumber}
+                onChange={handleInputChange}
+                onKeyUp={(e) => handleKeyDown(e, "username")}
+                min="1"
+                max="65535"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                onKeyUp={(e) => handleKeyDown(e, "password")}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password:</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                onKeyUp={(e) => handleKeyDown(e, "label")}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="label">Label *:</label>
+              <input
+                type="text"
+                id="label"
+                name="label"
+                value={formData.label}
+                onChange={handleInputChange}
+                onKeyUp={(e) => handleKeyDown(e, "submitButton")}
+              />
+            </div>
 
-          {status && <p className="status-message">{status}</p>}
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
+            {status && <p className="status-message">{status}</p>}
+            {error && <p className="error-message">{error}</p>}
+            {success && <p className="success-message">{success}</p>}
 
-          <button
-            id="submitButton"
-            type="button"
-            onClick={handleSubmit}
-            onKeyUp={(e) => e.key === "Enter" && handleSubmit()}
-          >
-            Connect
-          </button>
+            <button
+              id="submitButton"
+              type="button"
+              onClick={handleSubmit}
+              onKeyUp={(e) => e.key === "Enter" && handleSubmit()}
+            >
+              Connect
+            </button>
 
-          <button>GetGateway</button>
+            <button type="button" onClick={handleGetGateway}>
+              GetGateway
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {view === "table" && (
+        <RightSideTable
+          tableData={tableData.map((row) => ({
+            ...row,
+            connectionStatus: connectionStatuses[row.brokerId] || row.connectionStatus,
+          }))}
+          onAssign={handleAssign}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+          backToForm={handleBackToForm}
+        />
+      )}
 
       <LogoutModal isOpen={showModal} onConfirm={handleLogout} onCancel={handleCancel} />
       <DeleteModal isOpen={showDeleteModal} onConfirm={handleDelete} onCancel={handleDeleteCancel} />
@@ -551,15 +583,6 @@ const Home = () => {
         onConfirm={handleEdit}
         onCancel={handleEditCancel}
         broker={brokerToEdit}
-      />
-      <RightSideTable
-        tableData={tableData.map((row) => ({
-          ...row,
-          connectionStatus: connectionStatuses[row.brokerId] || row.connectionStatus,
-        }))}
-        onAssign={handleAssign}
-        onEdit={handleEditClick}
-        onDelete={handleDeleteClick}
       />
     </div>
   );

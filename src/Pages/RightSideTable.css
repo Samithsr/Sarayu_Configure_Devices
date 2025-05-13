@@ -1,219 +1,265 @@
 /* Table container */
 .unique-table-container {
-    width: 100%;
-    max-width: 100vw;
-    margin: 0 auto;
-    padding: 0 10px;
-    margin-top: 20px;
+  width: 99.1vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0px 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  background-color: #252F3F;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Back to Form button */
+.back-button {
+  align-self: flex-start;
+  margin: 10px;
+  margin-left: 30px;
+  padding: 10px 20px;
+  background: #3B82F6;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  margin-top: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: #2563EB;
+  transform: translateY(-1px);
 }
 
 /* Scrollable wrapper */
 .unique-table-scrollable {
-    overflow-x: auto;
-    max-height: 80vh;
-    border-radius: 10px;
-    padding: 10px 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Added box shadow for the container */
-    background-color: #252F3F; /* Ensure background matches the theme */
+  flex: 1;
+  height: calc(100vh - 60px); /* Back button: 40px height + 20px margin */
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: 10px;
+  padding: 10px 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  background-color: #252F3F;
 }
 
 /* Table styles */
 .unique-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: auto;
-    box-shadow: -1px 12px 12px -6px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  box-shadow: -1px 12px 12px -6px rgba(0, 0, 0, 0.5);
 }
 
-/* Table headers and cells - unified styles */
+/* Table headers and cells */
 .unique-table th,
 .unique-table td {
-    padding: 12px 16px;
-    border: 1px solid #4B5563; /* Light gray border */
-    text-align: center;
-    word-break: break-word;
-    white-space: normal;
-    min-width: 120px;
-    max-width: 200px;
-    height: 50px;
-    font-size: 14px;
-    box-sizing: border-box;
-    color: #FFFFFF; /* White text */
+  padding: 12px 16px;
+  border: 1px solid #4B5563;
+  text-align: center;
+  vertical-align: middle;
+  word-break: break-word;
+  white-space: normal;
+  min-width: 120px;
+  max-width: 200px;
+  height: 50px;
+  font-size: 14px;
+  box-sizing: border-box;
+  color: #FFFFFF;
 }
 
 /* Header specific styles */
 .unique-table th {
-    background: linear-gradient( #2559a3dc 0%, #2a5c9b 100%);
-    /* background: #3B82F6;  */
-    /* background-color: #0792b5b7;  */
-    color: #FFFFFF; /* White text */
-    font-weight: 600;
-    font-size: 16px; /* Increased font size for headers */
+  background: linear-gradient(#2559a3dc 0%, #2a5c9b 100%);
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 /* Row background striping */
 .unique-table tbody tr:nth-child(odd) {
-    background-color: #1A2533; /* Dark blue */
+  background-color: #1A2533;
 }
 
 .unique-table tbody tr:nth-child(even) {
-    background-color: #252F3F; /* Slightly lighter dark blue */
+  background-color: #252F3F;
 }
 
 /* Assign button */
 .assign-button {
-    padding: 5px 12px;
-    background: #10B981; /* Green */
-    color: #FFFFFF; /* White text */
-    font-size: 14px;
-    font-weight: 500;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  padding: 5px 12px;
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .assign-button:hover {
-    background: #059669; /* Darker green on hover */
-    transform: translateY(-1px);
+  background: #059669;
+  transform: translateY(-1px);
 }
 
 /* Action buttons container */
 .action-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 }
 
-/* Edit and Delete button styles */
+/* Edit and Delete buttons */
 .edit-button,
 .delete-button {
-    padding: 8px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .edit-button {
-    background: #3B82F6; /* Light blue */
-    color: #FFFFFF; /* White text */
+  background: #3B82F6;
+  color: #FFFFFF;
 }
 
 .edit-button:hover {
-    background: #2563EB; /* Darker blue on hover */
-    transform: translateY(-1px);
+  background: #2563EB;
+  transform: translateY(-1px);
 }
 
 .delete-button {
-    background: #EF4444; /* Red */
-    color: #FFFFFF; /* White text */
+  background: #EF4444;
+  color: #FFFFFF;
 }
 
 .delete-button:hover {
-    background: #DC2626; /* Darker red on hover */
-    transform: translateY(-1px);
+  background: #DC2626;
+  transform: translateY(-1px);
 }
 
 /* Status badges */
 .status-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .status-badge.connected {
-    background-color: #10B981; /* Green */
-    color: #FFFFFF; /* White text */
+  background-color: #10B981;
+  color: #FFFFFF;
 }
 
 .status-badge.disconnected {
-    background-color: #EF4444; /* Red */
-    color: #FFFFFF; /* White text */
+  background-color: #EF4444;
+  color: #FFFFFF;
 }
 
 .status-badge.connecting {
-    background-color: #3B82F6; /* Light blue */
-    color: #FFFFFF; /* White text */
+  background-color: #3B82F6;
+  color: #FFFFFF;
 }
 
 /* Pagination styles */
 .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 8px;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .pagination-button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    background-color: #252F3F; /* Card background */
-    color: #FFFFFF; /* White text */
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #252F3F;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .pagination-button:hover {
-    background-color: #4B5563; /* Light gray on hover */
+  background-color: #4B5563;
 }
 
 .pagination-button.active {
-    background-color: #3B82F6; /* Light blue for active */
-    color: #FFFFFF; /* White text */
+  background-color: #3B82F6;
+  color: #FFFFFF;
 }
 
 .pagination-button:disabled {
-    background-color: #4B5563; /* Light gray */
-    color: #A0AEC0; /* Light gray text */
-    cursor: not-allowed;
+  background-color: #4B5563;
+  color: #A0AEC0;
+  cursor: not-allowed;
 }
 
 /* Media Queries */
 @media (max-width: 768px) {
-    .unique-table th,
-    .unique-table td {
-        padding: 8px 10px;
-        font-size: 12px;
-        min-width: 80px;
-        max-width: 150px;
-        height: 40px;
-    }
+  .unique-table-container {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+  }
 
-    .unique-table th {
-        font-size: 14px; /* Slightly smaller for mobile */
-    }
+  .back-button {
+    margin: 15px;
+    padding: 8px 16px;
+    font-size: 12px;
+  }
 
-    .assign-button {
-        padding: 6px 12px;
-        font-size: 12px;
-    }
+  .unique-table-scrollable {
+    height: calc(100vh - 50px); /* Smaller button margin */
+    padding: 5px 15px;
+  }
 
-    .action-buttons {
-        gap: 4px;
-    }
+  .unique-table th,
+  .unique-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+    min-width: 80px;
+    max-width: 150px;
+    height: 40px;
+    text-align: center;
+    vertical-align: middle;
+  }
 
-    .edit-button,
-    .delete-button {
-        padding: 6px;
-        font-size: 12px;
-    }
+  .unique-table th {
+    font-size: 14px;
+  }
 
-    .pagination {
-        gap: 5px;
-    }
+  .assign-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
 
-    .pagination-button {
-        padding: 6px 10px;
-        font-size: 12px;
-    }
+  .action-buttons {
+    gap: 4px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .pagination {
+    gap: 5px;
+  }
+
+  .pagination-button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
 }

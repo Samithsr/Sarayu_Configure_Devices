@@ -1,0 +1,152 @@
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.607);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #151d28;
+  padding: 20px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  animation: fadeSlideIn 0.4s ease-out;
+}
+
+/* Modal Title */
+.modal-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+/* Form Styles */
+.broker-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.broker-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.broker-form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+}
+
+.broker-form input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: #ffffff;
+  color: #111827;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.broker-form input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  outline: none;
+}
+
+/* Error Message */
+.broker-form .error-message {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-top: 3px;
+}
+
+/* Modal Buttons */
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.modal-button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.cancel-button {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.cancel-button:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.confirm-button {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.confirm-button:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+/* Animation */
+@keyframes fadeSlideIn {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .modal-content {
+    max-width: 95%;
+    padding: 16px;
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+  }
+
+  .broker-form input {
+    font-size: 0.8rem;
+    padding: 7px 9px;
+  }
+
+  .modal-button {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+
+  .broker-form label {
+    font-size: 0.8rem;
+  }
+}

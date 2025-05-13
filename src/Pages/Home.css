@@ -1,234 +1,242 @@
+/* Form view wrapper */
 .page-wrapper-left-side {
-    display: grid;
-    grid-template-columns: 0.8fr 2.4fr;
-    height: 100vh;
-    background-color: #1A2533; /* Updated to dark blue */
-    gap: 0px;
-    font-family: 'Roboto', sans-serif;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96.5vh;
+  background-color: #1A2533;
+  gap: 0px;
+  font-family: 'Roboto', sans-serif;
+  overflow: hidden;
+}
+
+/* Table view */
+.page-wrapper-left-side.table-view {
+  display: contents; /* Allows RightSideTable to take full viewport */
 }
 
 /* Logout button */
 .logout-icon-button {
-    background: none;
-    border: none;
-    color: #FFFFFF; /* White text */
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    transition: all 0.3s ease;
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
 .logout-icon-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #EF4444; /* Red on hover */
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #EF4444;
 }
 
-/* Form container - Aligned to left */
+/* Form container */
 .home-container {
-    max-width: 340px; /* Reduced from 400px */
-    min-height: 450px; /* Reduced from 535px */
-    max-height: 521px; /* Reduced from 535px */
-    margin: 20px 0 20px 20px; /* Adjusted bottom margin for balance */
-    padding: 25px;
-    background-color: #252F3F; /* Updated to card background */
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(2, 2, 2, 0.511);
-    transition: filter 0.3s ease;
-    position: relative;
+  min-width: 400px;
+  min-height: 560px;
+  max-height: 521px;
+  margin: 20px;
+  padding: 25px;
+  background-color: #252F3F;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(2, 2, 2, 0.511);
+  transition: filter 0.3s ease;
+  position: relative;
 }
 
-/* Blur effect */
 .blur-background {
-    filter: blur(5px);
+  filter: blur(5px);
 }
 
 /* Form styles */
 .broker-form .form-group {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .broker-form label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #FFFFFF; /* White text */
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #FFFFFF;
 }
 
 .broker-form input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #4B5563; /* Updated to light gray border */
-    border-radius: 8px;
-    font-size: 14px;
-    background-color: #252F3F; /* Matching card background */
-    color: #FFFFFF; /* White text */
-    transition: all 0.3s ease;
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #4B5563;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #252F3F;
+  color: #FFFFFF;
+  transition: all 0.3s ease;
 }
 
 .broker-form input:focus {
-    border-color: #3B82F6; /* Light blue on focus */
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
 }
 
 .broker-form button {
-    width: 50%;
-    padding: 12px;
-    background: #3B82F6; /* Light blue button */
-    color: #FFFFFF; /* White text */
-    font-size: 16px;
-    font-weight: 500;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 25px;
+  width: 50%;
+  padding: 12px;
+  background: #3B82F6;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 25px;
 }
 
 .broker-form button:hover {
-    background: #2563EB; /* Darker blue on hover */
-    transform: translateY(-1px);
+  background: #2563EB;
+  transform: translateY(-1px);
 }
 
 /* Modal styles */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-    background: #252F3F; /* Updated to card background */
-    padding: 25px;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    animation: slideIn 0.3s ease-out;
+  background: #252F3F;
+  padding: 25px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
 }
 
 .modal-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #FFFFFF; /* White text */
-    margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin-bottom: 12px;
 }
 
 .modal-text {
-    color: #A0AEC0; /* Light gray text */
-    font-size: 15px;
-    margin-bottom: 20px;
+  color: #A0AEC0;
+  font-size: 15px;
+  margin-bottom: 20px;
 }
 
 .modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .modal-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .cancel-button {
-    background: #4B5563; /* Light gray */
-    color: #FFFFFF; /* White text */
+  background: #4B5563;
+  color: #FFFFFF;
 }
 
 .cancel-button:hover {
-    background: #6B7280; /* Slightly lighter gray on hover */
+  background: #6B7280;
 }
 
 .confirm-button {
-    background: #EF4444; /* Red */
-    color: #FFFFFF; /* White text */
+  background: #EF4444;
+  color: #FFFFFF;
 }
 
 .confirm-button:hover {
-    background: #DC2626; /* Darker red on hover */
+  background: #DC2626;
 }
 
-/* Error and success messages */
+/* Messages */
 .error-message {
-    position: absolute;
-    bottom: 65px;
-    width: 87%;
-    text-align: center;
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Adjust for true centering */
-    color: #FFFFFF; /* Changed to white */
+  position: absolute;
+  bottom: 65px;
+  width: 87%;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #FFFFFF;
 }
 
 .status-message {
-    position: absolute;
-    bottom: 65px;
-    width: 87%;
-    text-align: center;
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Adjust for true centering */
-    color: #FFFFFF; /* Added white color for status message */
+  position: absolute;
+  bottom: 65px;
+  width: 87%;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #FFFFFF;
 }
 
 .success-message {
-    position: absolute;
-    width: 87%;
-    text-align: center;
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Adjust for true centering */
-    color: #10B981; /* Green for success */
+  position: absolute;
+  width: 87%;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #10B981;
 }
 
 /* Animation */
 @keyframes slideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-/* Media Queries for Responsiveness */
+/* Media Queries */
 @media (max-width: 768px) {
-    .page-wrapper-left-side {
-        grid-template-columns: 1fr;
-        height: auto;
-    }
+  .page-wrapper-left-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
 
-    .home-container {
-        max-width: 90%;
-        margin: 20px auto;
-        min-height: 400px; /* Adjusted for smaller screens */
-        max-height: 400px; /* Adjusted for smaller screens */
-    }
+  .home-container {
+    max-width: 90%;
+    margin: 20px;
+    min-height: 400px;
+    max-height: 400px;
+  }
 
-    .error-message,
-    .success-message,
-    .status-message {
-        width: 90%;
-        font-size: 12px;
-    }
+  .error-message,
+  .success-message,
+  .status-message {
+    width: 90%;
+    font-size: 12px;
+  }
 }
 
 /* User info */
 .user-info h3 {
-    font-size: 1.5em;
-    color: #FFFFFF; /* White text */
+  font-size: 1.5em;
+  color: #FFFFFF;
 }

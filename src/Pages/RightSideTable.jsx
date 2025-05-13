@@ -1,9 +1,8 @@
-// src/Pages/RightSideTable.jsx
 import React, { useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import './RightSideTable.css';
 
-const RightSideTable = ({ tableData, onAssign, onEdit, onDelete }) => {
+const RightSideTable = ({ tableData, onAssign, onEdit, onDelete, backToForm }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -30,8 +29,11 @@ const RightSideTable = ({ tableData, onAssign, onEdit, onDelete }) => {
 
   return (
     <div className="unique-table-container">
+      <button className="back-button" onClick={backToForm}>
+        Back to Form
+      </button>
       <div className="unique-table-scrollable">
-        <table className="unique-table" style={{ marginTop: "30px" }}>
+        <table className="unique-table">
           <thead>
             <tr>
               <th>Broker IP</th>
