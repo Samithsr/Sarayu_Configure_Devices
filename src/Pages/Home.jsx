@@ -3,13 +3,16 @@ import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../Pages/LogoutModel";
 import DeleteModal from "../Authentication/DeleteModel";
+import EditModal from "../Authentication/EditModal";
 import RightSideTable from "../Pages/RightSideTable";
-import socket from "./Socket";
+import socket from "../Pages/Socket";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [brokerToDelete, setBrokerToDelete] = useState(null);
+  const [brokerToEdit, setBrokerToEdit] = useState(null);
   const [formData, setFormData] = useState({
     brokerIp: "",
     portNumber: "",
@@ -26,7 +29,6 @@ const Home = () => {
   const navigate = useNavigate();
   const socketRef = useRef(socket);
 
-  // Validate IPv4 address
   const isValidIPv4 = (ip) => {
     const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     return ipv4Regex.test(ip);
@@ -72,6 +74,26 @@ const Home = () => {
       setSuccess(`Subscribed to topic ${topic} for broker ${brokerId}`);
     });
 
+    socketRef.current.on("broker_updated", ({ broker }) => {
+      setTableData((prev) =>
+        prev.map((row) =>
+          row.brokerId === broker._id
+            ? {
+                brokerId: broker._id,
+                brokerip: broker.brokerIp || "N/A",
+                port: broker.portNumber ? broker.portNumber.toString() : "N/A",
+                user: broker.username || "N/A",
+                password: broker.password ? "*".repeat(broker.password.length) : "N/A",
+                rawPassword: broker.password || "",
+                label: broker.label || "N/A",
+                connectionStatus: broker.connectionStatus || "disconnected",
+              }
+            : row
+        )
+      );
+      setSuccess(`Broker ${broker._id} updated successfully!`);
+    });
+
     const fetchTableData = async () => {
       const authToken = localStorage.getItem("authToken");
       const userId = localStorage.getItem("userId");
@@ -101,15 +123,7 @@ const Home = () => {
             navigate("/");
             return;
           }
-          const contentType = response.headers.get("content-type");
-          let errorMessage = `HTTP error! status: ${response.status}`;
-          if (contentType && contentType.includes("application/json")) {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorMessage;
-          } else {
-            console.error("Non-JSON response:", await response.text());
-            errorMessage = "Server returned an unexpected response.";
-          }
+          const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
           throw new Error(errorMessage);
         }
 
@@ -140,6 +154,7 @@ const Home = () => {
       socketRef.current.off("disconnect");
       socketRef.current.off("broker_status");
       socketRef.current.off("subscribed");
+      socketRef.current.off("broker_updated");
     };
   }, [navigate]);
 
@@ -157,7 +172,7 @@ const Home = () => {
       return false;
     }
     if (!isValidIPv4(formData.brokerIp)) {
-      setError("Invalid IP address format. Please enter a valid IPv4 address (e.g., 192.168.1.100).");
+      setError("Invalid IP address format.");
       return false;
     }
     if (!formData.portNumber) {
@@ -165,7 +180,7 @@ const Home = () => {
       return false;
     }
     if (isNaN(formData.portNumber) || formData.portNumber < 1 || formData.portNumber > 65535) {
-      setError("Port must be a number between 1 and 65535.");
+      setError("Port must be between 1 and 65535.");
       return false;
     }
     if (!formData.label) {
@@ -198,15 +213,7 @@ const Home = () => {
       });
 
       if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        let errorMessage = "Broker is not available.";
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } else {
-          console.error("Non-JSON response:", await response.text());
-          errorMessage = "Server returned an unexpected response.";
-        }
+        const errorMessage = await response.json().then((data) => data.message || "Broker is not available.");
         throw new Error(errorMessage);
       }
 
@@ -270,15 +277,7 @@ const Home = () => {
           navigate("/");
           return;
         }
-        const contentType = response.headers.get("content-type");
-        let errorMessage = `HTTP error! status: ${response.status}`;
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } else {
-          console.error("Non-JSON response:", await response.text());
-          errorMessage = "Server returned an unexpected response.";
-        }
+        const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
         throw new Error(errorMessage);
       }
 
@@ -295,15 +294,7 @@ const Home = () => {
       });
 
       if (!dataResponse.ok) {
-        const contentType = dataResponse.headers.get("content-type");
-        let errorMessage = `HTTP error! status: ${dataResponse.status}`;
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await dataResponse.json();
-          errorMessage = errorData.message || errorMessage;
-        } else {
-          console.error("Non-JSON response:", await dataResponse.text());
-          errorMessage = "Server returned an unexpected response.";
-        }
+        const errorMessage = await dataResponse.json().then((data) => data.message || `HTTP error! status: ${dataResponse.status}`);
         throw new Error(errorMessage);
       }
 
@@ -339,14 +330,69 @@ const Home = () => {
     socketRef.current.emit("connect_broker", { brokerId: row.brokerId });
   };
 
-  const handleEdit = (row) => {
-    setFormData({
-      brokerIp: row.brokerip !== "N/A" ? row.brokerip : "",
-      portNumber: row.port !== "N/A" ? row.port : "",
-      username: row.user !== "N/A" ? row.user : "",
-      password: row.rawPassword,
-      label: row.label !== "N/A" ? row.label : "",
-    });
+  const handleEditClick = (row) => {
+    setBrokerToEdit(row);
+    setShowEditModal(true);
+    setError(""); // Clear any previous errors
+    setSuccess(""); // Clear any previous success messages
+  };
+
+  const handleEdit = async (updatedData) => {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      setError("Authentication token is missing. Please log in again.");
+      navigate("/");
+      setShowEditModal(false);
+      setBrokerToEdit(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          brokerIp: updatedData.brokerIp,
+          portNumber: parseInt(updatedData.portNumber, 10),
+          username: updatedData.username || "",
+          password: updatedData.password || "",
+          label: updatedData.label,
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.clear();
+          setError("Session expired. Please log in again.");
+          navigate("/");
+          setShowEditModal(false);
+          setBrokerToEdit(null);
+          return;
+        }
+        const errorMessage = await response.json().then((data) => data.message || `Failed to update broker (Status: ${response.status})`);
+        throw new Error(errorMessage);
+      }
+
+      const updatedBroker = await response.json();
+      socketRef.current.emit("broker_updated", { broker: updatedBroker });
+      setShowEditModal(false);
+      setBrokerToEdit(null);
+    } catch (err) {
+      console.error("Update error:", err);
+      setError(err.message || "An error occurred while updating the broker.");
+      setShowEditModal(false);
+      setBrokerToEdit(null);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setShowEditModal(false);
+    setBrokerToEdit(null);
+    setError(""); // Clear errors on cancel
+    setSuccess(""); // Clear success messages on cancel
   };
 
   const handleDeleteClick = (brokerId) => {
@@ -374,17 +420,6 @@ const Home = () => {
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to delete broker (Status: ${response.status})`;
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } else {
-          const text = await response.text();
-          console.error("Non-JSON response:", text);
-          errorMessage = "Unable to delete broker. Please check the server and try again.";
-        }
-
         if (response.status === 401) {
           localStorage.clear();
           setError("Session expired. Please log in again.");
@@ -393,6 +428,7 @@ const Home = () => {
           setBrokerToDelete(null);
           return;
         }
+        const errorMessage = await response.json().then((data) => data.message || `Failed to delete broker (Status: ${response.status})`);
         throw new Error(errorMessage);
       }
 
@@ -430,7 +466,7 @@ const Home = () => {
 
   return (
     <div className="page-wrapper-left-side">
-      <div className={`home-container ${showModal || showDeleteModal ? "blur-background" : ""}`}>
+      <div className={`home-container ${showModal || showDeleteModal || showEditModal ? "blur-background" : ""}`}>
         <div className="broker-form">
           <div className="form-group">
             <label htmlFor="brokerIp">Broker IP *:</label>
@@ -510,13 +546,19 @@ const Home = () => {
 
       <LogoutModal isOpen={showModal} onConfirm={handleLogout} onCancel={handleCancel} />
       <DeleteModal isOpen={showDeleteModal} onConfirm={handleDelete} onCancel={handleDeleteCancel} />
+      <EditModal
+        isOpen={showEditModal}
+        onConfirm={handleEdit}
+        onCancel={handleEditCancel}
+        broker={brokerToEdit}
+      />
       <RightSideTable
         tableData={tableData.map((row) => ({
           ...row,
           connectionStatus: connectionStatuses[row.brokerId] || row.connectionStatus,
         }))}
         onAssign={handleAssign}
-        onEdit={handleEdit}
+        onEdit={handleEditClick}
         onDelete={handleDeleteClick}
       />
     </div>
