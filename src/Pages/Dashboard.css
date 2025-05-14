@@ -1,24 +1,30 @@
 /* Dashboard layout */
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 30% 70%;
-  height: 100vh;
+  grid-template-columns: 20% 79.4%;
+  height: 100%;
+  background-color: #30363dc5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8); /* Updated shadow for better visibility */
 }
 
 /* Sidebar */
 .dashboard-sidebar {
   display: grid;
+  align-items: center;
+  justify-content: center;
   gap: 20px;
-  padding: 20px;
-  margin: 0 20px;
-  margin-top: 40px;
-  background-color: #f0f0f0;
+  margin: 15px 10px;
+  padding-top: 25px;
+  padding-right: 20px;
+  background-color: #141d30ba;
   align-content: start;
+  margin-top: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8); /* Updated shadow for better visibility */
 }
 
 /* Sidebar buttons */
 .dashboard-button {
-  background-color: #4CAF50;
+  background-color: #00897B;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -26,33 +32,35 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 65%;
+  width: 130%;
+  margin-left: -15px;
 }
 
 .dashboard-button:hover {
-  background-color: #45a049;
+  background-color: #4DB6AC;
 }
 
 /* Main content area */
 .dashboard-main {
   padding: 20px;
-  margin: 15px 10px;
+  margin: 15px 0px;
   position: relative;
-  height: 100vh;
+  height: 90vh;
   display: flex;
   flex-direction: column;
+  background-color: #141d30ba;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8); /* Updated shadow for better visibility */
 }
 
 /* Status bar */
 .status-bar {
   display: flex;
   align-items: center;
-  gap: 10px; /* Space between elements */
+  gap: 10px;
 }
 
-/* Back button */
 .back-button {
-  background-color: #2196F3; /* Matches dashboard-action-button */
+  background-color: #00897B;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -63,23 +71,7 @@
 }
 
 .back-button:hover {
-  background-color: #1976D2; /* Matches dashboard-action-button hover */
-}
-
-/* Retry button */
-.retry-button {
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.retry-button:hover {
-  background-color: #1976D2;
+  background-color: #4DB6AC;
 }
 
 /* Form scroll area */
@@ -96,24 +88,23 @@
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: #fafafa;
+  /* background-color: #E0E0E0; */
 }
 
-/* Margin for additional form blocks */
 .form-block-margin {
   margin-top: 20px;
 }
 
-/* Fixed buttons at bottom */
+/* Fixed buttons at the bottom */
 .fixed-buttons {
   position: sticky;
   bottom: 0;
-  background-color: white;
-  padding: 15px 0;
+  background-color: #2a354015;
+  padding: 5px 0;
   display: flex;
   justify-content: center;
   gap: 20px;
-  border-top: 1px solid #ddd;
+  /* border-top: 1px solid #ddd; */
   z-index: 1;
 }
 
@@ -133,14 +124,13 @@
   gap: 4px;
 }
 
-/* Labels */
 .dashboard-form-group label {
   font-weight: 500;
   font-size: 14px;
-  color: #333;
+  color: #fff;
 }
 
-/* Inputs */
+/* Form inputs */
 .dashboard-form-group input {
   padding: 8px;
   font-size: 14px;
@@ -152,7 +142,7 @@
 }
 
 .dashboard-form-group input:focus {
-  border-color: #4CAF50;
+  border-color: #4DB6AC;
 }
 
 /* Spacing between form rows */
@@ -160,7 +150,7 @@
   margin-top: 20px;
 }
 
-/* Select dropdowns */
+/* Form select dropdowns */
 .dashboard-form-group select {
   padding: 8px;
   font-size: 14px;
@@ -172,12 +162,12 @@
 }
 
 .dashboard-form-group select:focus {
-  border-color: #4CAF50;
+  border-color: #4DB6AC;
 }
 
-/* Action buttons (Reset, Add+) */
+/* Action buttons (Reset, Add) */
 .dashboard-action-button {
-  background-color: #2196F3;
+  background-color: #00897B;
   color: white;
   border: none;
   padding: 10px 30px;
@@ -189,33 +179,10 @@
 }
 
 .dashboard-action-button:hover {
-  background-color: #1976D2;
+  background-color: #4DB6AC;
 }
 
-/* Error message */
-.error-message {
-  background-color: #ffe6e6;
-  color: #d32f2f;
-  border-radius: 6px;
-  font-size: 14px;
-  width: fit-content;
-  margin: 10px auto;
-  padding: 8px 12px;
-}
-
-/* Success message */
-.success-message {
-  background-color: #e6ffe6;
-  color: #2e7d32;
-  border-radius: 6px;
-  font-size: 14px;
-  text-align: center;
-  width: fit-content;
-  margin: 10px auto;
-  padding: 8px 12px;
-}
-
-/* Topic name section */
+/* Topic name input and button */
 .dashboard-topic-name {
   display: flex;
   align-items: center;
@@ -224,14 +191,12 @@
   gap: 10px;
 }
 
-/* Topic name label */
 .dashboard-topic-name label {
   font-weight: 500;
   font-size: 14px;
-  color: #333;
+  color: #555;
 }
 
-/* Topic name input */
 .dashboard-topic-name input {
   padding: 8px;
   font-size: 14px;
@@ -243,12 +208,11 @@
 }
 
 .dashboard-topic-name input:focus {
-  border-color: #4CAF50;
+  border-color: #4DB6AC;
 }
 
-/* Topic name publish button */
 .dashboard-topic-name button {
-  background-color: #2196F3;
+  background-color: #00897B;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -259,29 +223,29 @@
 }
 
 .dashboard-topic-name button:hover {
-  background-color: #1976D2;
+  background-color: #4DB6AC;
 }
 
-/* Status classes */
+/* Status indicators */
 .status-connected {
-  color: #2e7d32; /* Green for connected */
+  color: #4CAF50;
 }
 
-.status-disconnected, .status-connecting {
-  color: #d32f2f; /* Red for disconnected/connecting */
+.status-disconnected,
+.status-connecting {
+  color: #F44336;
 }
 
-/* Status bar text */
 .status-bar p {
   font-size: 14px;
   color: #333;
   margin: 0;
 }
 
-/* Headings */
+/* Heading */
 h2 {
-  color: #333;
+  color: white;
   font-size: 20px;
-  margin-bottom: 12px;
-  text-align: center;
+  margin-left: 4px;
+  text-align: start;
 }

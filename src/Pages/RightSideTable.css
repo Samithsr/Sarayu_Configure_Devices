@@ -41,7 +41,7 @@
   overflow-x: auto;
   border-radius: 10px;
   padding: 10px 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); /* Updated shadow for better visibility */
   background-color: #252F3F;
 }
 
@@ -50,7 +50,7 @@
   width: 100%;
   border-collapse: collapse;
   table-layout: auto;
-  box-shadow: -1px 12px 12px -6px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9); /* Updated shadow for better visibility */
 }
 
 /* Table headers and cells */

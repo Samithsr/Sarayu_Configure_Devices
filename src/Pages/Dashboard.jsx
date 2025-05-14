@@ -90,13 +90,8 @@ const Dashboard = () => {
 
     setUserEmail(email || 'User');
 
-    // Update socket auth token
+    // Update socket auth token dynamically
     socketRef.current.auth = { token: `Bearer ${authToken}`, userId, brokerId };
-
-    // Ensure socket is connected
-    if (!socketRef.current.connected) {
-      socketRef.current.connect();
-    }
 
     // Socket.IO event listeners
     socketRef.current.on('connect', () => {
@@ -120,7 +115,8 @@ const Dashboard = () => {
     socketRef.current.on('disconnect', () => {
       console.log(`Socket.IO disconnected for user ${userId}, broker ${brokerId}`);
       setConnectionStatus('disconnected');
-      setConnectionError('Socket connection lost. Please check your network.');
+      setConnectionError('Socket connection lost. Attempting to reconnect...');
+      // Socket.IO will auto-reconnect due to settings in Socket.js
     });
 
     socketRef.current.on('mqtt_status', ({ brokerId: receivedBrokerId, status }) => {
@@ -138,7 +134,7 @@ const Dashboard = () => {
             draggable: true,
           });
         } else if (status === 'disconnected') {
-          toast.error('MQTT broker disconnected. Please try reconnecting.', {
+          toast.error('MQTT broker disconnected. Attempting to reconnect...', {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -215,22 +211,10 @@ const Dashboard = () => {
     setSuccess('New form block added!');
   };
 
-  const handleRetryConnection = () => {
-    const userId = localStorage.getItem('userId');
-    setError('');
-    setSuccess('');
-    toast.info('Attempting to reconnect to MQTT broker...', {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });
-    socketRef.current.emit('connect_broker', { brokerId, userId });
-  };
+  const handlePublish = (e) => {
+    e.stopPropagation(); // Prevent event bubbling to parent elements
+    console.log('handlePublish called'); // Debug log
 
-  const handlePublish = () => {
     setError('');
     setSuccess('');
 
@@ -259,7 +243,7 @@ const Dashboard = () => {
     }
 
     if (connectionStatus !== 'connected') {
-      setError('MQTT broker is not connected. Please wait until the connection is established or try reconnecting.');
+      setError('MQTT broker is not connected. Please wait until the connection is established.');
       return;
     }
 
@@ -290,13 +274,17 @@ const Dashboard = () => {
     });
   };
 
-  const handlePublishClick = () => {
+  const handlePublishClick = (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    console.log('handlePublishClick called'); // Debug log
     setShowMain(true); // Show the form
     setError('');
     setSuccess('');
   };
 
-  const handleBack = () => {
+  const handleBack = (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    console.log('handleBack called'); // Debug log
     navigate('/table');
   };
 
@@ -305,17 +293,14 @@ const Dashboard = () => {
       <div className="dashboard-sidebar">
         <button className="dashboard-button" onClick={handlePublishClick}>Publish</button>
         <button className="dashboard-button">Subscribe</button>
-        <button className="dashboard-button">Com Configuration</button>
+        <button className="dashboard-button">Con Configuration</button>
         <button className="dashboard-button">Wi-Fi</button>
       </div>
 
       <div className="dashboard-main">
         <div className="status-bar">
           <button className="back-button" onClick={handleBack}>Back</button>
-          <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p>
-          {connectionStatus !== 'connected' && (
-            <button className="retry-button" onClick={handleRetryConnection}>Retry Connection</button>
-          )}
+          {/* <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p> */}
         </div>
         {showMain && (
           <>
@@ -406,7 +391,7 @@ const Dashboard = () => {
             </div>
 
             <div className="dashboard-topic-name">
-              <label htmlFor="topicName">Topics</label>
+              {/* <label htmlFor="topicName">Topics</label> */}
               <input
                 type="text"
                 id="topicName"
