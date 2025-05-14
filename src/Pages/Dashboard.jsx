@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Dashboard.css';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify'; // Import toast
 import socket from '../Pages/Socket'; // Import shared socket
+import 'react-toastify/dist/ReactToastify.css';
 
 const getDefaultFormData = () => ({
   tag1: '',
@@ -32,6 +34,48 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { brokerId } = location.state || {};
   const socketRef = useRef(socket);
+
+  // Toast for errors
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }, [error]);
+
+  // Toast for connection errors
+  useEffect(() => {
+    if (connectionError) {
+      toast.error(connectionError, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }, [connectionError]);
+
+  // Toast for success messages
+  useEffect(() => {
+    if (success) {
+      toast.success(success, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }, [success]);
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -85,11 +129,32 @@ const Dashboard = () => {
         setConnectionStatus(status);
         if (status === 'connected') {
           setConnectionError('');
-          // setSuccess('MQTT broker connected successfully!');
+          toast.success('MQTT broker connected successfully!', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
         } else if (status === 'disconnected') {
-          // setConnectionError('MQTT broker disconnected. Please try reconnecting.');
+          toast.error('MQTT broker disconnected. Please try reconnecting.', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
         } else if (status === 'connecting') {
-          // setConnectionError('Attempting to connect to MQTT broker...');
+          toast.info('Attempting to connect to MQTT broker...', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
         }
       }
     });
@@ -154,7 +219,14 @@ const Dashboard = () => {
     const userId = localStorage.getItem('userId');
     setError('');
     setSuccess('');
-    setConnectionError('Attempting to reconnect to MQTT broker...');
+    toast.info('Attempting to reconnect to MQTT broker...', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
     socketRef.current.emit('connect_broker', { brokerId, userId });
   };
 
@@ -240,18 +312,14 @@ const Dashboard = () => {
       <div className="dashboard-main">
         <div className="status-bar">
           <button className="back-button" onClick={handleBack}>Back</button>
-          {/* <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p> */}
-          {/* {connectionStatus !== 'connected' && (
+          <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p>
+          {connectionStatus !== 'connected' && (
             <button className="retry-button" onClick={handleRetryConnection}>Retry Connection</button>
-          )} */}
+          )}
         </div>
-        {connectionError && <p style={{ color: 'red', textAlign: 'center' }}>{connectionError}</p>}
         {showMain && (
           <>
             <h2>Com Configuration</h2>
-            {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-            {success && <p style={{ color: 'green', textAlign: 'center' }}>{success}</p>}
-
             <div className="form-scroll-area" key={formKey}>
               {formBlocks.map((formData, index) => (
                 <div key={index} className={`form-block ${index !== 0 ? 'form-block-margin' : ''}`}>

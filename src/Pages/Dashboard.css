@@ -199,6 +199,8 @@
   border-radius: 6px;
   font-size: 14px;
   width: fit-content;
+  margin: 10px auto;
+  padding: 8px 12px;
 }
 
 /* Success message */
@@ -209,20 +211,55 @@
   font-size: 14px;
   text-align: center;
   width: fit-content;
-  margin: 10px 0 0 0;
+  margin: 10px auto;
+  padding: 8px 12px;
 }
 
-/* Topic name input and button */
-.dashboard-topic-name input {
+/* Topic name section */
+.dashboard-topic-name {
   display: flex;
-  padding: 5px 5px;
-  margin: 10px;
-  font-size: 18px;
+  align-items: center;
+  margin-top: 20px;
+  justify-content: center;
+  gap: 10px;
 }
 
+/* Topic name label */
+.dashboard-topic-name label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Topic name input */
+.dashboard-topic-name input {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  min-width: 200px;
+}
+
+.dashboard-topic-name input:focus {
+  border-color: #4CAF50;
+}
+
+/* Topic name publish button */
 .dashboard-topic-name button {
-  padding: 5px 10px;
-  margin-left: 10px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-topic-name button:hover {
+  background-color: #1976D2;
 }
 
 /* Status classes */
@@ -234,9 +271,17 @@
   color: #d32f2f; /* Red for disconnected/connecting */
 }
 
+/* Status bar text */
+.status-bar p {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
 /* Headings */
 h2 {
   color: #333;
   font-size: 20px;
   margin-bottom: 12px;
+  text-align: center;
 }
