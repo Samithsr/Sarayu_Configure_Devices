@@ -1,0 +1,15 @@
+/* Custom styles for ToastContainer */
+.custom-toast-container {
+  top: 100px !important; /* Move toast down from the top */
+  right: 20px !important; /* Keep some margin from the right edge */
+  z-index: 9999; /* Ensure toast is above other elements */
+}
+
+/* Alternative: Bottom-right position */
+/*
+.custom-toast-container {
+  bottom: 100px !important; 
+  right: 20px !important;
+  z-index: 9999;
+}
+*/

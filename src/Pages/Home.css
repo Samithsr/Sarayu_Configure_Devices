@@ -35,7 +35,7 @@
 .home-container {
   min-width: 400px;
   min-height: 560px;
-  max-height: 521px;
+  max-height: 641px;
   margin: 20px;
   padding: 25px;
   background-color: #252F3F;
@@ -80,7 +80,7 @@
 }
 
 .broker-form button {
-  width: 50%;
+  width: 100%;
   padding: 12px;
   background: #3B82F6;
   color: #FFFFFF;
@@ -105,7 +105,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(186, 179, 179, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -113,7 +113,7 @@
 }
 
 .modal-content {
-  background: #252F3F;
+  background: #e4e7ec;
   padding: 25px;
   border-radius: 12px;
   width: 100%;
@@ -170,16 +170,6 @@
 }
 
 /* Messages */
-.error-message {
-  position: absolute;
-  bottom: 65px;
-  width: 87%;
-  text-align: center;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #FFFFFF;
-}
-
 .status-message {
   position: absolute;
   bottom: 65px;
@@ -188,15 +178,6 @@
   left: 50%;
   transform: translateX(-50%);
   color: #FFFFFF;
-}
-
-.success-message {
-  position: absolute;
-  width: 87%;
-  text-align: center;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #10B981;
 }
 
 /* Animation */
@@ -227,8 +208,6 @@
     max-height: 400px;
   }
 
-  .error-message,
-  .success-message,
   .status-message {
     width: 90%;
     font-size: 12px;

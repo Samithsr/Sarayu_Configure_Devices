@@ -1,0 +1,81 @@
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1500;
+}
+
+.delete-modal-container {
+  background-color: #30363dc5;
+  padding: 24px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  animation: modalFadeIn 0.3s ease;
+  text-align: start;
+}
+
+.delete-modal-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.delete-modal-message {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.delete-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.delete-modal-btn {
+  padding:8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cancel-btn {
+  background-color: rgb(13, 167, 13);
+  color: #fff;
+}
+
+.cancel-btn:hover {
+  background-color: #6b7280;
+}
+
+.confirm-btn {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.confirm-btn:hover {
+  background-color: #dc2626;
+}
+
+@keyframes modalFadeIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

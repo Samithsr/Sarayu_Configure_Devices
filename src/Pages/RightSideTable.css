@@ -90,7 +90,7 @@
 /* Assign button */
 .assign-button {
   padding: 5px 12px;
-  background: #10B981;
+  background: #10B981; /* Green for connected state */
   color: #FFFFFF;
   font-size: 14px;
   font-weight: 500;
@@ -102,6 +102,15 @@
 
 .assign-button:hover {
   background: #059669;
+  transform: translateY(-1px);
+}
+
+.assign-button.disconnected {
+  background: #4B5563; /* Gray for disconnected/connecting/error */
+}
+
+.assign-button.disconnected:hover {
+  background: #6B7280;
   transform: translateY(-1px);
 }
 

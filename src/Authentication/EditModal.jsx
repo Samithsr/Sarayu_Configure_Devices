@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import "../Pages/Home.css";
-import "../Pages/styles.css"
+// import "../Pages/Home.css";
+import "../Pages/Styles.css"
 
 const EditModal = ({ isOpen, onConfirm, onCancel, broker }) => {
   const [formData, setFormData] = useState({

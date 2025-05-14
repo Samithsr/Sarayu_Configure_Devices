@@ -85,11 +85,11 @@ const Dashboard = () => {
         setConnectionStatus(status);
         if (status === 'connected') {
           setConnectionError('');
-          setSuccess('MQTT broker connected successfully!');
+          // setSuccess('MQTT broker connected successfully!');
         } else if (status === 'disconnected') {
-          setConnectionError('MQTT broker disconnected. Please try reconnecting.');
+          // setConnectionError('MQTT broker disconnected. Please try reconnecting.');
         } else if (status === 'connecting') {
-          setConnectionError('Attempting to connect to MQTT broker...');
+          // setConnectionError('Attempting to connect to MQTT broker...');
         }
       }
     });
@@ -224,6 +224,10 @@ const Dashboard = () => {
     setSuccess('');
   };
 
+  const handleBack = () => {
+    navigate('/table');
+  };
+
   return (
     <div className="dashboard-layout">
       <div className="dashboard-sidebar">
@@ -235,10 +239,11 @@ const Dashboard = () => {
 
       <div className="dashboard-main">
         <div className="status-bar">
-          <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p>
-          {connectionStatus !== 'connected' && (
+          <button className="back-button" onClick={handleBack}>Back</button>
+          {/* <p>MQTT Status: <span className={`status-${connectionStatus}`}>{connectionStatus}</span></p> */}
+          {/* {connectionStatus !== 'connected' && (
             <button className="retry-button" onClick={handleRetryConnection}>Retry Connection</button>
-          )}
+          )} */}
         </div>
         {connectionError && <p style={{ color: 'red', textAlign: 'center' }}>{connectionError}</p>}
         {showMain && (
@@ -341,7 +346,7 @@ const Dashboard = () => {
                 value={topicName}
                 onChange={(e) => setTopicName(e.target.value)}
               />
-              <button onClick={handlePublish} disabled={connectionStatus !== 'connected'}>Publish</button>
+              <button onClick={handlePublish}>Publish</button>
             </div>
           </>
         )}
