@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "./LogoutModel";
 import DeleteModal from "../Authentication/DeleteModel";
 import EditModal from "../Authentication/EditModal";
-import socket from "../Pages/Socket";
 import { toast } from "react-toastify";
 
 const Home = () => {
@@ -22,9 +21,7 @@ const Home = () => {
   });
   const [tableData, setTableData] = useState([]);
   const [userEmail, setUserEmail] = useState("");
-  const [connectionStatuses, setConnectionStatuses] = useState({});
   const navigate = useNavigate();
-  const socketRef = useRef(socket);
 
   const isValidIPv4 = (ip) => {
     const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -32,83 +29,12 @@ const Home = () => {
   };
 
   useEffect(() => {
-    socketRef.current.auth = { token: `Bearer ${localStorage.getItem("authToken")}` };
-    socketRef.current.connect();
-
-    socketRef.current.on("connect", () => {
-      console.log("Socket.IO connected:", socketRef.current.id);
-    });
-
-    socketRef.current.on("error", ({ message }) => {
-      console.error("Socket error:", message);
-      if (message.toLowerCase().includes("mqtt timed out") || message.toLowerCase().includes("etimedout")) {
-        toast.error("Failed to connect to broker. Please check the details and try again.");
-      } else {
-        toast.error(message);
-      }
-      if (message.includes("Another session is active")) {
-        socketRef.current.disconnect();
-        alert("Another session is active. Please close other tabs or sessions and try again.");
-      }
-    });
-
-    socketRef.current.on("disconnect", () => {
-      console.log("Socket.IO disconnected");
-    });
-
-    socketRef.current.on("broker_status", ({ brokerId, status }) => {
-      setConnectionStatuses((prev) => ({ ...prev, [brokerId]: status }));
-      setTableData((prev) =>
-        prev.map((row) =>
-          row.brokerId === brokerId ? { ...row, connectionStatus: status } : row
-        )
-      );
-      if (status === "connected") {
-        toast.success(`Broker ${brokerId} connected successfully!`);
-        socketRef.current.emit("subscribe", { brokerId, topic: "default/topic" });
-      } else if (status === "disconnected") {
-        toast.error(`Broker ${brokerId} disconnected.`);
-      }
-    });
-
-    socketRef.current.on("subscribed", ({ topic, brokerId }) => {
-      toast.success(`Subscribed to topic ${topic} for broker ${brokerId}`);
-    });
-
-    socketRef.current.on("broker_updated", ({ broker }) => {
-      setTableData((prev) =>
-        prev.map((row) =>
-          row.brokerId === broker._id
-            ? {
-                brokerId: broker._id,
-                brokerip: broker.brokerIp || "N/A",
-                port: broker.portNumber ? broker.portNumber.toString() : "N/A",
-                user: broker.username || "N/A",
-                password: broker.password ? "*".repeat(broker.password.length) : "N/A",
-                rawPassword: broker.password || "",
-                label: broker.label || "N/A",
-                connectionStatus: broker.connectionStatus || "disconnected",
-              }
-            : row
-        )
-      );
-      toast.success(`Broker ${broker._id} updated successfully!`);
-    });
-
-    socketRef.current.on("broker_deleted", ({ brokerId }) => {
-      setTableData((prev) => prev.filter((row) => row.brokerId !== brokerId));
-      toast.success(`Broker ${brokerId} deleted successfully!`);
-    });
-
-    return () => {
-      socketRef.current.off("connect");
-      socketRef.current.off("error");
-      socketRef.current.off("disconnect");
-      socketRef.current.off("broker_status");
-      socketRef.current.off("subscribed");
-      socketRef.current.off("broker_updated");
-      socketRef.current.off("broker_deleted");
-    };
+    const authToken = localStorage.getItem("authToken");
+    const userId = localStorage.getItem("userId");
+    if (!authToken || !userId) {
+      toast.error("Authentication token or user ID is missing. Please log in again.");
+      navigate("/");
+    }
   }, [navigate]);
 
   const fetchTableData = async () => {
@@ -218,19 +144,13 @@ const Home = () => {
 
       if (!response.ok) {
         const errorMessage = await response.json().then((data) => data.message || "Broker is not available.");
-        if (errorMessage.toLowerCase().includes("mqtt timed out") || errorMessage.toLowerCase().includes("etimedout")) {
-          toast.error("Failed to connect to broker. Please check the details and try again.");
-        } else {
-          toast.error(errorMessage);
-        }
+        toast.error(errorMessage);
         throw new Error(errorMessage);
       }
 
       return true;
     } catch (err) {
-      toast.error(err.message.toLowerCase().includes("mqtt timed out") || err.message.toLowerCase().includes("etimedout")
-        ? "Failed to connect to broker. Please check the details and try again."
-        : err.message || "Broker is not available. Please check the IP and port.");
+      toast.error(err.message || "Broker is not available. Please check the IP and port.");
       return false;
     }
   };
@@ -283,21 +203,15 @@ const Home = () => {
           return;
         }
         const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
-        if (errorMessage.toLowerCase().includes("mqtt timed out") || errorMessage.toLowerCase().includes("etimedout")) {
-          toast.error("Failed to connect to broker. Please check the details and try again.");
-        } else {
-          toast.error(errorMessage);
-        }
+        toast.error(errorMessage);
         throw new Error(errorMessage);
       }
 
       const result = await response.json();
       toast.success(`Broker ${result._id} added successfully!`);
 
-      socketRef.current.emit("connect_broker", { brokerId: result._id });
-
       const updatedTableData = await fetchTableData();
-      navigate("/table", { state: { tableData: updatedTableData, connectionStatuses } });
+      navigate("/table", { state: { tableData: updatedTableData } });
 
       setFormData({
         brokerIp: "",
@@ -308,21 +222,18 @@ const Home = () => {
       });
     } catch (err) {
       console.error("Connection error:", err);
-      toast.error(err.message.toLowerCase().includes("mqtt timed out") || err.message.toLowerCase().includes("etimedout")
-        ? "Failed to connect to broker. Please check the details and try again."
-        : err.message || "An error occurred while connecting to the broker.");
+      toast.error(err.message || "An error occurred while connecting to the broker.");
     }
   };
 
   const handleGetGateway = async () => {
     const tableData = await fetchTableData();
-    navigate("/table", { state: { tableData, connectionStatuses } });
+    navigate("/table", { state: { tableData } });
   };
 
   const handleAssign = (row) => {
     const userId = localStorage.getItem("userId");
     toast.success("Broker assigned successfully.");
-    socketRef.current.emit("connect_broker", { brokerId: row.brokerId });
     navigate("/dashboard", { state: { brokerId: row.brokerId, userId } });
   };
 
@@ -371,12 +282,11 @@ const Home = () => {
         throw new Error(errorMessage);
       }
 
-      const updatedBroker = await response.json();
-      socketRef.current.emit("broker_updated", { broker: updatedBroker });
+      toast.success(`Broker ${brokerToEdit.brokerId} updated successfully!`);
       setShowEditModal(false);
       setBrokerToEdit(null);
       const updatedTableData = await fetchTableData();
-      navigate("/table", { state: { tableData: updatedTableData, connectionStatuses } });
+      navigate("/table", { state: { tableData: updatedTableData } });
     } catch (err) {
       console.error("Update error:", err);
       toast.error(err.message || "An error occurred while updating the broker.");
@@ -428,11 +338,11 @@ const Home = () => {
         throw new Error(errorMessage);
       }
 
-      socketRef.current.emit("broker_deleted", { brokerId: brokerToDelete });
+      toast.success(`Broker ${brokerToDelete} deleted successfully!`);
       setShowDeleteModal(false);
       setBrokerToDelete(null);
       const updatedTableData = await fetchTableData();
-      navigate("/table", { state: { tableData: updatedTableData, connectionStatuses } });
+      navigate("/table", { state: { tableData: updatedTableData } });
     } catch (err) {
       console.error("Delete error:", err);
       toast.error(err.message || "An error occurred while deleting the broker.");
@@ -448,7 +358,6 @@ const Home = () => {
 
   const handleLogoutClick = () => setShowModal(true);
   const handleLogout = () => {
-    socketRef.current.disconnect();
     localStorage.clear();
     setShowModal(false);
     navigate("/");
@@ -552,3 +461,4 @@ const Home = () => {
 };
 
 export default Home;
+
