@@ -4,7 +4,7 @@
   grid-template-columns: 20% 79.4%;
   height: 100%;
   background-color: #30363dc5;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8); /* Updated shadow for better visibility */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
 }
 
 /* Sidebar */
@@ -19,7 +19,7 @@
   background-color: #141d30ba;
   align-content: start;
   margin-top: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8); /* Updated shadow for better visibility */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
 }
 
 /* Sidebar buttons */
@@ -49,50 +49,94 @@
   display: flex;
   flex-direction: column;
   background-color: #141d30ba;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8); /* Updated shadow for better visibility */
-}
-
-/* Status bar */
-.status-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.back-button {
-  background-color: #00897B;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.back-button:hover {
-  background-color: #4DB6AC;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
 }
 
 /* Form scroll area */
 .form-scroll-area {
+  width: 100%;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* Vertical scrolling */
+  max-height: calc(100% - 100px); /* Reserve space for buttons and topic input */
   padding-right: 10px;
   margin-right: 10px;
-  margin-top: 15px;
+  margin-top: 10px;
+  scrollbar-width: thin; /* Thinner scrollbar for Firefox */
 }
 
-/* Form block */
-.form-block {
-  padding: 20px;
-  border: 1px solid #ddd;
+/* Style vertical scrollbar for WebKit browsers */
+.form-scroll-area::-webkit-scrollbar {
+  width: 8px; /* Reduce scrollbar thickness */
+}
+
+.form-scroll-area::-webkit-scrollbar-track {
+  background: transparent; /* Clean track */
+}
+
+.form-scroll-area::-webkit-scrollbar-thumb {
+  background: #00897B; /* Teal thumb to match theme */
+  border-radius: 2px; /* Less rounded corners */
+}
+
+.form-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #4DB6AC; /* Lighter teal on hover */
+}
+
+/* Table wrapper */
+.table-wrapper {
+  width: 100%;
+}
+
+/* Table styling */
+.form-table {
+  width: 100%; /* Full width of table-wrapper */
+  min-width: 1440px; /* Ensure all 12 columns fit (12 × 120px) */
+  border-collapse: collapse;
+  background-color: #fff;
   border-radius: 8px;
-  /* background-color: #E0E0E0; */
+  overflow: hidden;
 }
 
-.form-block-margin {
-  margin-top: 20px;
+.form-table th,
+.form-table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: center; /* Center all columns */
+  min-width: 120px; /* Ensure columns are wide enough */
+}
+
+.form-table th {
+  height: 5vh;
+  background-color: #00897B;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 2; /* Ensure headers stay above cells */
+}
+
+.form-table td {
+  background-color: #f9f9f9;
+}
+
+/* Form inputs */
+.form-table input,
+.form-table select {
+  width: 100%; /* Full width of cell */
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box; /* Include padding and border in width */
+  text-align: center; /* Center text in inputs and selects */
+}
+
+.form-table input:focus,
+.form-table select:focus {
+  border-color: #4DB6AC;
 }
 
 /* Fixed buttons at the bottom */
@@ -104,68 +148,10 @@
   display: flex;
   justify-content: center;
   gap: 20px;
-  /* border-top: 1px solid #ddd; */
   z-index: 1;
 }
 
-/* Form horizontal layout */
-.dashboard-form-horizontal {
-  display: flex;
-  gap: 40px;
-  margin-top: 30px;
-  margin-left: 100px;
-  align-items: flex-end;
-}
-
-/* Form group */
-.dashboard-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.dashboard-form-group label {
-  font-weight: 500;
-  font-size: 14px;
-  color: #fff;
-}
-
-/* Form inputs */
-.dashboard-form-group input {
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  outline: none;
-  transition: border-color 0.3s ease;
-  min-width: 200px;
-}
-
-.dashboard-form-group input:focus {
-  border-color: #4DB6AC;
-}
-
-/* Spacing between form rows */
-.dashboard-form-horizontal + .dashboard-form-horizontal {
-  margin-top: 20px;
-}
-
-/* Form select dropdowns */
-.dashboard-form-group select {
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  outline: none;
-  transition: border-color 0.3s ease;
-  min-width: 200px;
-}
-
-.dashboard-form-group select:focus {
-  border-color: #4DB6AC;
-}
-
-/* Action buttons (Reset, Add) */
+/* Action buttons (Back, Reset, Add) */
 .dashboard-action-button {
   background-color: #00897B;
   color: white;
@@ -189,12 +175,6 @@
   margin-top: 20px;
   justify-content: center;
   gap: 10px;
-}
-
-.dashboard-topic-name label {
-  font-weight: 500;
-  font-size: 14px;
-  color: #555;
 }
 
 .dashboard-topic-name input {
@@ -234,12 +214,6 @@
 .status-disconnected,
 .status-connecting {
   color: #F44336;
-}
-
-.status-bar p {
-  font-size: 14px;
-  color: #333;
-  margin: 0;
 }
 
 /* Heading */

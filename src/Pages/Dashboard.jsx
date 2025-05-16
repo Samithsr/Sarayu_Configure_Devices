@@ -3,6 +3,7 @@ import "./Dashboard.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DisconnectModal from "../Components/DisconnectModel";
 
 const getDefaultFormData = () => ({
   tag1: "",
@@ -27,6 +28,8 @@ const Dashboard = () => {
   const [success, setSuccess] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [topicName, setTopicName] = useState("");
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+  const [isResetClear, setIsResetClear] = useState(true); // Track clear vs. remove
   const location = useLocation();
   const navigate = useNavigate();
   const { brokerId, userId } = location.state || {};
@@ -81,18 +84,35 @@ const Dashboard = () => {
   };
 
   const handleReset = () => {
-    const updatedForms = [...formBlocks];
-    updatedForms[formBlocks.length - 1] = getDefaultFormData();
-    setFormBlocks(updatedForms);
     setError("");
     setSuccess("");
+
+    if (isResetClear) {
+      // First click: Clear the latest row's data
+      const updatedForms = [...formBlocks];
+      updatedForms[formBlocks.length - 1] = getDefaultFormData();
+      setFormBlocks(updatedForms);
+      setIsResetClear(false);
+      toast.success("Row cleared!");
+    } else {
+      // Second click: Remove the latest row
+      if (formBlocks.length > 1) {
+        const updatedForms = formBlocks.slice(0, -1);
+        setFormBlocks(updatedForms);
+        setIsResetClear(true);
+        toast.success("Row removed!");
+      } else {
+        toast.error("Cannot remove the last row!");
+      }
+    }
   };
 
   const handleAdd = () => {
     setError("");
     setSuccess("");
     setFormBlocks([...formBlocks, getDefaultFormData()]);
-    setSuccess("New form block added!");
+    setIsResetClear(true); // Reset to clear mode after adding
+    setSuccess("New input row added!");
   };
 
   const handlePublish = async (e) => {
@@ -181,7 +201,45 @@ const Dashboard = () => {
   const handleBack = (e) => {
     e.stopPropagation();
     console.log("handleBack called");
-    navigate("/table");
+    setShowDisconnectModal(true);
+  };
+
+  const handleDisconnect = async () => {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      toast.error("Authentication token is missing. Please log in again.");
+      navigate("/");
+      setShowDisconnectModal(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/disconnect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.json().then((data) => data.message || "Failed to disconnect broker.");
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      toast.success("Broker disconnected successfully!");
+      setShowDisconnectModal(false);
+      navigate("/table");
+    } catch (err) {
+      console.error("Disconnect error:", err);
+      toast.error(err.message || "An error occurred while disconnecting the broker.");
+      setShowDisconnectModal(false);
+    }
+  };
+
+  const handleDisconnectCancel = () => {
+    setShowDisconnectModal(false);
   };
 
   return (
@@ -191,162 +249,162 @@ const Dashboard = () => {
           Publish
         </button>
         <button className="dashboard-button">Subscribe</button>
-        <button className="dashboard-button">Con Configuration</button>
+        <button className="dashboard-button">Com Configuration</button>
         <button className="dashboard-button">Wi-Fi</button>
       </div>
 
       <div className="dashboard-main">
-        <div className="status-bar">
-          <button className="back-button" onClick={handleBack}>
-            Back
-          </button>
-        </div>
         {showMain && (
           <>
             <h2>Com Configuration</h2>
             <div className="form-scroll-area" key={formKey}>
-              {formBlocks.map((formData, index) => (
-                <div key={index} className={`form-block ${index !== 0 ? "form-block-margin" : ""}`}>
-                  <div className="dashboard-form-horizontal">
-                    <div className="dashboard-form-group">
-                      <label htmlFor="tag1">Tagname:</label>
-                      <input
-                        type="text"
-                        id="tag1"
-                        value={formData.tag1}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="tag2">Device ID</label>
-                      <input
-                        type="text"
-                        id="tag2"
-                        value={formData.tag2}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="tag3">Slave Id</label>
-                      <input
-                        type="text"
-                        id="tag3"
-                        value={formData.tag3}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="tag4">Function Code</label>
-                      <input
-                        type="text"
-                        id="tag4"
-                        value={formData.tag4}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="dashboard-form-horizontal">
-                    <div className="dashboard-form-group">
-                      <label htmlFor="tag5">Address</label>
-                      <input
-                        type="text"
-                        id="tag5"
-                        value={formData.tag5}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="tag6">Length</label>
-                      <input
-                        type="text"
-                        id="tag6"
-                        value={formData.tag6}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="tag7">Data Type</label>
-                      <select
-                        id="tag7"
-                        value={formData.tag7}
-                        onChange={(e) => handleChange(index, e)}
-                      >
-                        <option value="int">int</option>
-                        <option value="float">float</option>
-                      </select>
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="tag8">Scaling</label>
-                      <input
-                        type="text"
-                        id="tag8"
-                        value={formData.tag8}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="dashboard-form-horizontal">
-                    <div className="dashboard-form-group">
-                      <label htmlFor="baudRate">Baud Rate</label>
-                      <select
-                        id="baudRate"
-                        value={formData.baudRate}
-                        onChange={(e) => handleChange(index, e)}
-                      >
-                        {[
-                          110, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600,
-                          115200, 230400, 460800, 921600,
-                        ].map((rate) => (
-                          <option key={rate} value={rate}>
-                            {rate}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="dataBit">Data Bit</label>
-                      <select
-                        id="dataBit"
-                        value={formData.dataBit}
-                        onChange={(e) => handleChange(index, e)}
-                      >
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                      </select>
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="parity">Parity</label>
-                      <select
-                        id="parity"
-                        value={formData.parity}
-                        onChange={(e) => handleChange(index, e)}
-                      >
-                        {["none", "even", "odd", "mark", "space"].map((val) => (
-                          <option key={val} value={val}>
-                            {val}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="dashboard-form-group">
-                      <label htmlFor="stopBit">Stop Bit</label>
-                      <select
-                        id="stopBit"
-                        value={formData.stopBit}
-                        onChange={(e) => handleChange(index, e)}
-                      >
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              <div className="table-wrapper">
+                <table className="form-table">
+                  <thead>
+                    <tr>
+                      <th>Tagname</th>
+                      <th>Device ID</th>
+                      <th>Slave Id</th>
+                      <th>Function Code</th>
+                      <th>Address</th>
+                      <th>Length</th>
+                      <th>Data Type</th>
+                      <th>Scaling</th>
+                      <th>Baud Rate</th>
+                      <th>Data Bit</th>
+                      <th>Parity</th>
+                      <th>Stop Bit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formBlocks.map((formData, index) => (
+                      <tr key={index}>
+                        <td>
+                          <input
+                            type="text"
+                            id="tag1"
+                            value={formData.tag1}
+                            onChange={(e) => handleChange(index, e)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            id="tag2"
+                            value={formData.tag2}
+                            onChange={(e) => handleChange(index, e)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            id="tag3"
+                            value={formData.tag3}
+                            onChange={(e) => handleChange(index, e)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            id="tag4"
+                            value={formData.tag4}
+                            onChange={(e) => handleChange(index, e)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            id="tag5"
+                            value={formData.tag5}
+                            onChange={(e) => handleChange(index, e)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            id="tag6"
+                            value={formData.tag6}
+                            onChange={(e) => handleChange(index, e)}
+                          />
+                        </td>
+                        <td>
+                          <select
+                            id="tag7"
+                            value={formData.tag7}
+                            onChange={(e) => handleChange(index, e)}
+                          >
+                            <option value="int">int</option>
+                            <option value="float">float</option>
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            id="tag8"
+                            value={formData.tag8}
+                            onChange={(e) => handleChange(index, e)}
+                          />
+                        </td>
+                        <td>
+                          <select
+                            id="baudRate"
+                            value={formData.baudRate}
+                            onChange={(e) => handleChange(index, e)}
+                          >
+                            {[
+                              110, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600,
+                              115200, 230400, 460800, 921600,
+                            ].map((rate) => (
+                              <option key={rate} value={rate}>
+                                {rate}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <select
+                            id="dataBit"
+                            value={formData.dataBit}
+                            onChange={(e) => handleChange(index, e)}
+                          >
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select
+                            id="parity"
+                            value={formData.parity}
+                            onChange={(e) => handleChange(index, e)}
+                          >
+                            {["none", "even", "odd", "mark", "space"].map((val) => (
+                              <option key={val} value={val}>
+                                {val}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <select
+                            id="stopBit"
+                            value={formData.stopBit}
+                            onChange={(e) => handleChange(index, e)}
+                          >
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <div className="dashboard-form-buttons fixed-buttons">
+              <button className="dashboard-action-button" onClick={handleBack}>
+                Back
+              </button>
               <button className="dashboard-action-button" onClick={handleReset}>
                 Reset
               </button>
@@ -368,6 +426,12 @@ const Dashboard = () => {
           </>
         )}
       </div>
+
+      <DisconnectModal
+        isOpen={showDisconnectModal}
+        onConfirm={handleDisconnect}
+        onCancel={handleDisconnectCancel}
+      />
     </div>
   );
 };

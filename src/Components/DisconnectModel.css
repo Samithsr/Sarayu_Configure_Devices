@@ -1,0 +1,69 @@
+.disconnect-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 10, 0.818);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8); */
+  z-index: 1000;
+  
+}
+
+.disconnect-modal-content {
+  /* background: white; */
+  background-color: #12161ef0;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: start;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  max-width: 400px;
+  width: 90%;
+}
+
+.disconnect-modal-content h2 {
+  margin: 0 0 10px;
+  font-size: 1.5em;
+  color: white;
+}
+
+.disconnect-modal-content p {
+  margin: 0 0 20px;
+  font-size: 1em;
+  color: white;
+}
+
+.disconnect-modal-buttons {
+  display: flex;
+  justify-content: end;
+  gap: 10px;
+}
+
+.disconnect-modal-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.disconnect-modal-disconnect {
+  background-color: #ff0000;
+  color: white;
+}
+
+.disconnect-modal-disconnect:hover {
+  background-color: #cc0000;
+}
+
+.disconnect-modal-cancel {
+  background-color: #ccc;
+  color: #333;
+}
+
+.disconnect-modal-cancel:hover {
+  background-color: #bbb;
+}
