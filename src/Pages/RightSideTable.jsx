@@ -1,11 +1,10 @@
-
-import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import { useLocation, useNavigate } from "react-router-dom";
-import "./RightSideTable.css";
-import { toast } from "react-toastify";
-import EditModal from "../Authentication/EditModal";
-import DeleteModal from "../Authentication/DeleteModel";
+import React, { useState, useEffect } from 'react';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router-dom';
+import './RightSideTable.css';
+import { toast } from 'react-toastify';
+import EditModal from '../Authentication/EditModal';
+import DeleteModal from '../Authentication/DeleteModel';
 
 const RightSideTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -13,6 +12,7 @@ const RightSideTable = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [brokerToEdit, setBrokerToEdit] = useState(null);
   const [brokerIdToDelete, setBrokerIdToDelete] = useState(null);
+  const [users, setUsers] = useState([]);
   const rowsPerPage = 10;
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,34 +25,82 @@ const RightSideTable = () => {
   const currentData = tableData.slice(startIndex, endIndex);
 
   useEffect(() => {
-    const authToken = localStorage.getItem("authToken");
-    const userId = localStorage.getItem("userId");
-    if (!authToken || !userId) {
-      toast.error("Authentication token or user ID is missing. Please log in again.");
-      navigate("/");
+    const authToken = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+    const userRole = localStorage.getItem('userRole');
+
+    // Restrict access to admins only
+    if (!authToken || !userId || !userRole) {
+      toast.error('Authentication token, user ID, or role is missing. Please log in again.');
+      navigate('/');
       return;
     }
 
+    if (userRole !== 'admin') {
+      fetchFirstBroker(userId, authToken).then((broker) => {
+        if (broker) {
+          navigate('/dashboard', { state: { brokerId: broker.brokerId, userId } });
+        } else {
+          toast.error('No brokers found. Please contact an admin to add a broker.');
+          localStorage.clear();
+          navigate('/');
+        }
+      });
+      return;
+    }
+
+    // Fetch users and table data
+    fetchUsers();
     if (!tableData.length) {
       fetchTableData();
     }
   }, [navigate, tableData.length]);
 
-  const fetchTableData = async () => {
-    const authToken = localStorage.getItem("authToken");
-    const userId = localStorage.getItem("userId");
-
-    if (!authToken || !userId) {
-      toast.error("Authentication token or user ID is missing. Please log in again.");
-      navigate("/");
+  const fetchUsers = async () => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/brokers", {
-        method: "GET",
+      const response = await fetch('http://localhost:5000/api/auth/users', {
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      setUsers(data);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      toast.error(err.message || 'An error occurred while fetching users.');
+    }
+  };
+
+  const fetchTableData = async () => {
+    const authToken = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+
+    if (!authToken || !userId) {
+      toast.error('Authentication token or user ID is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/brokers', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
         },
       });
@@ -60,8 +108,8 @@ const RightSideTable = () => {
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.clear();
-          toast.error("Session expired. Please log in again.");
-          navigate("/");
+          toast.error('Session expired. Please log in again.');
+          navigate('/');
           return;
         }
         const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
@@ -71,19 +119,182 @@ const RightSideTable = () => {
       const data = await response.json();
       const mappedData = data.map((item) => ({
         brokerId: item._id,
-        brokerip: item.brokerIp || "N/A",
-        port: item.portNumber ? item.portNumber.toString() : "N/A",
-        user: item.username || "N/A",
-        password: item.password ? "*".repeat(item.password.length) : "N/A",
-        rawPassword: item.password || "",
-        label: item.label || "N/A",
-        connectionStatus: item.connectionStatus || "disconnected",
+        brokerip: item.brokerIp || 'N/A',
+        port: item.portNumber ? item.portNumber.toString() : 'N/A',
+        user: item.username || 'N/A',
+        password: item.password ? '*'.repeat(item.password.length) : 'N/A',
+        rawPassword: item.password || '',
+        label: item.label || 'N/A',
+        connectionStatus: item.connectionStatus || 'disconnected',
+        assignedUserId: item.assignedUserId?._id || null,
+        assignedUserEmail: item.assignedUserId?.email || null,
       }));
 
       setTableData(mappedData);
     } catch (err) {
-      console.error("Error fetching table data:", err);
-      toast.error(err.message || "An error occurred while fetching table data.");
+      console.error('Error fetching table data:', err);
+      toast.error(err.message || 'An error occurred while fetching table data.');
+    }
+  };
+
+  const fetchFirstBroker = async (userId, token) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/brokers', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch brokers');
+      }
+
+      const brokers = await response.json();
+      if (brokers.length > 0) {
+        return {
+          brokerId: brokers[0]._id,
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error('Error fetching brokers:', err);
+      toast.error('Error fetching brokers: ' + err.message);
+      return null;
+    }
+  };
+
+  const handleAssignUser = async (brokerId, userId) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    try {
+      // Step 1: Assign the broker to the user
+      const assignResponse = await fetch(`http://localhost:5000/api/brokers/${brokerId}/assign-user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (!assignResponse.ok) {
+        const errorMessage = await assignResponse.json().then((data) => data.message || 'Failed to assign user to broker.');
+        throw new Error(errorMessage);
+      }
+
+      // Update the table data to reflect the new assignment
+      const updatedTableData = tableData.map((item) =>
+        item.brokerId === brokerId
+          ? {
+              ...item,
+              assignedUserId: userId,
+              assignedUserEmail: users.find((user) => user._id === userId)?.email || null,
+            }
+          : item
+      );
+      setTableData(updatedTableData);
+
+      toast.success('Broker assigned to user successfully!');
+
+      // Step 2: Find the broker row and connect
+      const brokerRow = updatedTableData.find((item) => item.brokerId === brokerId);
+      if (brokerRow) {
+        await handleConnect(brokerRow);
+      }
+    } catch (err) {
+      console.error('Error assigning user to broker:', err);
+      toast.error(err.message || 'An error occurred while assigning the user to the broker.');
+    }
+  };
+
+  const handleConnect = async (row) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    toast.info('Connecting to broker...');
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/brokers/${row.brokerId}/connect`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          const errorMessage = await response.json().then((data) => data.message || 'Access denied: Insufficient permissions');
+          toast.error(errorMessage);
+          return;
+        }
+        const errorMessage = await response.json().then((data) => data.message || 'Failed to connect to broker.');
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      // Update the connection status in the table
+      const updatedTableData = tableData.map((item) =>
+        item.brokerId === row.brokerId ? { ...item, connectionStatus: 'connected' } : item
+      );
+      setTableData(updatedTableData);
+
+      toast.success('Broker connected successfully!');
+
+      // Step 3: Publish data after successful connection
+      await handlePublish(row.brokerId, row.assignedUserId);
+    } catch (err) {
+      console.error('Connection error:', err);
+      toast.error(err.message || 'An error occurred while connecting to the broker.');
+    }
+  };
+
+  const handlePublish = async (brokerId, userId) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    const topic = 'user/assignment'; // Predefined topic
+    const message = JSON.stringify({
+      userId: userId,
+      brokerId: brokerId,
+      timestamp: new Date().toISOString(),
+      event: 'user_assigned_and_connected',
+    });
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ topic, message }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.json().then((data) => data.message || 'Failed to publish message.');
+        throw new Error(errorMessage);
+      }
+
+      toast.success(`Successfully published to topic ${topic} on broker ${brokerId}`);
+    } catch (err) {
+      console.error('Publish error:', err);
+      toast.error(err.message || 'An error occurred while publishing the message.');
     }
   };
 
@@ -109,10 +320,10 @@ const RightSideTable = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    const authToken = localStorage.getItem("authToken");
+    const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      toast.error("Authentication token is missing. Please log in again.");
-      navigate("/");
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
       setShowDeleteModal(false);
       setBrokerIdToDelete(null);
       return;
@@ -120,9 +331,9 @@ const RightSideTable = () => {
 
     try {
       const response = await fetch(`http://localhost:5000/api/brokers/${brokerIdToDelete}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
         },
       });
@@ -130,8 +341,15 @@ const RightSideTable = () => {
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.clear();
-          toast.error("Session expired. Please log in again.");
-          navigate("/");
+          toast.error('Session expired. Please log in again.');
+          navigate('/');
+          setShowDeleteModal(false);
+          setBrokerIdToDelete(null);
+          return;
+        }
+        if (response.status === 403) {
+          const errorMessage = await response.json().then((data) => data.message || 'Access denied: Insufficient permissions');
+          toast.error(errorMessage);
           setShowDeleteModal(false);
           setBrokerIdToDelete(null);
           return;
@@ -146,8 +364,8 @@ const RightSideTable = () => {
       setBrokerIdToDelete(null);
       await fetchTableData();
     } catch (err) {
-      console.error("Delete error:", err);
-      toast.error(err.message || "An error occurred while deleting the broker.");
+      console.error('Delete error:', err);
+      toast.error(err.message || 'An error occurred while deleting the broker.');
       setShowDeleteModal(false);
       setBrokerIdToDelete(null);
     }
@@ -164,10 +382,10 @@ const RightSideTable = () => {
   };
 
   const handleEditConfirm = async (updatedData) => {
-    const authToken = localStorage.getItem("authToken");
+    const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      toast.error("Authentication token is missing. Please log in again.");
-      navigate("/");
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
       setShowEditModal(false);
       setBrokerToEdit(null);
       return;
@@ -175,16 +393,16 @@ const RightSideTable = () => {
 
     try {
       const response = await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           brokerIp: updatedData.brokerIp,
           portNumber: parseInt(updatedData.portNumber, 10),
-          username: updatedData.username || "",
-          password: updatedData.password || "",
+          username: updatedData.username || '',
+          password: updatedData.password || '',
           label: updatedData.label,
         }),
       });
@@ -192,8 +410,15 @@ const RightSideTable = () => {
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.clear();
-          toast.error("Session expired. Please log in again.");
-          navigate("/");
+          toast.error('Session expired. Please log in again.');
+          navigate('/');
+          setShowEditModal(false);
+          setBrokerToEdit(null);
+          return;
+        }
+        if (response.status === 403) {
+          const errorMessage = await response.json().then((data) => data.message || 'Access denied: Insufficient permissions');
+          toast.error(errorMessage);
           setShowEditModal(false);
           setBrokerToEdit(null);
           return;
@@ -208,8 +433,8 @@ const RightSideTable = () => {
       setBrokerToEdit(null);
       await fetchTableData();
     } catch (err) {
-      console.error("Update error:", err);
-      toast.error(err.message || "An error occurred while updating the broker.");
+      console.error('Update error:', err);
+      toast.error(err.message || 'An error occurred while updating the broker.');
       setShowEditModal(false);
       setBrokerToEdit(null);
     }
@@ -220,42 +445,8 @@ const RightSideTable = () => {
     setBrokerToEdit(null);
   };
 
-  const handleAssign = async (row) => {
-    const authToken = localStorage.getItem("authToken");
-    const userId = localStorage.getItem("userId");
-    if (!authToken || !userId) {
-      toast.error("Authentication token or user ID is missing. Please log in again.");
-      navigate("/");
-      return;
-    }
-
-    toast.info("Connecting to broker...");
-
-    try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${row.brokerId}/connect`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.json().then((data) => data.message || "Failed to connect to broker.");
-        toast.error(errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      toast.success("Broker connected successfully!");
-      navigate("/dashboard", { state: { brokerId: row.brokerId, userId } });
-    } catch (err) {
-      console.error("Connection error:", err);
-      toast.error(err.message || "An error occurred while connecting to the broker.");
-    }
-  };
-
   const backToForm = () => {
-    navigate("/home");
+    navigate('/Home');
   };
 
   return (
@@ -274,6 +465,7 @@ const RightSideTable = () => {
               <th>Company Name</th>
               <th>Actions</th>
               <th>Edit/Delete</th>
+              <th>Users</th>
             </tr>
           </thead>
           <tbody>
@@ -286,11 +478,12 @@ const RightSideTable = () => {
                 <td>{row.label}</td>
                 <td>
                   <button
-                    className={`assign-button ${row.connectionStatus === "connected" ? "" : "disconnected"}`}
-                    onClick={() => handleAssign(row)}
+                    className={`assign-button ${row.connectionStatus === 'connected' ? '' : 'disconnected'}`}
+                    onClick={() => handleConnect(row)}
                     title="Connect"
+                    disabled={row.connectionStatus === 'connected'}
                   >
-                    Connect
+                    {row.connectionStatus === 'connected' ? 'Connected' : 'Connect'}
                   </button>
                 </td>
                 <td>
@@ -314,6 +507,20 @@ const RightSideTable = () => {
                     </button>
                   </div>
                 </td>
+                <td>
+                  <select
+                    className="user-list"
+                    value={row.assignedUserId || ''}
+                    onChange={(e) => handleAssignUser(row.brokerId, e.target.value)}
+                  >
+                    <option value="">Select a user</option>
+                    {users.map((user) => (
+                      <option key={user._id} value={user._id}>
+                        {user.email}
+                      </option>
+                    ))}
+                  </select>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -331,7 +538,7 @@ const RightSideTable = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`pagination-button ${currentPage === page ? "active" : ""}`}
+              className={`pagination-button ${currentPage === page ? 'active' : ''}`}
             >
               {page}
             </button>
@@ -363,4 +570,3 @@ const RightSideTable = () => {
 };
 
 export default RightSideTable;
-

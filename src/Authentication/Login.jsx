@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,8 +15,24 @@ const Login = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    if (token) {
-      navigate('/Home');
+    const userRole = localStorage.getItem('userRole');
+    const userId = localStorage.getItem('userId');
+
+    if (token && userRole && userId) {
+      if (userRole === 'admin') {
+        navigate('/Home');
+      } else if (userRole === 'user') {
+        // Fetch a broker for the user and redirect to dashboard
+        fetchFirstBroker(userId, token).then((broker) => {
+          if (broker) {
+            navigate('/dashboard', { state: { brokerId: broker.brokerId, userId } });
+          } else {
+            toast.error('No brokers found. Please contact an admin to add a broker.');
+            localStorage.clear();
+            navigate('/');
+          }
+        });
+      }
     }
   }, [navigate]);
 
@@ -26,26 +44,86 @@ const Login = () => {
     setError('');
   };
 
+  // Helper function to fetch the first available broker for the user
+  const fetchFirstBroker = async (userId, token) => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/brokers', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const brokers = response.data;
+      if (brokers.length > 0) {
+        return {
+          brokerId: brokers[0]._id,
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error('Error fetching brokers:', err);
+      toast.error('Error fetching brokers: ' + (err.response?.data?.message || err.message));
+      return null;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Basic form validation
+    if (!formData.email) {
+      setError('Email is required.');
+      toast.error('Email is required.');
+      return;
+    }
+    if (!formData.password) {
+      setError('Password is required.');
+      toast.error('Password is required.');
+      return;
+    }
 
     try {
       const response = await axios.post('http://localhost:5000/api/auth/signin', formData);
       const { token, user } = response.data;
 
-      if (token && user) {
+      if (token && user && user._id && user.email && user.roles) {
+        // Store user data in localStorage
         localStorage.setItem('authToken', token);
         localStorage.setItem('userId', user._id);
         localStorage.setItem('userEmail', user.email);
-        navigate('/Home');
+        localStorage.setItem('userRole', user.roles); // Store the role
+
+        toast.success('Login successful!');
+
+        // Redirect based on role
+        if (user.roles === 'admin') {
+          navigate('/Home');
+        } else if (user.roles === 'user') {
+          // Fetch a broker for the user and redirect to dashboard
+          const broker = await fetchFirstBroker(user._id, token);
+          if (broker) {
+            navigate('/dashboard', { state: { brokerId: broker.brokerId, userId: user._id } });
+          } else {
+            toast.error('No brokers found. Please contact an admin to add a broker.');
+            localStorage.clear();
+            navigate('/');
+          }
+        } else {
+          setError('Unknown user role.');
+          toast.error('Unknown user role.');
+          localStorage.clear();
+        }
       } else {
         setError('Invalid response from server.');
+        toast.error('Invalid response from server.');
       }
     } catch (error) {
-      setError(
-        error.response?.data?.message || 'An error occurred during login. Please try again.'
-      );
+      const errorMessage =
+        error.response?.data?.message || 'An error occurred during login. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -66,7 +144,7 @@ const Login = () => {
             value={formData.email}
             onChange={handleChange}
           />
-          <label htmlFor="password" style={{marginTop:"15px"}}>Password</label>
+          <label htmlFor="password" style={{ marginTop: '15px' }}>Password</label>
           <input
             required
             className="input"

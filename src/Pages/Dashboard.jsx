@@ -29,24 +29,67 @@ const Dashboard = () => {
   const [userEmail, setUserEmail] = useState("");
   const [topicName, setTopicName] = useState("");
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
-  const [isResetClear, setIsResetClear] = useState(true); // Track clear vs. remove
+  const [isResetClear, setIsResetClear] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const { brokerId, userId } = location.state || {};
+  const { brokerId: initialBrokerId, userId } = location.state || {};
+
+  const [brokerId, setBrokerId] = useState(initialBrokerId);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
     const storedUserId = localStorage.getItem("userId");
     const email = localStorage.getItem("userEmail");
 
-    if (!authToken || !storedUserId || !brokerId || storedUserId !== userId) {
-      setError("Authentication token, user ID, or broker ID is missing. Please log in again.");
+    if (!authToken || !storedUserId || storedUserId !== userId) {
+      setError("Authentication token or user ID is missing. Please log in again.");
       navigate("/");
       return;
     }
 
+    // If brokerId is not provided, fetch the first available broker
+    if (!brokerId) {
+      fetchFirstBroker(storedUserId, authToken).then((broker) => {
+        if (broker) {
+          setBrokerId(broker.brokerId);
+        } else {
+          setError("No brokers found. Please contact an admin to add a broker.");
+          navigate("/");
+        }
+      });
+    }
+
     setUserEmail(email || "User");
   }, [navigate, brokerId, userId]);
+
+  // Helper function to fetch the first available broker for the user
+  const fetchFirstBroker = async (userId, token) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/brokers", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch brokers");
+      }
+
+      const brokers = await response.json();
+      if (brokers.length > 0) {
+        return {
+          brokerId: brokers[0]._id,
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error("Error fetching brokers:", err);
+      toast.error("Error fetching brokers: " + err.message);
+      return null;
+    }
+  };
 
   useEffect(() => {
     if (error) {
@@ -88,14 +131,12 @@ const Dashboard = () => {
     setSuccess("");
 
     if (isResetClear) {
-      // First click: Clear the latest row's data
       const updatedForms = [...formBlocks];
       updatedForms[formBlocks.length - 1] = getDefaultFormData();
       setFormBlocks(updatedForms);
       setIsResetClear(false);
       toast.success("Row cleared!");
     } else {
-      // Second click: Remove the latest row
       if (formBlocks.length > 1) {
         const updatedForms = formBlocks.slice(0, -1);
         setFormBlocks(updatedForms);
@@ -111,7 +152,7 @@ const Dashboard = () => {
     setError("");
     setSuccess("");
     setFormBlocks([...formBlocks, getDefaultFormData()]);
-    setIsResetClear(true); // Reset to clear mode after adding
+    setIsResetClear(true);
     setSuccess("New input row added!");
   };
 
@@ -223,6 +264,12 @@ const Dashboard = () => {
       });
 
       if (!response.ok) {
+        if (response.status === 403) {
+          const errorMessage = await response.json().then((data) => data.message || "Access denied: Insufficient permissions");
+          toast.error(errorMessage);
+          setShowDisconnectModal(false);
+          return;
+        }
         const errorMessage = await response.json().then((data) => data.message || "Failed to disconnect broker.");
         toast.error(errorMessage);
         throw new Error(errorMessage);
