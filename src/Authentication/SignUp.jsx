@@ -1,7 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import './Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -31,8 +34,30 @@ const SignUp = () => {
     e.preventDefault();
     setError('');
 
+    // Validate form
+    if (!formData.email) {
+      setError('Email is required.');
+      toast.error('Email is required.');
+      return;
+    }
+    if (!formData.password) {
+      setError('Password is required.');
+      toast.error('Password is required.');
+      return;
+    }
+    if (!formData.confirmPassword) {
+      setError('Confirm password is required.');
+      toast.error('Confirm password is required.');
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match.');
+      toast.error('Passwords do not match.');
+      return;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      toast.error('Password must be at least 6 characters long.');
       return;
     }
 
@@ -41,20 +66,27 @@ const SignUp = () => {
         email: formData.email,
         password: formData.password,
       });
+
       const { token, user } = response.data;
 
-      if (token && user) {
+      if (token && user && user._id && user.email && user.roles) {
+        // Store user data in localStorage
         localStorage.setItem('authToken', token);
         localStorage.setItem('userId', user._id);
         localStorage.setItem('userEmail', user.email);
+        localStorage.setItem('userRole', user.roles);
+
+        toast.success('Signup successful!');
         navigate('/Home');
       } else {
         setError('Invalid response from server.');
+        toast.error('Invalid response from server.');
       }
     } catch (error) {
-      setError(
-        error.response?.data?.message || 'An error occurred during signup. Please try again.'
-      );
+      const errorMessage =
+        error.response?.data?.message || 'An error occurred during signup. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

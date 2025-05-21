@@ -29,7 +29,6 @@ const RightSideTable = () => {
     const userId = localStorage.getItem('userId');
     const userRole = localStorage.getItem('userRole');
 
-    // Restrict access to admins only
     if (!authToken || !userId || !userRole) {
       toast.error('Authentication token, user ID, or role is missing. Please log in again.');
       navigate('/');
@@ -37,11 +36,11 @@ const RightSideTable = () => {
     }
 
     if (userRole !== 'admin') {
-      fetchFirstBroker(userId, authToken).then((broker) => {
+      fetchAssignedBroker(userId, authToken).then((broker) => {
         if (broker) {
           navigate('/dashboard', { state: { brokerId: broker.brokerId, userId } });
         } else {
-          toast.error('No brokers found. Please contact an admin to add a broker.');
+          toast.error('No brokers assigned. Please contact an admin.');
           localStorage.clear();
           navigate('/');
         }
@@ -49,7 +48,6 @@ const RightSideTable = () => {
       return;
     }
 
-    // Fetch users and table data
     fetchUsers();
     if (!tableData.length) {
       fetchTableData();
@@ -117,18 +115,26 @@ const RightSideTable = () => {
       }
 
       const data = await response.json();
-      const mappedData = data.map((item) => ({
-        brokerId: item._id,
-        brokerip: item.brokerIp || 'N/A',
-        port: item.portNumber ? item.portNumber.toString() : 'N/A',
-        user: item.username || 'N/A',
-        password: item.password ? '*'.repeat(item.password.length) : 'N/A',
-        rawPassword: item.password || '',
-        label: item.label || 'N/A',
-        connectionStatus: item.connectionStatus || 'disconnected',
-        assignedUserId: item.assignedUserId?._id || null,
-        assignedUserEmail: item.assignedUserId?.email || null,
-      }));
+      const mappedData = data.map((item) => {
+        if (item.connectionStatus === "connected") {
+          toast.success(`Broker ${item.label || item._id} is connected`, { toastId: item._id });
+        } else {
+          toast.error(`Broker ${item.label || item._id} is disconnected`, { toastId: item._id });
+        }
+
+        return {
+          brokerId: item._id,
+          brokerip: item.brokerIp || 'N/A',
+          port: item.portNumber ? item.portNumber.toString() : 'N/A',
+          user: item.username || 'N/A',
+          password: item.password ? '*'.repeat(item.password.length) : 'N/A',
+          rawPassword: item.password || '',
+          label: item.label || 'N/A',
+          connectionStatus: item.connectionStatus || 'disconnected',
+          assignedUserId: item.assignedUserId?._id || item.assignedUserId || null,
+          assignedUserEmail: item.assignedUserId?.email || null,
+        };
+      });
 
       setTableData(mappedData);
     } catch (err) {
@@ -137,30 +143,28 @@ const RightSideTable = () => {
     }
   };
 
-  const fetchFirstBroker = async (userId, token) => {
+  const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch('http://localhost:5000/api/brokers', {
-        method: 'GET',
+      const response = await fetch("http://localhost:5000/api/brokers/assigned", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch brokers');
+        const errorMessage = await response.json().then((data) => data.message || "Failed to check assigned broker");
+        throw new Error(errorMessage);
       }
 
-      const brokers = await response.json();
-      if (brokers.length > 0) {
-        return {
-          brokerId: brokers[0]._id,
-        };
-      }
-      return null;
+      const data = await response.json();
+      return {
+        brokerId: data.brokerId,
+        connectionStatus: data.connectionStatus,
+      };
     } catch (err) {
-      console.error('Error fetching brokers:', err);
-      toast.error('Error fetching brokers: ' + err.message);
+      console.error("Error checking assigned broker:", err);
       return null;
     }
   };
@@ -173,8 +177,12 @@ const RightSideTable = () => {
       return;
     }
 
+    if (!userId) {
+      toast.error('Please select a user to assign.');
+      return;
+    }
+
     try {
-      // Step 1: Assign the broker to the user
       const assignResponse = await fetch(`http://localhost:5000/api/brokers/${brokerId}/assign-user`, {
         method: 'POST',
         headers: {
@@ -185,29 +193,23 @@ const RightSideTable = () => {
       });
 
       if (!assignResponse.ok) {
-        const errorMessage = await assignResponse.json().then((data) => data.message || 'Failed to assign user to broker.');
-        throw new Error(errorMessage);
+        const errorData = await assignResponse.json();
+        throw new Error(errorData.message || 'Failed to assign user to broker.');
       }
 
-      // Update the table data to reflect the new assignment
+      const { broker } = await assignResponse.json();
       const updatedTableData = tableData.map((item) =>
         item.brokerId === brokerId
           ? {
               ...item,
               assignedUserId: userId,
-              assignedUserEmail: users.find((user) => user._id === userId)?.email || null,
+              assignedUserEmail: broker.assignedUserEmail || users.find((user) => user._id === userId)?.email || null,
             }
           : item
       );
       setTableData(updatedTableData);
 
-      toast.success('Broker assigned to user successfully!');
-
-      // Step 2: Find the broker row and connect
-      const brokerRow = updatedTableData.find((item) => item.brokerId === brokerId);
-      if (brokerRow) {
-        await handleConnect(brokerRow);
-      }
+      toast.success(`Broker ${broker.label || brokerId} assigned to user ${broker.assignedUserEmail || userId} successfully!`);
     } catch (err) {
       console.error('Error assigning user to broker:', err);
       toast.error(err.message || 'An error occurred while assigning the user to the broker.');
@@ -234,67 +236,16 @@ const RightSideTable = () => {
       });
 
       if (!response.ok) {
-        if (response.status === 403) {
-          const errorMessage = await response.json().then((data) => data.message || 'Access denied: Insufficient permissions');
-          toast.error(errorMessage);
-          return;
-        }
         const errorMessage = await response.json().then((data) => data.message || 'Failed to connect to broker.');
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
 
-      // Update the connection status in the table
-      const updatedTableData = tableData.map((item) =>
-        item.brokerId === row.brokerId ? { ...item, connectionStatus: 'connected' } : item
-      );
-      setTableData(updatedTableData);
-
-      toast.success('Broker connected successfully!');
-
-      // Step 3: Publish data after successful connection
-      await handlePublish(row.brokerId, row.assignedUserId);
+      toast.success(`Broker ${row.label || row.brokerId} connected successfully!`);
+      await fetchTableData(); // Refresh table to update connectionStatus
     } catch (err) {
       console.error('Connection error:', err);
       toast.error(err.message || 'An error occurred while connecting to the broker.');
-    }
-  };
-
-  const handlePublish = async (brokerId, userId) => {
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-      toast.error('Authentication token is missing. Please log in again.');
-      navigate('/');
-      return;
-    }
-
-    const topic = 'user/assignment'; // Predefined topic
-    const message = JSON.stringify({
-      userId: userId,
-      brokerId: brokerId,
-      timestamp: new Date().toISOString(),
-      event: 'user_assigned_and_connected',
-    });
-
-    try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ topic, message }),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.json().then((data) => data.message || 'Failed to publish message.');
-        throw new Error(errorMessage);
-      }
-
-      toast.success(`Successfully published to topic ${topic} on broker ${brokerId}`);
-    } catch (err) {
-      console.error('Publish error:', err);
-      toast.error(err.message || 'An error occurred while publishing the message.');
     }
   };
 
@@ -339,21 +290,6 @@ const RightSideTable = () => {
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.clear();
-          toast.error('Session expired. Please log in again.');
-          navigate('/');
-          setShowDeleteModal(false);
-          setBrokerIdToDelete(null);
-          return;
-        }
-        if (response.status === 403) {
-          const errorMessage = await response.json().then((data) => data.message || 'Access denied: Insufficient permissions');
-          toast.error(errorMessage);
-          setShowDeleteModal(false);
-          setBrokerIdToDelete(null);
-          return;
-        }
         const errorMessage = await response.json().then((data) => data.message || `Failed to delete broker (Status: ${response.status})`);
         toast.error(errorMessage);
         throw new Error(errorMessage);
@@ -408,21 +344,6 @@ const RightSideTable = () => {
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.clear();
-          toast.error('Session expired. Please log in again.');
-          navigate('/');
-          setShowEditModal(false);
-          setBrokerToEdit(null);
-          return;
-        }
-        if (response.status === 403) {
-          const errorMessage = await response.json().then((data) => data.message || 'Access denied: Insufficient permissions');
-          toast.error(errorMessage);
-          setShowEditModal(false);
-          setBrokerToEdit(null);
-          return;
-        }
         const errorMessage = await response.json().then((data) => data.message || `Failed to update broker (Status: ${response.status})`);
         toast.error(errorMessage);
         throw new Error(errorMessage);
@@ -478,7 +399,7 @@ const RightSideTable = () => {
                 <td>{row.label}</td>
                 <td>
                   <button
-                    className={`assign-button ${row.connectionStatus === 'connected' ? '' : 'disconnected'}`}
+                    className={`assign-button ${row.connectionStatus === 'connected' ? 'connected' : ''}`}
                     onClick={() => handleConnect(row)}
                     title="Connect"
                     disabled={row.connectionStatus === 'connected'}
@@ -497,10 +418,7 @@ const RightSideTable = () => {
                     </button>
                     <button
                       className="delete-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteClick(row.brokerId);
-                      }}
+                      onClick={() => handleDeleteClick(row.brokerId)}
                       title="Delete"
                     >
                       <FaTrash />

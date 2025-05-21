@@ -30,42 +30,101 @@ const Dashboard = () => {
   const [topicName, setTopicName] = useState("");
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [isResetClear, setIsResetClear] = useState(true);
+  const [brokerStatus, setBrokerStatus] = useState(null);
+  const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
   const location = useLocation();
   const navigate = useNavigate();
   const { brokerId: initialBrokerId, userId } = location.state || {};
-
   const [brokerId, setBrokerId] = useState(initialBrokerId);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
     const storedUserId = localStorage.getItem("userId");
     const email = localStorage.getItem("userEmail");
+    const storedUserRole = localStorage.getItem("userRole");
 
-    if (!authToken || !storedUserId || storedUserId !== userId) {
-      setError("Authentication token or user ID is missing. Please log in again.");
+    if (!authToken || !storedUserId || storedUserId !== userId || !storedUserRole) {
+      setError("Authentication token, user ID, or role is missing. Please log in again.");
       navigate("/");
       return;
     }
 
-    // If brokerId is not provided, fetch the first available broker
-    if (!brokerId) {
-      fetchFirstBroker(storedUserId, authToken).then((broker) => {
-        if (broker) {
-          setBrokerId(broker.brokerId);
+    setUserRole(storedUserRole);
+    setUserEmail(email || "User");
+
+    // Fetch assigned broker
+    fetchAssignedBroker(storedUserId, authToken).then((broker) => {
+      if (broker) {
+        if (initialBrokerId && broker.brokerId !== initialBrokerId) {
+          setError("Assigned broker does not match provided broker ID.");
+          navigate("/");
+          return;
+        }
+        setBrokerId(broker.brokerId);
+        setBrokerStatus(broker.connectionStatus);
+      } else {
+        if (storedUserRole === "admin") {
+          setError("Admins cannot publish; please assign a user.");
+          navigate("/table");
         } else {
-          setError("No brokers found. Please contact an admin to add a broker.");
+          setError("No brokers assigned. Please contact an admin.");
           navigate("/");
         }
-      });
+      }
+    });
+
+    // Polling for broker status (non-admins only)
+    let intervalId;
+    if (storedUserRole !== "admin") {
+      const fetchBrokerStatus = async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/status`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to fetch broker status");
+          }
+
+          const { status } = await response.json();
+          if (brokerId && status !== brokerStatus) {
+            console.log(`Broker ${brokerId} status: ${status}`);
+            setBrokerStatus(status);
+            toast[status === "connected" ? "success" : "error"](
+              `Broker ${brokerId} is ${status}`,
+              { toastId: brokerId }
+            );
+          }
+        } catch (err) {
+          console.error("Error fetching broker status:", err);
+          toast.error(err.message || "Error fetching broker status.");
+        }
+      };
+
+      // Fetch status immediately and then every 10 seconds
+      if (brokerId) {
+        fetchBrokerStatus();
+        intervalId = setInterval(fetchBrokerStatus, 10000);
+      }
     }
 
-    setUserEmail(email || "User");
-  }, [navigate, brokerId, userId]);
+    // Cleanup polling on unmount
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        console.log("Polling stopped");
+      }
+    };
+  }, [navigate, initialBrokerId, userId, brokerId, brokerStatus]);
 
-  // Helper function to fetch the first available broker for the user
-  const fetchFirstBroker = async (userId, token) => {
+  const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch("http://localhost:5000/api/brokers", {
+      const response = await fetch("http://localhost:5000/api/brokers/assigned", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -74,19 +133,19 @@ const Dashboard = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch brokers");
+        const errorData = await response.json();
+        const errorMessage = errorData.message || "Failed to fetch assigned broker";
+        throw new Error(errorMessage);
       }
 
-      const brokers = await response.json();
-      if (brokers.length > 0) {
-        return {
-          brokerId: brokers[0]._id,
-        };
-      }
-      return null;
+      const data = await response.json();
+      return {
+        brokerId: data.brokerId,
+        connectionStatus: data.connectionStatus,
+      };
     } catch (err) {
-      console.error("Error fetching brokers:", err);
-      toast.error("Error fetching brokers: " + err.message);
+      console.error("Error fetching assigned broker:", err);
+      toast.error(err.message || "Error fetching assigned broker.");
       return null;
     }
   };
@@ -172,6 +231,11 @@ const Dashboard = () => {
       return;
     }
 
+    if (userRole === "admin") {
+      setError("Admins are not allowed to publish.");
+      return;
+    }
+
     if (!topicName.trim()) {
       setError("Please enter a topic name before publishing.");
       return;
@@ -186,27 +250,26 @@ const Dashboard = () => {
       return;
     }
 
-    const publishData = formBlocks.reduce(
-      (acc, formBlock) => [
-        ...acc,
-        formBlock.tag1,
-        formBlock.tag2,
-        formBlock.tag3,
-        formBlock.tag4,
-        formBlock.tag5,
-        formBlock.tag6,
-        formBlock.tag7,
-        formBlock.tag8,
-        formBlock.baudRate,
-        formBlock.dataBit,
-        formBlock.parity,
-        formBlock.stopBit,
-      ],
-      []
-    );
+    // Format data as a single flattened array of strings
+    const publishData = formBlocks.reduce((acc, formBlock) => [
+      ...acc,
+      String(formBlock.tag1),
+      String(formBlock.tag2),
+      String(formBlock.tag3),
+      String(formBlock.tag4),
+      String(formBlock.tag5),
+      String(formBlock.tag6),
+      String(formBlock.tag7),
+      String(formBlock.tag8),
+      String(formBlock.baudRate),
+      String(formBlock.dataBit),
+      String(formBlock.parity),
+      String(formBlock.stopBit),
+    ], []);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
+      // Publish the data to the MQTT broker
+      const publishResponse = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -218,16 +281,37 @@ const Dashboard = () => {
         }),
       });
 
-      if (!response.ok) {
-        const errorMessage = await response.json().then((data) => data.message || "Failed to publish message.");
+      if (!publishResponse.ok) {
+        const errorMessage = await publishResponse.json().then((data) => data.message || "Failed to publish message.");
         setError(errorMessage);
         throw new Error(errorMessage);
       }
 
-      setSuccess(`Published configurations to topic ${topicName}`);
+      // Save the configuration to MongoDB
+      const configResponse = await fetch(`http://localhost:5000/api/configurations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          configurations: publishData,
+          userId,
+          brokerId,
+          topicName: topicName.trim(),
+        }),
+      });
+
+      if (!configResponse.ok) {
+        const errorMessage = await configResponse.json().then((data) => data.message || "Failed to save configuration.");
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      setSuccess(`Published configurations to topic ${topicName} and saved successfully!`);
     } catch (err) {
-      console.error("Publish error:", err);
-      setError(err.message || "An error occurred while publishing the message.");
+      console.error("Publish or save error:", err);
+      setError(err.message || "An error occurred while publishing or saving the configuration.");
     }
   };
 
@@ -264,12 +348,6 @@ const Dashboard = () => {
       });
 
       if (!response.ok) {
-        if (response.status === 403) {
-          const errorMessage = await response.json().then((data) => data.message || "Access denied: Insufficient permissions");
-          toast.error(errorMessage);
-          setShowDisconnectModal(false);
-          return;
-        }
         const errorMessage = await response.json().then((data) => data.message || "Failed to disconnect broker.");
         toast.error(errorMessage);
         throw new Error(errorMessage);
@@ -277,6 +355,7 @@ const Dashboard = () => {
 
       toast.success("Broker disconnected successfully!");
       setShowDisconnectModal(false);
+      setBrokerStatus("disconnected");
       navigate("/table");
     } catch (err) {
       console.error("Disconnect error:", err);
@@ -292,7 +371,11 @@ const Dashboard = () => {
   return (
     <div className="dashboard-layout">
       <div className="dashboard-sidebar">
-        <button className="dashboard-button" onClick={handlePublishClick}>
+        <button 
+          className="dashboard-button" 
+          onClick={handlePublishClick}
+          disabled={userRole === "admin"}
+        >
           Publish
         </button>
         <button className="dashboard-button">Subscribe</button>
@@ -303,7 +386,7 @@ const Dashboard = () => {
       <div className="dashboard-main">
         {showMain && (
           <>
-            <h2>Com Configuration</h2>
+            <h2>Com Configuration (Broker Status: {brokerStatus || 'Unknown'})</h2>
             <div className="form-scroll-area" key={formKey}>
               <div className="table-wrapper">
                 <table className="form-table">
@@ -468,7 +551,7 @@ const Dashboard = () => {
                 value={topicName}
                 onChange={(e) => setTopicName(e.target.value)}
               />
-              <button onClick={handlePublish}>Publish</button>
+              <button onClick={handlePublish} disabled={userRole === "admin"}>Publish</button>
             </div>
           </>
         )}

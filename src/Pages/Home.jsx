@@ -1,3 +1,4 @@
+// File: Home.js
 import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +34,6 @@ const Home = () => {
     const userId = localStorage.getItem("userId");
     const userRole = localStorage.getItem("userRole");
 
-    // Restrict access to admins only
     if (!authToken || !userId || !userRole) {
       toast.error("Authentication token, user ID, or role is missing. Please log in again.");
       navigate("/");
@@ -41,20 +41,12 @@ const Home = () => {
     }
 
     if (userRole !== "admin") {
-      // If the user is not an admin, redirect to dashboard
-      fetchFirstBroker(userId, authToken).then((broker) => {
-        if (broker) {
-          navigate("/dashboard", { state: { brokerId: broker.brokerId, userId } });
-        } else {
-          toast.error("No brokers found. Please contact an admin to add a broker.");
-          localStorage.clear();
-          navigate("/");
-        }
-      });
+      navigate("/dashboard", { state: { userId } });
       return;
     }
 
     setUserEmail(localStorage.getItem("userEmail") || "User");
+    fetchTableData();
   }, [navigate]);
 
   const fetchTableData = async () => {
@@ -91,16 +83,26 @@ const Home = () => {
       }
 
       const data = await response.json();
-      const mappedData = data.map((item) => ({
-        brokerId: item._id,
-        brokerip: item.brokerIp || "N/A",
-        port: item.portNumber ? item.portNumber.toString() : "N/A",
-        user: item.username || "N/A",
-        password: item.password ? "*".repeat(item.password.length) : "N/A",
-        rawPassword: item.password || "",
-        label: item.label || "N/A",
-        connectionStatus: item.connectionStatus || "disconnected",
-      }));
+      const mappedData = data.map((item) => {
+        if (item.connectionStatus === "connected") {
+          toast.success(`Broker ${item.label || item._id} is connected`);
+        } else {
+          toast.error(`Broker ${item.label || item._id} is disconnected`);
+        }
+
+        return {
+          brokerId: item._id,
+          brokerip: item.brokerIp || "N/A",
+          port: item.portNumber ? item.portNumber.toString() : "N/A",
+          user: item.username || "N/A",
+          password: item.password ? "*".repeat(item.password.length) : "N/A",
+          rawPassword: item.password || "",
+          label: item.label || "N/A",
+          connectionStatus: item.connectionStatus || "disconnected",
+          assignedUserId: item.assignedUserId || null,
+          assignedUserEmail: item.assignedUserEmail || null,
+        };
+      });
 
       setTableData(mappedData);
       return mappedData;
@@ -108,35 +110,6 @@ const Home = () => {
       console.error("Error fetching table data:", err);
       toast.error(err.message || "An error occurred while fetching table data.");
       return [];
-    }
-  };
-
-  // Helper function to fetch the first available broker for the user
-  const fetchFirstBroker = async (userId, token) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/brokers", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch brokers");
-      }
-
-      const brokers = await response.json();
-      if (brokers.length > 0) {
-        return {
-          brokerId: brokers[0]._id,
-        };
-      }
-      return null;
-    } catch (err) {
-      console.error("Error fetching brokers:", err);
-      toast.error("Error fetching brokers: " + err.message);
-      return null;
     }
   };
 
@@ -191,94 +164,104 @@ const Home = () => {
         }),
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Received non-JSON response:", await response.text());
+        toast.error("Server returned an unexpected response. Please check the server configuration.");
+        return false;
+      }
+
       if (!response.ok) {
-        const errorMessage = await response.json().then((data) => data.message || "Broker is not available.");
+        const errorData = await response.json();
+        const errorMessage = errorData.message || "Broker is not available.";
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
 
       return true;
     } catch (err) {
+      console.error("Test broker error:", err);
       toast.error(err.message || "Broker is not available. Please check the IP and port.");
       return false;
     }
   };
 
   const handleSubmit = async () => {
-  toast.info('Testing broker availability...');
+    toast.info('Testing broker availability...');
 
-  if (!validateForm()) {
-    return;
-  }
-
-  const isAvailable = await testBrokerAvailability();
-  if (!isAvailable) {
-    return;
-  }
-
-  toast.info('Connecting...');
-
-  const authToken = localStorage.getItem('authToken');
-  const userId = localStorage.getItem('userId');
-  if (!authToken || !userId) {
-    toast.error('Authentication token or user ID is missing. Please log in again.');
-    navigate('/');
-    return;
-  }
-
-  const payload = {
-    brokerIp: formData.brokerIp,
-    portNumber: parseInt(formData.portNumber, 10),
-    username: formData.username || undefined,
-    password: formData.password || undefined,
-    label: formData.label,
-  };
-
-  try {
-    const response = await fetch('http://localhost:5000/api/brokers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
-      toast.error(errorMessage);
-      throw new Error(errorMessage);
+    if (!validateForm()) {
+      return;
     }
 
-    const result = await response.json();
-    toast.success(`Broker ${result._id} added successfully!`);
+    const isAvailable = await testBrokerAvailability();
+    if (!isAvailable) {
+      return;
+    }
 
-    // Fetch updated table data and navigate to RightSideTable
-    const updatedTableData = await fetchTableData();
-    navigate('/table', { state: { tableData: updatedTableData } });
+    toast.info('Connecting...');
 
-    // Reset form
-    setFormData({
-      brokerIp: '',
-      portNumber: '',
-      username: '',
-      password: '',
-      label: '',
-    });
-  } catch (err) {
-    console.error('Connection error:', err);
-    toast.error(err.message || 'An error occurred while connecting to the broker.');
-  }
-};
+    const authToken = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+    if (!authToken || !userId) {
+      toast.error('Authentication token or user ID is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
 
-const handleGetGateway = async () => {
-  const tableData = await fetchTableData();
-  navigate('/table', { state: { tableData } });
-};
-  const handleAssign = (row) => {
-    const userId = localStorage.getItem("userId");
-    toast.success("Broker assigned successfully.");
-    navigate("/dashboard", { state: { brokerId: row.brokerId, userId } });
+    const payload = {
+      brokerIp: formData.brokerIp,
+      portNumber: parseInt(formData.portNumber, 10),
+      username: formData.username || undefined,
+      password: formData.password || undefined,
+      label: formData.label,
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/brokers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Received non-JSON response:", await response.text());
+        toast.error("Server returned an unexpected response. Please check the server configuration.");
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      toast.success(`Broker ${result._id} added successfully!`);
+
+      const updatedTableData = await fetchTableData();
+      navigate('/table', { state: { tableData: updatedTableData } });
+
+      setFormData({
+        brokerIp: '',
+        portNumber: '',
+        username: '',
+        password: '',
+        label: '',
+      });
+    } catch (err) {
+      console.error('Connection error:', err);
+      toast.error(err.message || 'An error occurred while connecting to the broker.');
+    }
+  };
+
+  const handleGetGateway = async () => {
+    const tableData = await fetchTableData();
+    navigate('/table', { state: { tableData } });
   };
 
   const handleEditClick = (row) => {
@@ -312,6 +295,13 @@ const handleGetGateway = async () => {
         }),
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Received non-JSON response:", await response.text());
+        toast.error("Server returned an unexpected response. Please check the server configuration.");
+        return;
+      }
+
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.clear();
@@ -322,13 +312,15 @@ const handleGetGateway = async () => {
           return;
         }
         if (response.status === 403) {
-          const errorMessage = await response.json().then((data) => data.message || "Access denied: Insufficient permissions");
+          const errorData = await response.json();
+          const errorMessage = errorData.message || "Access denied: Insufficient permissions";
           toast.error(errorMessage);
           setShowEditModal(false);
           setBrokerToEdit(null);
           return;
         }
-        const errorMessage = await response.json().then((data) => data.message || `Failed to update broker (Status: ${response.status})`);
+        const errorData = await response.json();
+        const errorMessage = errorData.message || `Failed to update broker (Status: ${response.status})`;
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
@@ -375,6 +367,13 @@ const handleGetGateway = async () => {
         },
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Received non-JSON response:", await response.text());
+        toast.error("Server returned an unexpected response. Please check the server configuration.");
+        return;
+      }
+
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.clear();
@@ -385,13 +384,15 @@ const handleGetGateway = async () => {
           return;
         }
         if (response.status === 403) {
-          const errorMessage = await response.json().then((data) => data.message || "Access denied: Insufficient permissions");
+          const errorData = await response.json();
+          const errorMessage = errorData.message || "Access denied: Insufficient permissions";
           toast.error(errorMessage);
           setShowDeleteModal(false);
           setBrokerToDelete(null);
           return;
         }
-        const errorMessage = await response.json().then((data) => data.message || `Failed to delete broker (Status: ${response.status})`);
+        const errorData = await response.json();
+        const errorMessage = errorData.message || `Failed to delete broker (Status: ${response.status})`;
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }

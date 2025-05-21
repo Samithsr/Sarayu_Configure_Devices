@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -22,16 +22,18 @@ const Login = () => {
       if (userRole === 'admin') {
         navigate('/Home');
       } else if (userRole === 'user') {
-        // Fetch a broker for the user and redirect to dashboard
-        fetchFirstBroker(userId, token).then((broker) => {
+        fetchAssignedBroker(userId, token).then((broker) => {
           if (broker) {
             navigate('/dashboard', { state: { brokerId: broker.brokerId, userId } });
           } else {
-            toast.error('No brokers found. Please contact an admin to add a broker.');
+            toast.error('No brokers assigned. Please contact an admin.');
             localStorage.clear();
             navigate('/');
           }
         });
+      } else {
+        toast.error('Unknown user role.');
+        localStorage.clear();
       }
     }
   }, [navigate]);
@@ -44,26 +46,23 @@ const Login = () => {
     setError('');
   };
 
-  // Helper function to fetch the first available broker for the user
-  const fetchFirstBroker = async (userId, token) => {
+  const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/brokers', {
+      const response = await axios.get('http://localhost:5000/api/brokers/assigned', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const brokers = response.data;
-      if (brokers.length > 0) {
-        return {
-          brokerId: brokers[0]._id,
-        };
-      }
-      return null;
+      const data = response.data;
+      return {
+        brokerId: data.brokerId,
+        connectionStatus: data.connectionStatus,
+      };
     } catch (err) {
-      console.error('Error fetching brokers:', err);
-      toast.error('Error fetching brokers: ' + (err.response?.data?.message || err.message));
+      console.error('Error fetching assigned broker:', err);
+      toast.error(err.response?.data?.message || 'Error fetching assigned broker.');
       return null;
     }
   };
@@ -72,7 +71,6 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    // Basic form validation
     if (!formData.email) {
       setError('Email is required.');
       toast.error('Email is required.');
@@ -89,24 +87,22 @@ const Login = () => {
       const { token, user } = response.data;
 
       if (token && user && user._id && user.email && user.roles) {
-        // Store user data in localStorage
         localStorage.setItem('authToken', token);
         localStorage.setItem('userId', user._id);
         localStorage.setItem('userEmail', user.email);
-        localStorage.setItem('userRole', user.roles); // Store the role
+        localStorage.setItem('userRole', user.roles);
 
         toast.success('Login successful!');
 
-        // Redirect based on role
         if (user.roles === 'admin') {
           navigate('/Home');
         } else if (user.roles === 'user') {
-          // Fetch a broker for the user and redirect to dashboard
-          const broker = await fetchFirstBroker(user._id, token);
+          const broker = await fetchAssignedBroker(user._id, token);
           if (broker) {
             navigate('/dashboard', { state: { brokerId: broker.brokerId, userId: user._id } });
           } else {
-            toast.error('No brokers found. Please contact an admin to add a broker.');
+            setError('No brokers assigned. Please contact an admin.');
+            toast.error('No brokers assigned. Please contact an admin.');
             localStorage.clear();
             navigate('/');
           }
