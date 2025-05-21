@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './RightSideTable.css';
 import { toast } from 'react-toastify';
 import EditModal from '../Authentication/EditModal';
 import DeleteModal from '../Authentication/DeleteModel';
+import '../Pages/AddModal.css'; // Import new AddModal.css
 
 const RightSideTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [brokerToEdit, setBrokerToEdit] = useState(null);
   const [brokerIdToDelete, setBrokerIdToDelete] = useState(null);
   const [users, setUsers] = useState([]);
   const rowsPerPage = 10;
-  const location = useLocation();
   const navigate = useNavigate();
-  const { tableData: initialTableData = [] } = location.state || {};
-  const [tableData, setTableData] = useState(initialTableData);
+  const [tableData, setTableData] = useState([]);
 
   const totalPages = Math.ceil(tableData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -49,10 +49,8 @@ const RightSideTable = () => {
     }
 
     fetchUsers();
-    if (!tableData.length) {
-      fetchTableData();
-    }
-  }, [navigate, tableData.length]);
+    fetchTableData();
+  }, [navigate]);
 
   const fetchUsers = async () => {
     const authToken = localStorage.getItem('authToken');
@@ -115,26 +113,36 @@ const RightSideTable = () => {
       }
 
       const data = await response.json();
-      const mappedData = data.map((item) => {
-        if (item.connectionStatus === "connected") {
-          toast.success(`Broker ${item.label || item._id} is connected`, { toastId: item._id });
-        } else {
-          toast.error(`Broker ${item.label || item._id} is disconnected`, { toastId: item._id });
-        }
+      // Remove duplicates based on brokerId
+      const uniqueBrokerIds = new Set();
+      const mappedData = data
+        .filter((item) => {
+          if (uniqueBrokerIds.has(item._id)) {
+            return false; // Skip duplicates
+          }
+          uniqueBrokerIds.add(item._id);
+          return true;
+        })
+        .map((item) => {
+          if (item.connectionStatus === "connected") {
+            toast.success(`Broker ${item.label || item._id} is connected`, { toastId: item._id });
+          } else {
+            toast.error(`Broker ${item.label || item._id} is disconnected`, { toastId: item._id });
+          }
 
-        return {
-          brokerId: item._id,
-          brokerip: item.brokerIp || 'N/A',
-          port: item.portNumber ? item.portNumber.toString() : 'N/A',
-          user: item.username || 'N/A',
-          password: item.password ? '*'.repeat(item.password.length) : 'N/A',
-          rawPassword: item.password || '',
-          label: item.label || 'N/A',
-          connectionStatus: item.connectionStatus || 'disconnected',
-          assignedUserId: item.assignedUserId?._id || item.assignedUserId || null,
-          assignedUserEmail: item.assignedUserId?.email || null,
-        };
-      });
+          return {
+            brokerId: item._id,
+            brokerip: item.brokerIp || 'N/A',
+            port: item.portNumber ? item.portNumber.toString() : 'N/A',
+            user: item.username || 'N/A',
+            password: item.password ? '*'.repeat(item.password.length) : 'N/A',
+            rawPassword: item.password || '',
+            label: item.label || 'N/A',
+            connectionStatus: item.connectionStatus || 'disconnected',
+            assignedUserId: item.assignedUserId?._id || item.assignedUserId || null,
+            assignedUserEmail: item.assignedUserId?.email || null,
+          };
+        });
 
       setTableData(mappedData);
     } catch (err) {
@@ -242,10 +250,42 @@ const RightSideTable = () => {
       }
 
       toast.success(`Broker ${row.label || row.brokerId} connected successfully!`);
-      await fetchTableData(); // Refresh table to update connectionStatus
+      await fetchTableData();
     } catch (err) {
       console.error('Connection error:', err);
       toast.error(err.message || 'An error occurred while connecting to the broker.');
+    }
+  };
+
+  const handleAddBroker = async (formData) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/brokers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add broker.');
+      }
+
+      toast.success('Broker added successfully!');
+      setShowAddModal(false);
+      await fetchTableData();
+    } catch (err) {
+      console.error('Error adding broker:', err);
+      toast.error(err.message || 'An error occurred while adding the broker.');
     }
   };
 
@@ -366,17 +406,23 @@ const RightSideTable = () => {
     setBrokerToEdit(null);
   };
 
-  const backToForm = () => {
-    navigate('/Home');
+  const handleAddClick = () => {
+    setShowAddModal(true);
+  };
+
+  const handleAddCancel = () => {
+    setShowAddModal(false);
   };
 
   return (
-    <div className="unique-table-container">
-      <button className="back-button" onClick={backToForm}>
-        Back to Form
-      </button>
-      <div className="unique-table-scrollable">
-        <table className="unique-table">
+    <div className="table-container">
+      <div className="button-group">
+        <button className="back-button add-button" onClick={handleAddClick}>
+          Add
+        </button>
+      </div>
+      <div className={`table-scrollable ${showAddModal ? 'blurred' : ''}`}>
+        <table className="table">
           <thead>
             <tr>
               <th>Broker IP</th>
@@ -483,6 +529,135 @@ const RightSideTable = () => {
         onCancel={handleEditCancel}
         broker={brokerToEdit}
       />
+
+      {showAddModal && (
+        <AddModal
+          onConfirm={handleAddBroker}
+          onCancel={handleAddCancel}
+        />
+      )}
+    </div>
+  );
+};
+
+// Add Modal Component
+const AddModal = ({ onConfirm, onCancel }) => {
+  const [formData, setFormData] = useState({
+    brokerIp: '',
+    portNumber: '',
+    username: '',
+    password: '',
+    label: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(`Updating ${name} to ${value}`);
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.brokerIp || !formData.portNumber || !formData.label) {
+      toast.error('Broker IP, Port Number, and Company Name are required.');
+      return;
+    }
+    onConfirm(formData);
+    setFormData({
+      brokerIp: '',
+      portNumber: '',
+      username: '',
+      password: '',
+      label: '',
+    });
+  };
+
+  return (
+    <div className="add-modal-overlay">
+      <div className="add-modal-content">
+        <h2>Add Broker</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="add-modal-form-group">
+            <label htmlFor="brokerIp">Broker IP:</label>
+            <input
+              type="text"
+              id="brokerIp"
+              name="brokerIp"
+              value={formData.brokerIp}
+              onChange={handleChange}
+              required
+              placeholder="e.g., 192.168.1.1"
+              autoFocus
+              key="brokerIp"
+            />
+          </div>
+          <div className="add-modal-form-group">
+            <label htmlFor="portNumber">Port Number:</label>
+            <input
+              type="number"
+              id="portNumber"
+              name="portNumber"
+              value={formData.portNumber}
+              onChange={handleChange}
+              required
+              placeholder="e.g., 1883"
+              key="portNumber"
+            />
+          </div>
+          <div className="add-modal-form-group">
+            <label htmlFor="username">Username:</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Optional"
+              key="username"
+            />
+          </div>
+          <div className="add-modal-form-group">
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Optional"
+              key="password"
+            />
+          </div>
+          <div className="add-modal-form-group">
+            <label htmlFor="label">Company Name:</label>
+            <input
+              type="text"
+              id="label"
+              name="label"
+              value={formData.label}
+              onChange={handleChange}
+              required
+              placeholder="e.g., My Broker"
+              key="label"
+            />
+          </div>
+          <div className="add-modal-buttons">
+            <button type="submit" className="add-modal-button add-modal-confirm-button">
+              Add Broker
+            </button>
+            <button
+              type="button"
+              className="add-modal-button add-modal-cancel-button"
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

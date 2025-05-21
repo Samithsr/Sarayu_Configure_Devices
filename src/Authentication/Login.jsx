@@ -20,7 +20,7 @@ const Login = () => {
 
     if (token && userRole && userId) {
       if (userRole === 'admin') {
-        navigate('/Home');
+        navigate('/table'); // Navigate to /table for admin
       } else if (userRole === 'user') {
         fetchAssignedBroker(userId, token).then((broker) => {
           if (broker) {
@@ -95,7 +95,7 @@ const Login = () => {
         toast.success('Login successful!');
 
         if (user.roles === 'admin') {
-          navigate('/Home');
+          navigate('/table'); // Navigate to /table for admin
         } else if (user.roles === 'user') {
           const broker = await fetchAssignedBroker(user._id, token);
           if (broker) {

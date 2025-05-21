@@ -1,5 +1,5 @@
-/* Modal styles */
-.modal-overlay {
+/* Modal styles for AddModal */
+.add-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -9,10 +9,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000;
+  z-index: 10000; /* Increased to ensure modal is on top */
 }
 
-.modal-content {
+.add-modal-content {
   background: #1A2533;
   padding: 20px;
   border-radius: 10px;
@@ -21,32 +21,26 @@
   color: #FFFFFF;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
   position: relative;
-  z-index: 10001;
+  z-index: 10001; /* Ensure content is above overlay */
 }
 
-.modal-title{
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-.modal-content h2 {
+.add-modal-content h2 {
   margin-top: 0;
   margin-bottom: 20px;
   text-align: center;
 }
 
-.form-group {
+.add-modal-form-group {
   margin-bottom: 15px;
 }
 
-.form-group label {
+.add-modal-form-group label {
   display: block;
   margin-bottom: 5px;
   font-weight: 500;
 }
 
-.form-group input {
+.add-modal-form-group input {
   width: 100%;
   padding: 8px;
   border: 1px solid #4B5563;
@@ -57,32 +51,27 @@
   box-sizing: border-box;
   outline: none;
   transition: border-color 0.3s ease;
-  z-index: 10002;
+  z-index: 10002; /* Ensure inputs are above other elements */
 }
 
-.form-group input:focus {
+.add-modal-form-group input:focus {
   border-color: #3B82F6;
 }
 
-.form-group input::placeholder {
+.add-modal-form-group input::placeholder {
   color: #A0AEC0;
 }
 
-.modal-buttons {
+.add-modal-buttons {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 10px;
   margin-top: 20px;
 }
 
-.modal-button .cancel-button{
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-}
-
-.modal-button {
-  padding: 10px 20px;
+.add-modal-button {
+  flex: 1;
+  padding: 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -91,20 +80,38 @@
   transition: all 0.3s ease;
 }
 
-.confirm-button {
+.add-modal-confirm-button {
   background: #10B981;
   color: #FFFFFF;
 }
 
-.confirm-button:hover {
+.add-modal-confirm-button:hover {
   background: #059669;
 }
 
-.cancel-button {
+.add-modal-cancel-button {
   background: #EF4444;
   color: #FFFFFF;
 }
 
-.cancel-button:hover {
+.add-modal-cancel-button:hover {
   background: #DC2626;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .add-modal-content {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .add-modal-form-group input {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .add-modal-button {
+    padding: 8px;
+    font-size: 12px;
+  }
 }

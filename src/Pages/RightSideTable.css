@@ -1,5 +1,5 @@
 /* Table container */
-.unique-table-container {
+.table-container {
   width: 99.1vw;
   height: 100vh;
   margin: 0;
@@ -11,7 +11,13 @@
   box-sizing: border-box;
 }
 
-/* Back to Form button */
+/* Button group for Add button */
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* Add button */
 .back-button {
   align-self: flex-start;
   margin: 10px;
@@ -33,29 +39,43 @@
   transform: translateY(-1px);
 }
 
+.add-button {
+  background: #10B981; /* Green for Add button */
+}
+
+.add-button:hover {
+  background: #059669;
+}
+
 /* Scrollable wrapper */
-.unique-table-scrollable {
+.table-scrollable {
   flex: 1;
-  height: calc(100vh - 60px); /* Back button: 40px height + 20px margin */
+  height: calc(100vh - 60px); /* Adjust for single button */
   overflow-y: auto;
   overflow-x: auto;
   border-radius: 10px;
   padding: 10px 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); /* Updated shadow for better visibility */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
   background-color: #252F3F;
+  transition: filter 0.3s ease;
+}
+
+/* Blur effect when modal is open */
+.table-scrollable.blurred {
+  filter: blur(5px);
 }
 
 /* Table styles */
-.unique-table {
+.table {
   width: 100%;
   border-collapse: collapse;
   table-layout: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9); /* Updated shadow for better visibility */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
 }
 
 /* Table headers and cells */
-.unique-table th,
-.unique-table td {
+.table th,
+.table td {
   padding: 12px 16px;
   border: 1px solid #4B5563;
   text-align: center;
@@ -71,7 +91,7 @@
 }
 
 /* Header specific styles */
-.unique-table th {
+.table th {
   background: linear-gradient(#2559a3dc 0%, #2a5c9b 100%);
   color: #FFFFFF;
   font-weight: 600;
@@ -79,18 +99,18 @@
 }
 
 /* Row background striping */
-.unique-table tbody tr:nth-child(odd) {
+.table tbody tr:nth-child(odd) {
   background-color: #1A2533;
 }
 
-.unique-table tbody tr:nth-child(even) {
+.table tbody tr:nth-child(even) {
   background-color: #252F3F;
 }
 
 /* Assign button */
 .assign-button {
   padding: 5px 12px;
-  background: #10B981; /* Green for connected state */
+  background: #10B981;
   color: #FFFFFF;
   font-size: 14px;
   font-weight: 500;
@@ -105,11 +125,11 @@
   transform: translateY(-1px);
 }
 
-.assign-button.disconnected {
-  background: #4B5563; /* Gray for disconnected/connecting/error */
+.assign-button.connected {
+  background: #4B5563;
 }
 
-.assign-button.disconnected:hover {
+.assign-button.connected:hover {
   background: #6B7280;
   transform: translateY(-1px);
 }
@@ -154,29 +174,6 @@
   transform: translateY(-1px);
 }
 
-/* Status badges */
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.status-badge.connected {
-  background-color: #10B981;
-  color: #FFFFFF;
-}
-
-.status-badge.disconnected {
-  background-color: #EF4444;
-  color: #FFFFFF;
-}
-
-.status-badge.connecting {
-  background-color: #3B82F6;
-  color: #FFFFFF;
-}
-
 /* Pagination styles */
 .pagination {
   display: flex;
@@ -214,33 +211,39 @@
   cursor: not-allowed;
 }
 
-.user-list{
+.user-list {
   padding: 5px;
   background-color: #252f3f;
   color: white;
-  /* border: none; */
 }
+
 /* Media Queries */
 @media (max-width: 768px) {
-  .unique-table-container {
+  .table-container {
     width: 100vw;
     height: 100vh;
     padding: 0;
   }
 
+  .button-group {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 15px;
+  }
+
   .back-button {
-    margin: 15px;
+    margin: 5px 0;
     padding: 8px 16px;
     font-size: 12px;
   }
 
-  .unique-table-scrollable {
-    height: calc(100vh - 50px); /* Smaller button margin */
+  .table-scrollable {
+    height: calc(100vh - 60px);
     padding: 5px 15px;
   }
 
-  .unique-table th,
-  .unique-table td {
+  .table th,
+  .table td {
     padding: 8px 10px;
     font-size: 12px;
     min-width: 80px;
@@ -250,7 +253,7 @@
     vertical-align: middle;
   }
 
-  .unique-table th {
+  .table th {
     font-size: 14px;
   }
 
@@ -278,3 +281,4 @@
     font-size: 12px;
   }
 }
+
