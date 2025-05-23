@@ -1,5 +1,5 @@
 /* Table container */
-.table-container {
+.unique-table-container {
   width: 99.1vw;
   height: 100vh;
   margin: 0;
@@ -11,17 +11,16 @@
   box-sizing: border-box;
 }
 
-/* Button group for Add button */
-.button-group {
+/* Header buttons container */
+.header-buttons {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 30px;
 }
 
-/* Add button */
+/* Back to Form button */
 .back-button {
-  align-self: flex-start;
-  margin: 10px;
-  margin-left: 30px;
   padding: 10px 20px;
   background: #3B82F6;
   color: #FFFFFF;
@@ -29,7 +28,6 @@
   font-weight: 500;
   border: none;
   border-radius: 8px;
-  margin-top: 40px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -39,34 +37,41 @@
   transform: translateY(-1px);
 }
 
-.add-button {
-  background: #10B981; /* Green for Add button */
+/* Logout button */
+.logout-button {
+  padding: 10px 20px;
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.add-button:hover {
-  background: #059669;
+.logout-button:hover {
+  background: #DC2626;
+  transform: translateY(-1px);
 }
 
 /* Scrollable wrapper */
-.table-scrollable {
+.unique-table-scrollable {
   flex: 1;
-  height: calc(100vh - 60px); /* Adjust for single button */
+  height: calc(100vh - 60px); /* Adjusted for header-buttons */
   overflow-y: auto;
   overflow-x: auto;
   border-radius: 10px;
   padding: 10px 30px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
   background-color: #252F3F;
-  transition: filter 0.3s ease;
-}
-
-/* Blur effect when modal is open */
-.table-scrollable.blurred {
-  filter: blur(5px);
 }
 
 /* Table styles */
-.table {
+.unique-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: auto;
@@ -74,8 +79,8 @@
 }
 
 /* Table headers and cells */
-.table th,
-.table td {
+.unique-table th,
+.unique-table td {
   padding: 12px 16px;
   border: 1px solid #4B5563;
   text-align: center;
@@ -91,7 +96,7 @@
 }
 
 /* Header specific styles */
-.table th {
+.unique-table th {
   background: linear-gradient(#2559a3dc 0%, #2a5c9b 100%);
   color: #FFFFFF;
   font-weight: 600;
@@ -99,39 +104,64 @@
 }
 
 /* Row background striping */
-.table tbody tr:nth-child(odd) {
+.unique-table tbody tr:nth-child(odd) {
   background-color: #1A2533;
 }
 
-.table tbody tr:nth-child(even) {
+.unique-table tbody tr:nth-child(even) {
   background-color: #252F3F;
 }
 
-/* Assign button */
-.assign-button {
-  padding: 5px 12px;
-  background: #10B981;
-  color: #FFFFFF;
-  font-size: 14px;
-  font-weight: 500;
+/* Status container */
+.status-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Status icon button */
+.status-icon-button {
+  padding: 8px;
   border: none;
-  border-radius: 50px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.assign-button:hover {
-  background: #059669;
+.status-icon-button.connected {
+  background: #10B981; /* Green for connected */
+  color: #FFFFFF;
+}
+
+.status-icon-button.disconnected {
+  background: #F59E0B; /* Amber for disconnected */
+  color: #FFFFFF;
+}
+
+.status-icon-button:hover {
   transform: translateY(-1px);
 }
 
-.assign-button.connected {
-  background: #4B5563;
+.status-icon-button svg {
+  font-size: 16px; /* Matches table typography */
 }
 
-.assign-button.connected:hover {
-  background: #6B7280;
-  transform: translateY(-1px);
+/* Status text */
+.status-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-text.connected {
+  color: #10B981; /* Green for connected */
+}
+
+.status-text.disconnected {
+  color: #F59E0B; /* Amber for disconnected */
 }
 
 /* Action buttons container */
@@ -172,6 +202,29 @@
 .delete-button:hover {
   background: #DC2626;
   transform: translateY(-1px);
+}
+
+/* Status badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.connected {
+  background-color: #10B981;
+  color: #FFFFFF;
+}
+
+.status-badge.disconnected {
+  background-color: #EF4444;
+  color: #FFFFFF;
+}
+
+.status-badge.connecting {
+  background-color: #3B82F6;
+  color: #FFFFFF;
 }
 
 /* Pagination styles */
@@ -219,31 +272,32 @@
 
 /* Media Queries */
 @media (max-width: 768px) {
-  .table-container {
+  .unique-table-container {
     width: 100vw;
     height: 100vh;
     padding: 0;
   }
 
-  .button-group {
+  .header-buttons {
+    margin: 15px;
     flex-direction: column;
+    gap: 10px;
     align-items: flex-start;
-    margin-left: 15px;
   }
 
-  .back-button {
-    margin: 5px 0;
+  .back-button,
+  .logout-button {
     padding: 8px 16px;
     font-size: 12px;
   }
 
-  .table-scrollable {
-    height: calc(100vh - 60px);
+  .unique-table-scrollable {
+    height: calc(100vh - 100px); /* Adjusted for header-buttons */
     padding: 5px 15px;
   }
 
-  .table th,
-  .table td {
+  .unique-table th,
+  .unique-table td {
     padding: 8px 10px;
     font-size: 12px;
     min-width: 80px;
@@ -253,12 +307,19 @@
     vertical-align: middle;
   }
 
-  .table th {
+  .unique-table th {
     font-size: 14px;
   }
 
-  .assign-button {
-    padding: 6px 12px;
+  .status-container {
+    gap: 4px;
+  }
+
+  .status-icon-button svg {
+    font-size: 14px;
+  }
+
+  .status-text {
     font-size: 12px;
   }
 
@@ -281,4 +342,3 @@
     font-size: 12px;
   }
 }
-

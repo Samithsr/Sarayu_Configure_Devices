@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import Login from './Authentication/Login';
 import Signup from './Authentication/SignUp';
 import { Route, Routes } from 'react-router-dom';
+import Home from './Pages/AddBrokerModal';
 import Navbar from "./Pages/Navbar";
 import Dashboard from './Pages/Dashboard';
 import RightSideTable from './Pages/RightSideTable';
@@ -15,7 +16,6 @@ const App = () => {
     const isAuthenticated = !!localStorage.getItem('authToken');
     return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
   };
-
   return (
     <>
       <Navbar />
@@ -23,14 +23,15 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route element={<ProtectedRoute />}>
+          <Route path="/home" element={<Home />} />
           <Route path="/table" element={<RightSideTable />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path='/dashboard' element={<Dashboard />} />
         </Route>
       </Routes>
       <ToastContainer 
         position="top-right"
         className="custom-toast-container"
-        autoClose={5000}
+        autoClose={500}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick

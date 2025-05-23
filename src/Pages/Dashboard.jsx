@@ -109,7 +109,7 @@ const Dashboard = () => {
       // Fetch status immediately and then every 10 seconds
       if (brokerId) {
         fetchBrokerStatus();
-        intervalId = setInterval(fetchBrokerStatus, 10000);
+        intervalId = setInterval(fetchBrokerStatus, 10000 * 60 * 2);
       }
     }
 
