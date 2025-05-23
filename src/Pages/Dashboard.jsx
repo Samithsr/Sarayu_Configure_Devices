@@ -105,12 +105,6 @@ const Dashboard = () => {
           toast.error(err.message || "Error fetching broker status.");
         }
       };
-
-      // Fetch status immediately and then every 10 seconds
-      if (brokerId) {
-        fetchBrokerStatus();
-        intervalId = setInterval(fetchBrokerStatus, 10000 * 60 * 2);
-      }
     }
 
     // Cleanup polling on unmount
@@ -120,7 +114,7 @@ const Dashboard = () => {
         console.log("Polling stopped");
       }
     };
-  }, [navigate, initialBrokerId, userId, brokerId, brokerStatus]);
+  }, []);
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
@@ -283,27 +277,6 @@ const Dashboard = () => {
 
       if (!publishResponse.ok) {
         const errorMessage = await publishResponse.json().then((data) => data.message || "Failed to publish message.");
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      // Save the configuration to MongoDB
-      const configResponse = await fetch(`http://localhost:5000/api/configurations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({
-          configurations: publishData,
-          userId,
-          brokerId,
-          topicName: topicName.trim(),
-        }),
-      });
-
-      if (!configResponse.ok) {
-        const errorMessage = await configResponse.json().then((data) => data.message || "Failed to save configuration.");
         setError(errorMessage);
         throw new Error(errorMessage);
       }
