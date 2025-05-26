@@ -1,0 +1,118 @@
+/* User confirmation modal styles */
+.user-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(47, 45, 45, 0.738);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.user-confirmation-content {
+  background: #e4e7ec;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: userConfirmationSlideIn 0.3s ease-out;
+}
+
+.user-confirmation-title-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.user-confirmation-icon {
+  background: none;
+  color: #FFFFFF;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  font-size: 20px;
+  background-color: #252F3F; /* Matches form input background */
+}
+
+.user-confirmation-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #3B82F6; /* Matches form button color */
+}
+
+.user-confirmation-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1A2533;
+  margin: 0;
+}
+
+.user-confirmation-text {
+  /* color: #A0AEC0; */
+  color: black;
+  font-size: 15px;
+  margin-left: 30px;
+  margin-bottom: 18px;
+}
+
+.user-confirmation-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.user-confirmation-button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-confirmation-cancel {
+  /* background: #4B5563; */
+  background: red;
+  color: #FFFFFF;
+}
+
+.user-confirmation-cancel:hover {
+  background: #6B7280;
+}
+
+/* User select dropdown */
+.user-confirmation-select {
+  width: 90%;
+  padding: 10px 12px;
+  border: 1px solid #4B5563;
+  border-radius: 7px;
+  font-size: 14px;
+  background-color: #252F3F;
+  color: #FFFFFF;
+  margin: 0 30px;
+  margin-bottom: 18px;
+  transition: all 0.3s ease;
+}
+
+.user-confirmation-select:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+/* Animation */
+@keyframes userConfirmationSlideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

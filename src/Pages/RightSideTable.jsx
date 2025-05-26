@@ -1,25 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrash, FaPlug, FaSignOutAlt } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlug } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './RightSideTable.css';
 import { toast } from 'react-toastify';
 import EditModal from '../Authentication/EditModal';
 import DeleteModal from '../Authentication/DeleteModel';
 import AddBrokerModal from '../Pages/AddBrokerModal';
+import UserConfirmation from '../Pages/Users/UserConfirmation';
+import UsersAssign from './Users/UserAssign';
 
 const RightSideTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
   const [brokerToEdit, setBrokerToEdit] = useState(null);
   const [brokerIdToDelete, setBrokerIdToDelete] = useState(null);
+  const [brokerIdToAssign, setBrokerIdToAssign] = useState(null);
   const [users, setUsers] = useState([]);
+  const [tableData, setTableData] = useState([]); // Initialize as empty array
   const rowsPerPage = 10;
   const location = useLocation();
   const navigate = useNavigate();
-  const { tableData: initialTableData = [] } = location.state || {};
-  const [tableData, setTableData] = useState(initialTableData);
 
   const totalPages = Math.ceil(tableData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -50,18 +53,28 @@ const RightSideTable = () => {
       return;
     }
 
-    fetchUsers();
-    if (!tableData.length) {
-      fetchTableData();
-    }
-  }, [navigate, tableData.length]);
+    // Always fetch users and table data on mount
+    const initializeData = async () => {
+      // Fetch users first and ensure it's complete
+      const fetchedUsers = await fetchUsers();
+      if (fetchedUsers && fetchedUsers.length > 0) {
+        setUsers(fetchedUsers);
+        // Only fetch table data after users are populated
+        await fetchTableData(fetchedUsers);
+      } else {
+        console.error('[initializeData] No users fetched, skipping table data fetch');
+        toast.error('Failed to fetch users, cannot load table data.');
+      }
+    };
+    initializeData();
+  }, [navigate]); // Removed tableData dependency to avoid re-fetching on state change
 
   const fetchUsers = async () => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
       toast.error('Authentication token is missing. Please log in again.');
       navigate('/');
-      return;
+      return null;
     }
 
     try {
@@ -79,14 +92,46 @@ const RightSideTable = () => {
       }
 
       const data = await response.json();
-      setUsers(data);
+      console.log('[fetchUsers] Fetched users:', data);
+      return data;
     } catch (err) {
       console.error('Error fetching users:', err);
       toast.error(err.message || 'An error occurred while fetching users.');
+      return null;
     }
   };
 
-  const fetchTableData = async () => {
+  const fetchUserEmailById = async (userId) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      console.error('[fetchUserEmailById] No auth token');
+      return null;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/auth/users`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error('[fetchUserEmailById] Failed to fetch users:', response.status);
+        return null;
+      }
+
+      const usersData = await response.json();
+      const user = usersData.find((u) => u._id === userId);
+      return user ? user.email : null;
+    } catch (err) {
+      console.error('[fetchUserEmailById] Error:', err);
+      return null;
+    }
+  };
+
+  const fetchTableData = async (usersList) => {
     const authToken = localStorage.getItem('authToken');
     const userId = localStorage.getItem('userId');
 
@@ -117,28 +162,53 @@ const RightSideTable = () => {
       }
 
       const data = await response.json();
-      const mappedData = data.map((item) => {
-        const isConnected = item.connectionStatus === 'connected';
-        if (isConnected) {
-          toast.success(`Broker ${item.label || item._id} is connected`, { toastId: item._id });
-        } else {
-          toast.error(`Broker ${item.label || item._id} is disconnected`, { toastId: item._id });
-        }
+      console.log('[fetchTableData] Fetched brokers:', data);
 
-        return {
-          brokerId: item._id,
-          brokerip: item.brokerIp || 'N/A',
-          port: item.portNumber ? item.portNumber.toString() : 'N/A',
-          user: item.username || 'N/A',
-          password: item.password ? '*'.repeat(item.password.length) : 'N/A',
-          rawPassword: item.password || '',
-          label: item.label || 'N/A',
-          connectionStatus: item.connectionStatus || 'disconnected',
-          assignedUserId: item.assignedUserId?._id || item.assignedUserId || null,
-          assignedUserEmail: item.assignedUserId?.email || null,
-        };
-      });
+      const mappedData = await Promise.all(
+        data.map(async (item) => {
+          let assignedUserId = null;
+          let assignedUserEmail = null;
 
+          if (item.assignedUserId) {
+            if (typeof item.assignedUserId === 'object' && item.assignedUserId.email) {
+              assignedUserId = item.assignedUserId._id || null;
+              assignedUserEmail = item.assignedUserId.email || null;
+              console.log(`[fetchTableData] Broker ${item._id}: assignedUserId is populated object, email=${assignedUserEmail}`);
+            } else {
+              assignedUserId = item.assignedUserId;
+              const user = usersList.find((u) => u._id === assignedUserId);
+              if (user) {
+                assignedUserEmail = user.email;
+                console.log(`[fetchTableData] Broker ${item._id}: assignedUserId is string (${assignedUserId}), email=${assignedUserEmail} (from usersList)`);
+              } else {
+                // Fallback: Fetch the email directly if not found in usersList
+                assignedUserEmail = await fetchUserEmailById(assignedUserId);
+                console.log(`[fetchTableData] Broker ${item._id}: assignedUserId is string (${assignedUserId}), email=${assignedUserEmail} (from fetchUserEmailById)`);
+              }
+            }
+          } else {
+            console.log(`[fetchTableData] Broker ${item._id}: No assigned user`);
+          }
+
+          const mappedItem = {
+            brokerId: item._id,
+            brokerip: item.brokerIp || 'N/A',
+            port: item.portNumber ? item.portNumber.toString() : 'N/A',
+            user: item.username || 'N/A',
+            password: item.password ? '*'.repeat(item.password.length) : 'N/A',
+            rawPassword: item.password || '',
+            label: item.label || 'N/A',
+            connectionStatus: item.connectionStatus || 'disconnected',
+            assignedUserId,
+            assignedUserEmail,
+          };
+
+          console.log(`[fetchTableData] Broker ${item._id}: Mapped item - username=${mappedItem.user}, password=${mappedItem.password}, label=${mappedItem.label}, status=${mappedItem.connectionStatus}`);
+          return mappedItem;
+        })
+      );
+
+      console.log('[fetchTableData] Mapped table data:', mappedData);
       setTableData(mappedData);
     } catch (err) {
       console.error('Error fetching table data:', err);
@@ -201,6 +271,7 @@ const RightSideTable = () => {
       }
 
       const { broker } = await assignResponse.json();
+      console.log('[handleAssignUser] Assigned broker response:', broker);
       const updatedTableData = tableData.map((item) =>
         item.brokerId === brokerId
           ? {
@@ -210,6 +281,7 @@ const RightSideTable = () => {
             }
           : item
       );
+      console.log('[handleAssignUser] Updated table data:', updatedTableData);
       setTableData(updatedTableData);
 
       toast.success(`Broker ${broker.label || brokerId} assigned to user ${broker.assignedUserEmail || userId} successfully!`);
@@ -269,14 +341,6 @@ const RightSideTable = () => {
     }
   };
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem('authToken');
-  //   localStorage.removeItem('userId');
-  //   localStorage.removeItem('userRole');
-  //   toast.success('Logged out successfully!');
-  //   navigate('/');
-  // };
-
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -326,7 +390,7 @@ const RightSideTable = () => {
       toast.success(`Broker ${brokerIdToDelete} deleted successfully!`);
       setShowDeleteModal(false);
       setBrokerIdToDelete(null);
-      await fetchTableData();
+      await fetchTableData(users);
     } catch (err) {
       console.error('Delete error:', err);
       toast.error(err.message || 'An error occurred while deleting the broker.');
@@ -377,10 +441,43 @@ const RightSideTable = () => {
         throw new Error(errorMessage);
       }
 
-      toast.success(`Broker ${brokerToEdit.brokerId} updated successfully!`);
+      const updatedBroker = await response.json();
+      console.log('[handleEditConfirm] Updated broker response:', updatedBroker);
+
+      // Check if the password has changed
+      const isPasswordChanged = updatedData.password !== brokerToEdit.rawPassword;
+      console.log(`[handleEditConfirm] Password changed: ${isPasswordChanged}, Original: ${brokerToEdit.rawPassword}, New: ${updatedData.password}`);
+
+      // Update the tableData immediately to reflect the changes
+      const updatedTableData = tableData.map((item) =>
+        item.brokerId === brokerToEdit.brokerId
+          ? {
+              ...item,
+              brokerip: updatedBroker.brokerIp || 'N/A',
+              port: updatedBroker.portNumber ? updatedBroker.portNumber.toString() : 'N/A',
+              user: updatedBroker.username || 'N/A',
+              password: updatedBroker.password ? '*'.repeat(updatedBroker.password.length) : 'N/A',
+              rawPassword: updatedBroker.password || '',
+              label: updatedBroker.label || 'N/A',
+              connectionStatus: updatedBroker.connectionStatus || 'disconnected',
+            }
+          : item
+      );
+      console.log('[handleEditConfirm] Updated table data:', updatedTableData);
+      setTableData(updatedTableData);
+
+      // Show a specific toast message if the password was changed
+      if (isPasswordChanged) {
+        toast.success(`Broker ${brokerToEdit.brokerId} password changed successfully!`);
+      } else {
+        toast.success(`Broker ${brokerToEdit.brokerId} updated successfully!`);
+      }
+
       setShowEditModal(false);
       setBrokerToEdit(null);
-      await fetchTableData();
+
+      // Refresh the table data to ensure consistency with the backend
+      await fetchTableData(users);
     } catch (err) {
       console.error('Update error:', err);
       toast.error(err.message || 'An error occurred while updating the broker.');
@@ -445,7 +542,6 @@ const RightSideTable = () => {
 
       setTableData([...tableData, mappedBroker]);
       toast.success(`Broker ${newBroker.label || newBroker._id} added successfully!`);
-      toast.error(`Broker ${newBroker.label || newBroker._id} is disconnected`, { toastId: newBroker._id });
       setShowAddModal(false);
     } catch (err) {
       console.error('Add broker error:', err);
@@ -458,15 +554,30 @@ const RightSideTable = () => {
     setShowAddModal(false);
   };
 
+  const handleAssignClick = (brokerId, assignedUserId) => {
+    setBrokerIdToAssign(brokerId);
+    setShowAssignModal(true);
+  };
+
+  const handleAssignConfirm = async (userId) => {
+    if (userId) {
+      await handleAssignUser(brokerIdToAssign, userId);
+    }
+    setShowAssignModal(false);
+    setBrokerIdToAssign(null);
+  };
+
+  const handleAssignCancel = () => {
+    setShowAssignModal(false);
+    setBrokerIdToAssign(null);
+  };
+
   return (
     <div className="unique-table-container">
       <div className="header-buttons">
         <button className="back-button" onClick={handleAddClick}>
           Add+
         </button>
-        {/* <button className="logout-button" onClick={handleLogout} title="Logout">
-          <FaSignOutAlt /> Logout
-        </button> */}
       </div>
       <div className="unique-table-scrollable">
         <table className="unique-table">
@@ -492,16 +603,18 @@ const RightSideTable = () => {
                 <td>{row.label}</td>
                 <td>
                   <div className="status-container">
-                    <div
-                      className={`status-icon-button ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}
-                      onClick={() => handleConnect(row)}
-                      title="Reconnect"
-                    >
-                      <FaPlug />
+                    <div className="status-wrapper">
+                      <div
+                        className={`status-icon-button ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}
+                        onClick={() => handleConnect(row)}
+                        title="Reconnect"
+                      >
+                        <FaPlug />
+                      </div>
+                      <span className={`status-text ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}>
+                        {row.connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}
+                      </span>
                     </div>
-                    <span className={`status-text ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}>
-                      {row.connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}
-                    </span>
                   </div>
                 </td>
                 <td>
@@ -523,18 +636,12 @@ const RightSideTable = () => {
                   </div>
                 </td>
                 <td>
-                  <select
-                    className="user-list"
-                    value={row.assignedUserId || ''}
-                    onChange={(e) => handleAssignUser(row.brokerId, e.target.value)}
-                  >
-                    <option value="">Select a user</option>
-                    {users.map((user) => (
-                      <option key={user._id} value={user._id}>
-                        {user.email}
-                      </option>
-                    ))}
-                  </select>
+                  <UsersAssign
+                    brokerId={row.brokerId}
+                    assignedUserId={row.assignedUserId}
+                    assignedUserEmail={row.assignedUserEmail}
+                    handleAssignClick={handleAssignClick}
+                  />
                 </td>
               </tr>
             ))}
@@ -586,8 +693,17 @@ const RightSideTable = () => {
         onConfirm={handleAddConfirm}
         onCancel={handleAddCancel}
       />
+
+      <UserConfirmation
+        isOpen={showAssignModal}
+        onConfirm={handleAssignConfirm}
+        onCancel={handleAssignCancel}
+        users={users}
+        selectedUserId={brokerIdToAssign ? tableData.find((row) => row.brokerId === brokerIdToAssign)?.assignedUserId : ''}
+      />
     </div>
   );
 };
 
 export default RightSideTable;
+                  

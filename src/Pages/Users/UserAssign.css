@@ -1,0 +1,88 @@
+/* src/components/UsersContainer.css */
+
+/* Users container */
+.users-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px; /* Reduced gap between icon and email */
+  height: 50px; /* Match td height */
+}
+
+/* Assign button container */
+.assign-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; /* Fixed width to align with other icons */
+}
+
+/* Email container */
+.email-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1; /* Take remaining space */
+}
+
+/* Assign button */
+.assign-button {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #6B7280; /* Neutral gray */
+  color: #FFFFFF;
+}
+
+.assign-button:hover {
+  background: #4B5563;
+  transform: scale(1.1);
+}
+
+.assign-button svg {
+  font-size: 16px; /* Matches table typography */
+}
+
+/* Assigned user email */
+.assigned-user-email {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: normal; /* Allow wrapping */
+  word-break: break-all; /* Break long emails */
+  text-align: center; /* Center email text */
+}
+
+/* Assigned user email (assigned state) */
+.assigned-user-email.assigned {
+  color: #10B981; /* Green for assigned */
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .users-container {
+    height: 40px; /* Match td height */
+    gap: 4px; /* Further reduced gap for mobile */
+  }
+
+  .assign-button-container {
+    width: 30px; /* Adjusted for mobile */
+  }
+
+  .assign-button {
+    padding: 6px;
+  }
+
+  .assign-button svg {
+    font-size: 14px; /* Slightly smaller */
+  }
+
+  .assigned-user-email {
+    font-size: 12px; /* Slightly smaller */
+  }
+}
