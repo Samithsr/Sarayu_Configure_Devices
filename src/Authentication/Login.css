@@ -181,33 +181,42 @@
   background-color: #1e90ff; /* Blue background as requested */
   padding: 30px;
   border-radius: 15px;
-  text-align: center;
-  color: #ffffff;
   max-width: 400px;
   width: 90%;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  display: flex; /* Use flexbox to control layout */
+  flex-direction: column; /* Stack elements vertically */
+  gap: 15px; /* Consistent spacing between elements */
 }
 
 .signup-confirmation-title {
   font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 15px;
+  padding-left: 10px;   /*in case title will print one line*/
+  color: #ffffff;
+  text-align: left; /* Align text to the left */
+  margin: 0; /* Remove default margins for consistent spacing */
 }
 
 .signup-confirmation-message {
   font-size: 1rem;
-  margin-bottom: 25px;
+  color: #ffffff;
+  padding: 0 10px;
+  text-align: start; /* Align text to the left */
+  margin: 0; /* Remove default margins for consistent spacing */
 }
 
 .signup-confirmation-button {
   padding: 10px 30px;
+  margin-top: 5px;
   background: #ffffff;
   color: #1e90ff;
   font-weight: bold;
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  align-self: flex-end; /* Align the button to the right (flex end) */
 }
 
 .signup-confirmation-button:hover {
