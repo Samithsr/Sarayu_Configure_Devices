@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import './Login.css';
+import './Login.css'; // Assuming the same styling as Login is used
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -18,7 +17,7 @@ const SignUp = () => {
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      navigate('/Home');
+      navigate('/signup-success'); // Redirect to SignupSuccess if already authenticated
     }
   }, [navigate]);
 
@@ -77,7 +76,7 @@ const SignUp = () => {
         localStorage.setItem('userRole', user.roles);
 
         toast.success('Signup successful!');
-        navigate('/Home');
+        navigate('/signup-success'); // Navigate to SignupSuccess instead of AddBrokerModal
       } else {
         setError('Invalid response from server.');
         toast.error('Invalid response from server.');

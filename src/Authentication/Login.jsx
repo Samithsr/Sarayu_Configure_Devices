@@ -19,21 +19,28 @@ const Login = () => {
     const userId = localStorage.getItem('userId');
 
     if (token && userRole && userId) {
+      console.log('useEffect: Found token, role, and userId', { userRole, userId });
       if (userRole === 'admin') {
-        navigate('/table'); // Navigate to /table for admin
+        console.log('useEffect: Navigating to /table for admin');
+        navigate('/table', { replace: true });
       } else if (userRole === 'user') {
+        console.log('useEffect: Fetching assigned broker for user');
         fetchAssignedBroker(userId, token).then((broker) => {
           if (broker) {
-            navigate('/dashboard', { state: { brokerId: broker.brokerId, userId } });
+            console.log('useEffect: Navigating to /dashboard for user');
+            navigate('/dashboard', { state: { brokerId: broker.brokerId, userId }, replace: true });
           } else {
+            console.error('useEffect: No brokers assigned');
             toast.error('No brokers assigned. Please contact an admin.');
             localStorage.clear();
-            navigate('/');
+            navigate('/', { replace: true });
           }
         });
       } else {
+        console.error('useEffect: Unknown user role', userRole);
         toast.error('Unknown user role.');
         localStorage.clear();
+        navigate('/', { replace: true });
       }
     }
   }, [navigate]);
@@ -48,6 +55,7 @@ const Login = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
+      console.log('fetchAssignedBroker: Fetching for userId', userId);
       const response = await axios.get('http://localhost:5000/api/brokers/assigned', {
         headers: {
           'Content-Type': 'application/json',
@@ -56,12 +64,13 @@ const Login = () => {
       });
 
       const data = response.data;
+      console.log('fetchAssignedBroker: Success', data);
       return {
         brokerId: data.brokerId,
         connectionStatus: data.connectionStatus,
       };
     } catch (err) {
-      console.error('Error fetching assigned broker:', err);
+      console.error('fetchAssignedBroker: Error', err.response?.data || err.message);
       toast.error(err.response?.data?.message || 'Error fetching assigned broker.');
       return null;
     }
@@ -83,6 +92,7 @@ const Login = () => {
     }
 
     try {
+      console.log('handleSubmit: Sending login request', formData.email);
       const response = await axios.post('http://localhost:5000/api/auth/signin', formData);
       const { token, user } = response.data;
 
@@ -92,32 +102,41 @@ const Login = () => {
         localStorage.setItem('userEmail', user.email);
         localStorage.setItem('userRole', user.roles);
 
+        console.log('handleSubmit: Login successful, role:', user.roles);
         toast.success('Login successful!');
 
         if (user.roles === 'admin') {
-          navigate('/table'); // Navigate to /table for admin
+          console.log('handleSubmit: Navigating to /table for admin');
+          navigate('/table', { replace: true });
         } else if (user.roles === 'user') {
+          console.log('handleSubmit: Fetching assigned broker for user');
           const broker = await fetchAssignedBroker(user._id, token);
           if (broker) {
-            navigate('/dashboard', { state: { brokerId: broker.brokerId, userId: user._id } });
+            console.log('handleSubmit: Navigating to /dashboard for user');
+            navigate('/dashboard', { state: { brokerId: broker.brokerId, userId: user._id }, replace: true });
           } else {
+            console.error('handleSubmit: No brokers assigned');
             setError('No brokers assigned. Please contact an admin.');
             toast.error('No brokers assigned. Please contact an admin.');
             localStorage.clear();
-            navigate('/');
+            navigate('/', { replace: true });
           }
         } else {
+          console.error('handleSubmit: Unknown user role', user.roles);
           setError('Unknown user role.');
           toast.error('Unknown user role.');
           localStorage.clear();
+          navigate('/', { replace: true });
         }
       } else {
+        console.error('handleSubmit: Invalid server response', response.data);
         setError('Invalid response from server.');
         toast.error('Invalid response from server.');
       }
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message || 'An error occurred during login. Please try again.';
+        error.response?.data?.message || 'An error occurred during login. Please check your credentials or try again later.';
+      console.error('handleSubmit: Login error', errorMessage);
       setError(errorMessage);
       toast.error(errorMessage);
     }

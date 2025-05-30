@@ -1,88 +1,197 @@
-/* src/components/UsersContainer.css */
-
 /* Users container */
 .users-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px; /* Reduced gap between icon and email */
-  height: 50px; /* Match td height */
+  height: auto;
+  padding: 5px 0;
+  position: relative;
+  z-index: 3; /* Ensure it stays above blurred table */
 }
 
-/* Assign button container */
-.assign-button-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px; /* Fixed width to align with other icons */
-}
-
-/* Email container */
-.email-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1; /* Take remaining space */
-}
-
-/* Assign button */
-.assign-button {
-  padding: 8px;
-  border: none;
+/* User select dropdown */
+.user-assign-select {
+  width: 90%;
+  padding: 8px 10px;
+  border: 1px solid #4B5563;
   border-radius: 6px;
+  font-size: 14px;
+  background-color: #252F3F;
+  color: #FFFFFF;
+  text-align: center;
+  transition: all 0.3s ease;
   cursor: pointer;
-  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.user-assign-select:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+/* Style for dropdown options */
+.user-assign-select option {
+  color: #FFFFFF;
+  background-color: #252F3F;
+}
+
+/* Style for the "Select a User" option */
+.user-assign-select option[value=""] {
+  color: #6B7280;
+}
+
+/* User assign modal overlay */
+.user-assign-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(47, 45, 45, 0.738);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* User assign modal content */
+.user-assign-modal-content {
+  background: #e4e7ec;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: userAssignModalSlideIn 0.3s ease-out;
+}
+
+/* User assign modal title container */
+.user-assign-modal-title-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #6B7280; /* Neutral gray */
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* User assign modal icon */
+.user-assign-modal-icon {
+  background: none;
+  color: #FFFFFF;
+  padding: 8px 0px;
+  margin-left: 20px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  font-size: 20px;
+  background-color: #252F3F; /* Matches form input background */
+}
+
+/* User assign modal icon hover */
+.user-assign-modal-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #3B82F6; /* Matches form button color */
+}
+
+/* User assign modal title */
+.user-assign-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1A2533;
+  margin: 0;
+}
+
+/* User assign modal text */
+.user-assign-modal-text {
+  color: black;
+  font-size: 15px;
+  /* padding: 20px 22px; */
+  margin: 20px 0px;
+  margin-left: 30px;
+  /* margin-right: 10px; */
+  /* margin-bottom: 25px; */
+  text-align: start;
+}
+
+/* User assign modal buttons container */
+.user-assign-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* User assign modal button base style */
+.user-assign-modal-button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* User assign modal confirm button */
+.user-assign-modal-button.user-assign-modal-confirm {
+  background: #3B82F6;
   color: #FFFFFF;
 }
 
-.assign-button:hover {
-  background: #4B5563;
-  transform: scale(1.1);
+.user-assign-modal-button.user-assign-modal-confirm:hover {
+  background: #2563EB;
 }
 
-.assign-button svg {
-  font-size: 16px; /* Matches table typography */
+/* User assign modal cancel button */
+.user-assign-modal-button.user-assign-modal-cancel {
+  background: red;
+  color: #FFFFFF;
 }
 
-/* Assigned user email */
-.assigned-user-email {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1;
-  white-space: normal; /* Allow wrapping */
-  word-break: break-all; /* Break long emails */
-  text-align: center; /* Center email text */
+.user-assign-modal-button.user-assign-modal-cancel:hover {
+  background: #6B7280;
 }
 
-/* Assigned user email (assigned state) */
-.assigned-user-email.assigned {
-  color: #10B981; /* Green for assigned */
+/* Animation for modal slide-in */
+@keyframes userAssignModalSlideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Media Queries */
 @media (max-width: 768px) {
   .users-container {
-    height: 40px; /* Match td height */
-    gap: 4px; /* Further reduced gap for mobile */
+    padding: 3px 0;
   }
 
-  .assign-button-container {
-    width: 30px; /* Adjusted for mobile */
+  .user-assign-select {
+    padding: 6px 8px;
+    font-size: 12px;
+    width: 85%;
   }
 
-  .assign-button {
-    padding: 6px;
+  .user-assign-modal-content {
+    padding: 15px;
+    max-width: 300px;
   }
 
-  .assign-button svg {
-    font-size: 14px; /* Slightly smaller */
+  .user-assign-modal-title {
+    font-size: 18px;
   }
 
-  .assigned-user-email {
-    font-size: 12px; /* Slightly smaller */
+  .user-assign-modal-text {
+    font-size: 13px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 15px;
+  }
+
+  .user-assign-modal-button {
+    padding: 8px 14px;
+    font-size: 12px;
   }
 }

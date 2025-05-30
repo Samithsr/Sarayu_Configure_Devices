@@ -127,24 +127,24 @@
 
 /* Status container */
 .status-container {
-  display: inline-block; /* Fit to content */
+  display: inline-flex; /* Fit to content, align flex items */
+  justify-content: center; /* Center the wrapper inside the cell */
+  width: 100%; /* Ensure it takes full cell width for centering */
+  align-items: center; /* Vertically center content */
 }
 
 /* Status wrapper for horizontal icon and text */
 .status-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 15px; /* Consistent gap between icon and text */
+  justify-content: flex-start; /* Align icon and text to the left */
+  gap: 8px; /* Reduced gap for better alignment */
   height: 50px; /* Match td height */
-  width: 130px; /* Consistent width */
+  width: 220px; /* Increased fixed width to fit error message */
 }
 
-/* Status icon button, Edit button, Delete button */
-.status-icon-button,
-.edit-button,
-.delete-button {
-  padding: 8px;
+/* Status icon button */
+.status-icon-button {
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -152,6 +152,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 35px; /* Fixed width */
+  height: 35px; /* Equal to width for square shape */
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .status-icon-button.connected {
@@ -164,41 +167,30 @@
   color: #FFFFFF;
 }
 
-.edit-button {
-  background: #3B82F6;
-  color: #FFFFFF;
-}
-
-.delete-button {
-  background: #EF4444;
-  color: #FFFFFF;
-}
-
-.status-icon-button:hover,
-.edit-button:hover,
-.delete-button:hover {
+.status-icon-button:hover {
   transform: scale(1.1);
 }
 
-.edit-button:hover {
-  background: #2563EB;
+.status-icon-button svg {
+  font-size: 20px; /* Increased for better visibility in square */
 }
 
-.delete-button:hover {
-  background: #DC2626;
-}
-
-.status-icon-button svg,
-.edit-button svg,
-.delete-button svg {
-  font-size: 16px; /* Matches table typography */
-}
-
-/* Status text (horizontal) */
+/* Status text */
 .status-text {
-  font-size: 14px;
+  font-size: 13px; /* Slightly smaller for better fit */
   font-weight: 500;
-  line-height: 1; /* Ensure text aligns properly */
+  padding-left: 5px;
+  line-height: 1.2; /* Improved readability for wrapping */
+  flex-grow: 1; /* Take remaining space */
+  text-align: left; /* Align text to the left */
+  white-space: normal; /* Allow wrapping */
+  overflow-wrap: break-word; /* Break long words */
+  max-width: 170px; /* Limit width to fit within wrapper */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis for overflow */
 }
 
 .status-text.connected {
@@ -217,6 +209,47 @@
   align-items: center; /* Center vertically */
   gap: 8px;
   height: 100%; /* Fill cell height */
+}
+
+/* Edit button, Delete button */
+.edit-button,
+.delete-button {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-button {
+  background: #3B82F6;
+  color: #FFFFFF;
+}
+
+.delete-button {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+  transform: scale(1.1);
+}
+
+.edit-button:hover {
+  background: #2563EB;
+}
+
+.delete-button:hover {
+  background: #DC2626;
+}
+
+.edit-button svg,
+.delete-button svg {
+  font-size: 16px; /* Matches table typography */
 }
 
 /* Status badges (unused but preserved) */
@@ -320,28 +353,38 @@
 
   .status-wrapper {
     height: 40px; /* Match td height */
-    width: 110px;
-    gap: 4px; /* Further reduced gap for mobile */
+    width: 180px; /* Adjusted for mobile */
+    gap: 6px; /* Reduced gap for mobile */
+  }
+
+  .status-icon-button {
+    width: 32px; /* Adjusted for mobile */
+    height: 32px; /* Equal to width for square shape */
+  }
+
+  .status-icon-button svg {
+    font-size: 18px; /* Slightly smaller for mobile */
+  }
+
+  .status-text {
+    font-size: 12px; /* Slightly smaller */
+    max-width: 140px; /* Adjusted for mobile */
+    line-height: 1.2; /* Maintain readability */
+    -webkit-line-clamp: 2; /* Still limit to 2 lines */
   }
 
   .action-buttons {
     gap: 4px;
   }
 
-  .status-icon-button,
   .edit-button,
   .delete-button {
     padding: 6px;
   }
 
-  .status-icon-button svg,
   .edit-button svg,
   .delete-button svg {
     font-size: 14px; /* Slightly smaller */
-  }
-
-  .status-text {
-    font-size: 12px; /* Slightly smaller */
   }
 
   .pagination {

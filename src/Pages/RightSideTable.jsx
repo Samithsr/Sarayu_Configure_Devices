@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrash, FaPlug } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlug, FaSignOutAlt } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './RightSideTable.css';
 import { toast } from 'react-toastify';
 import EditModal from '../Authentication/EditModal';
 import DeleteModal from '../Authentication/DeleteModel';
 import AddBrokerModal from '../Pages/AddBrokerModal';
-import UserConfirmation from '../Pages/Users/UserConfirmation';
-import UsersAssign from './Users/UserAssign';
+import UsersAssign from '../Pages/Users/UserAssign';
+import LogoutModal from '../Pages/LogoutModel';
 
 const RightSideTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [brokerToEdit, setBrokerToEdit] = useState(null);
   const [brokerIdToDelete, setBrokerIdToDelete] = useState(null);
-  const [brokerIdToAssign, setBrokerIdToAssign] = useState(null);
   const [users, setUsers] = useState([]);
-  const [tableData, setTableData] = useState([]); // Initialize as empty array
+  const [tableData, setTableData] = useState([]);
+  const [activeBrokerId, setActiveBrokerId] = useState(null);
   const rowsPerPage = 10;
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,6 +28,10 @@ const RightSideTable = () => {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
   const currentData = tableData.slice(startIndex, endIndex);
+
+  const handleConfirmationStateChange = (brokerId, isConfirming) => {
+    setActiveBrokerId(isConfirming ? brokerId : null);
+  };
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
@@ -53,13 +57,10 @@ const RightSideTable = () => {
       return;
     }
 
-    // Always fetch users and table data on mount
     const initializeData = async () => {
-      // Fetch users first and ensure it's complete
       const fetchedUsers = await fetchUsers();
       if (fetchedUsers && fetchedUsers.length > 0) {
         setUsers(fetchedUsers);
-        // Only fetch table data after users are populated
         await fetchTableData(fetchedUsers);
       } else {
         console.error('[initializeData] No users fetched, skipping table data fetch');
@@ -67,7 +68,7 @@ const RightSideTable = () => {
       }
     };
     initializeData();
-  }, [navigate]); // Removed tableData dependency to avoid re-fetching on state change
+  }, [navigate]);
 
   const fetchUsers = async () => {
     const authToken = localStorage.getItem('authToken');
@@ -173,24 +174,18 @@ const RightSideTable = () => {
             if (typeof item.assignedUserId === 'object' && item.assignedUserId.email) {
               assignedUserId = item.assignedUserId._id || null;
               assignedUserEmail = item.assignedUserId.email || null;
-              console.log(`[fetchTableData] Broker ${item._id}: assignedUserId is populated object, email=${assignedUserEmail}`);
             } else {
               assignedUserId = item.assignedUserId;
               const user = usersList.find((u) => u._id === assignedUserId);
               if (user) {
                 assignedUserEmail = user.email;
-                console.log(`[fetchTableData] Broker ${item._id}: assignedUserId is string (${assignedUserId}), email=${assignedUserEmail} (from usersList)`);
               } else {
-                // Fallback: Fetch the email directly if not found in usersList
                 assignedUserEmail = await fetchUserEmailById(assignedUserId);
-                console.log(`[fetchTableData] Broker ${item._id}: assignedUserId is string (${assignedUserId}), email=${assignedUserEmail} (from fetchUserEmailById)`);
               }
             }
-          } else {
-            console.log(`[fetchTableData] Broker ${item._id}: No assigned user`);
           }
 
-          const mappedItem = {
+          return {
             brokerId: item._id,
             brokerip: item.brokerIp || 'N/A',
             port: item.portNumber ? item.portNumber.toString() : 'N/A',
@@ -199,12 +194,10 @@ const RightSideTable = () => {
             rawPassword: item.password || '',
             label: item.label || 'N/A',
             connectionStatus: item.connectionStatus || 'disconnected',
+            connectionErrors: [],
             assignedUserId,
             assignedUserEmail,
           };
-
-          console.log(`[fetchTableData] Broker ${item._id}: Mapped item - username=${mappedItem.user}, password=${mappedItem.password}, label=${mappedItem.label}, status=${mappedItem.connectionStatus}`);
-          return mappedItem;
         })
       );
 
@@ -250,11 +243,6 @@ const RightSideTable = () => {
       return;
     }
 
-    if (!userId) {
-      toast.error('Please select a user to assign.');
-      return;
-    }
-
     try {
       const assignResponse = await fetch(`http://localhost:5000/api/brokers/${brokerId}/assign-user`, {
         method: 'POST',
@@ -271,20 +259,22 @@ const RightSideTable = () => {
       }
 
       const { broker } = await assignResponse.json();
-      console.log('[handleAssignUser] Assigned broker response:', broker);
       const updatedTableData = tableData.map((item) =>
         item.brokerId === brokerId
           ? {
               ...item,
-              assignedUserId: userId,
-              assignedUserEmail: broker.assignedUserEmail || users.find((user) => user._id === userId)?.email || null,
+              assignedUserId: userId || null,
+              assignedUserEmail: userId ? (broker.assignedUserEmail || users.find((user) => user._id === userId)?.email || null) : null,
             }
           : item
       );
-      console.log('[handleAssignUser] Updated table data:', updatedTableData);
       setTableData(updatedTableData);
 
-      toast.success(`Broker ${broker.label || brokerId} assigned to user ${broker.assignedUserEmail || userId} successfully!`);
+      if (userId) {
+        toast.success(`Broker ${broker.label || brokerId} assigned to user ${broker.assignedUserEmail || userId} successfully!`);
+      } else {
+        toast.success(`Broker ${broker.label || brokerId} unassigned successfully!`);
+      }
     } catch (err) {
       console.error('Error assigning user to broker:', err);
       toast.error(err.message || 'An error occurred while assigning the user to the broker.');
@@ -299,10 +289,51 @@ const RightSideTable = () => {
       return;
     }
 
-    toast.info('Connecting to broker...');
+    toast.info(`Validating broker ${row.label || row.brokerId}...`);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${row.brokerId}/connect`, {
+      const testResponse = await fetch('http://localhost:5000/api/test-broker', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          brokerIp: row.brokerip,
+          portNumber: parseInt(row.port, 10),
+          username: row.user === 'N/A' ? '' : row.user,
+          password: row.rawPassword || '',
+        }),
+      });
+
+      if (!testResponse.ok) {
+        const errorData = await testResponse.json();
+        const validationErrors = errorData.validationErrors || [];
+        let displayError = 'Broker is not available';
+
+        // Check for specific error conditions
+        if (validationErrors.includes('Incorrect username') || validationErrors.includes('Incorrect password')) {
+          displayError = 'Not authorized';
+        } else if (validationErrors.includes('Check the broker IP and port.')) {
+          displayError = 'Connection timeout';
+        } else if (validationErrors.length > 0) {
+          displayError = validationErrors.join(', ');
+        }
+
+        toast.error(`Validation failed: ${displayError}`);
+
+        const updatedTableData = tableData.map((item) =>
+          item.brokerId === row.brokerId
+            ? { ...item, connectionStatus: 'disconnected', connectionErrors: [displayError] }
+            : item
+        );
+        setTableData(updatedTableData);
+        return;
+      }
+
+      toast.success(`Broker ${row.label || row.brokerId} is available. Connecting...`);
+
+      const connectResponse = await fetch(`http://localhost:5000/api/brokers/${row.brokerId}/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -310,16 +341,35 @@ const RightSideTable = () => {
         },
       });
 
-      if (!response.ok) {
-        const errorMessage = await response.json().then((data) => data.message || 'Failed to connect to broker.');
-        toast.error(errorMessage);
-        throw new Error(errorMessage);
+      if (!connectResponse.ok) {
+        const errorData = await connectResponse.json();
+        const validationErrors = errorData.validationErrors || [];
+        let displayError = 'Failed to connect to broker';
+
+        // Check for specific error conditions
+        if (validationErrors.includes('Incorrect username') || validationErrors.includes('Incorrect password')) {
+          displayError = 'Not authorized';
+        } else if (validationErrors.includes('Check the broker IP and port.')) {
+          displayError = 'Connection timeout';
+        } else if (validationErrors.length > 0) {
+          displayError = validationErrors.join(', ');
+        }
+
+        toast.error(`Connection failed: ${displayError}`);
+
+        const updatedTableData = tableData.map((item) =>
+          item.brokerId === row.brokerId
+            ? { ...item, connectionStatus: 'disconnected', connectionErrors: [displayError] }
+            : item
+        );
+        setTableData(updatedTableData);
+        return;
       }
 
-      const { connectionStatus } = await response.json();
+      const { connectionStatus } = await connectResponse.json();
       const updatedTableData = tableData.map((item) =>
         item.brokerId === row.brokerId
-          ? { ...item, connectionStatus: connectionStatus || 'disconnected' }
+          ? { ...item, connectionStatus: connectionStatus || 'disconnected', connectionErrors: [] }
           : item
       );
       setTableData(updatedTableData);
@@ -331,14 +381,59 @@ const RightSideTable = () => {
       }
     } catch (err) {
       console.error('Connection error:', err);
-      toast.error(err.message || 'An error occurred while connecting to the broker.');
+      const displayError = 'hi';
+      toast.error(`Connection failed: ${displayError}`);
+
       const updatedTableData = tableData.map((item) =>
         item.brokerId === row.brokerId
-          ? { ...item, connectionStatus: 'disconnected' }
+          ? { ...item, connectionStatus: 'disconnected', connectionErrors: [displayError] }
           : item
       );
       setTableData(updatedTableData);
     }
+  };
+
+  const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    try {
+      const logoutResponse = await fetch('http://localhost:5000/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!logoutResponse.ok) {
+        const errorData = await logoutResponse.json();
+        throw new Error(errorData.message || 'Failed to log out.');
+      }
+
+      toast.success('Logged out successfully. All broker assignments and connections cleared.');
+      localStorage.clear();
+      navigate('/');
+    } catch (err) {
+      console.error('Error during logout:', err);
+      toast.error(err.message || 'An error occurred during logout.');
+    } finally {
+      setShowLogoutModal(false);
+      localStorage.clear();
+      navigate('/');
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
   };
 
   const handlePageChange = (page) => {
@@ -442,13 +537,8 @@ const RightSideTable = () => {
       }
 
       const updatedBroker = await response.json();
-      console.log('[handleEditConfirm] Updated broker response:', updatedBroker);
-
-      // Check if the password has changed
       const isPasswordChanged = updatedData.password !== brokerToEdit.rawPassword;
-      console.log(`[handleEditConfirm] Password changed: ${isPasswordChanged}, Original: ${brokerToEdit.rawPassword}, New: ${updatedData.password}`);
 
-      // Update the tableData immediately to reflect the changes
       const updatedTableData = tableData.map((item) =>
         item.brokerId === brokerToEdit.brokerId
           ? {
@@ -460,23 +550,20 @@ const RightSideTable = () => {
               rawPassword: updatedBroker.password || '',
               label: updatedBroker.label || 'N/A',
               connectionStatus: updatedBroker.connectionStatus || 'disconnected',
+              connectionErrors: [],
             }
           : item
       );
-      console.log('[handleEditConfirm] Updated table data:', updatedTableData);
       setTableData(updatedTableData);
 
-      // Show a specific toast message if the password was changed
-      if (isPasswordChanged) {
-        toast.success(`Broker ${brokerToEdit.brokerId} password changed successfully!`);
-      } else {
-        toast.success(`Broker ${brokerToEdit.brokerId} updated successfully!`);
-      }
+      toast.success(
+        isPasswordChanged
+          ? `Broker ${brokerToEdit.brokerId} password changed successfully!`
+          : `Broker ${brokerToEdit.brokerId} updated successfully!`
+      );
 
       setShowEditModal(false);
       setBrokerToEdit(null);
-
-      // Refresh the table data to ensure consistency with the backend
       await fetchTableData(users);
     } catch (err) {
       console.error('Update error:', err);
@@ -536,6 +623,7 @@ const RightSideTable = () => {
         rawPassword: newBroker.password || '',
         label: newBroker.label || 'N/A',
         connectionStatus: newBroker.connectionStatus || 'disconnected',
+        connectionErrors: [],
         assignedUserId: newBroker.assignedUserId?._id || newBroker.assignedUserId || null,
         assignedUserEmail: newBroker.assignedUserId?.email || null,
       };
@@ -554,32 +642,18 @@ const RightSideTable = () => {
     setShowAddModal(false);
   };
 
-  const handleAssignClick = (brokerId, assignedUserId) => {
-    setBrokerIdToAssign(brokerId);
-    setShowAssignModal(true);
-  };
-
-  const handleAssignConfirm = async (userId) => {
-    if (userId) {
-      await handleAssignUser(brokerIdToAssign, userId);
-    }
-    setShowAssignModal(false);
-    setBrokerIdToAssign(null);
-  };
-
-  const handleAssignCancel = () => {
-    setShowAssignModal(false);
-    setBrokerIdToAssign(null);
-  };
-
   return (
     <div className="unique-table-container">
       <div className="header-buttons">
         <button className="back-button" onClick={handleAddClick}>
           Add+
         </button>
+        {/* <button className="logout-button" onClick={handleLogout}>
+          <FaSignOutAlt />
+          Logout
+        </button> */}
       </div>
-      <div className="unique-table-scrollable">
+      <div className={`unique-table-scrollable ${activeBrokerId ? 'blurred' : ''}`}>
         <table className="unique-table">
           <thead>
             <tr>
@@ -595,7 +669,10 @@ const RightSideTable = () => {
           </thead>
           <tbody>
             {currentData.map((row, index) => (
-              <tr key={index}>
+              <tr
+                key={index}
+                className={row.brokerId === activeBrokerId ? 'highlighted-row' : ''}
+              >
                 <td>{row.brokerip}</td>
                 <td>{row.port}</td>
                 <td>{row.user}</td>
@@ -612,25 +689,19 @@ const RightSideTable = () => {
                         <FaPlug />
                       </div>
                       <span className={`status-text ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}>
-                        {row.connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}
+                        {row.connectionStatus === 'connected' 
+                          ? 'Connected' 
+                          : `Disconnected${row.connectionErrors.length > 0 ? ` (${row.connectionErrors.join(", ")})` : ''}`}
                       </span>
                     </div>
-                  </div>
-                </td>
+                    </div>
+                  </td>
                 <td>
                   <div className="action-buttons">
-                    <button
-                      className="edit-button"
-                      onClick={() => handleEditClick(row)}
-                      title="Edit"
-                    >
+                    <button className="edit-button" onClick={() => handleEditClick(row)} title="Edit">
                       <FaEdit />
                     </button>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDeleteClick(row.brokerId)}
-                      title="Delete"
-                    >
+                    <button className="delete-button" onClick={() => handleDeleteClick(row.brokerId)} title="Delete">
                       <FaTrash />
                     </button>
                   </div>
@@ -640,7 +711,9 @@ const RightSideTable = () => {
                     brokerId={row.brokerId}
                     assignedUserId={row.assignedUserId}
                     assignedUserEmail={row.assignedUserEmail}
-                    handleAssignClick={handleAssignClick}
+                    users={users}
+                    handleAssignUser={handleAssignUser}
+                    onConfirmationStateChange={handleConfirmationStateChange}
                   />
                 </td>
               </tr>
@@ -694,16 +767,13 @@ const RightSideTable = () => {
         onCancel={handleAddCancel}
       />
 
-      <UserConfirmation
-        isOpen={showAssignModal}
-        onConfirm={handleAssignConfirm}
-        onCancel={handleAssignCancel}
-        users={users}
-        selectedUserId={brokerIdToAssign ? tableData.find((row) => row.brokerId === brokerIdToAssign)?.assignedUserId : ''}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
       />
     </div>
   );
 };
 
 export default RightSideTable;
-                  

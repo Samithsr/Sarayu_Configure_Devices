@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-// import "../Pages/Home.css";
-import "../Pages/Styles.css"
+import '../Pages/Styles.css';
 
-const EditModal = ({ isOpen, onConfirm, onCancel, broker }) => {
+
+const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" }) => {
   const [formData, setFormData] = useState({
     brokerIp: '',
     portNumber: '',
@@ -12,7 +12,6 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker }) => {
   });
   const [errors, setErrors] = useState({});
 
-  // Update formData when broker prop changes
   useEffect(() => {
     if (broker) {
       setFormData({
@@ -22,9 +21,17 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker }) => {
         password: broker.rawPassword || '',
         label: broker.label || '',
       });
-      setErrors({}); // Clear errors when modal opens with new broker
+    } else {
+      setFormData({
+        brokerIp: '',
+        portNumber: '',
+        username: '',
+        password: '',
+        label: '',
+      });
     }
-  }, [broker]);
+    setErrors({});
+  }, [broker, isOpen]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -62,7 +69,7 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2 className="modal-title">Edit Broker</h2>
+        <h2 className="modal-title">{title}</h2>
         <div className="broker-form">
           <div className="form-group">
             <label htmlFor="brokerIp">Broker IP *:</label>
@@ -125,8 +132,11 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker }) => {
           <button className="modal-button cancel-button" onClick={onCancel}>
             Cancel
           </button>
-          <button className="modal-button confirm-button" onClick={handleSubmit}>
-            Save
+          <button
+            className="modal-button confirm-button"
+            onClick={handleSubmit}
+          >
+            {title === "Add Broker" ? "Add" : "Save"}
           </button>
         </div>
       </div>

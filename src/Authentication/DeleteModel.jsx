@@ -1,7 +1,7 @@
 import React from 'react';
 import '../Pages/DeleteModal.css';
 
-const DeleteModal = ({ isOpen, onConfirm, onCancel }) => {
+const DeleteModel = ({ isOpen, onConfirm, onCancel }) => {
   if (!isOpen) return null;
 
   return (
@@ -24,5 +24,5 @@ const DeleteModal = ({ isOpen, onConfirm, onCancel }) => {
   );
 };
 
-export default DeleteModal;
+export default DeleteModel;
 

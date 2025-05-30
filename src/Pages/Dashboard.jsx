@@ -18,6 +18,7 @@ const getDefaultFormData = () => ({
   dataBit: "8",
   parity: "none",
   stopBit: "1",
+  Delay: "",
 });
 
 const Dashboard = () => {
@@ -201,6 +202,19 @@ const Dashboard = () => {
     }
   };
 
+  const handlePrev = () => {
+    setError("");
+    setSuccess("");
+
+    if (formBlocks.length > 1) {
+      const updatedForms = formBlocks.slice(0, -1);
+      setFormBlocks(updatedForms);
+      toast.success("Row removed!");
+    } else {
+      toast.error("Cannot remove the last row!");
+    }
+  };
+
   const handleAdd = () => {
     setError("");
     setSuccess("");
@@ -259,6 +273,7 @@ const Dashboard = () => {
       String(formBlock.dataBit),
       String(formBlock.parity),
       String(formBlock.stopBit),
+      String(formBlock.Delay),
     ], []);
 
     try {
@@ -377,6 +392,7 @@ const Dashboard = () => {
                       <th>Data Bit</th>
                       <th>Parity</th>
                       <th>Stop Bit</th>
+                      <th>Delay</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -497,6 +513,14 @@ const Dashboard = () => {
                             <option value="2">2</option>
                           </select>
                         </td>
+                        <td>
+                          <input
+                            type="text"
+                            id="Delay"
+                            value={formData.Delay}
+                            onChange={(e) => handleChange(index, e)}
+                          />
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -507,6 +531,9 @@ const Dashboard = () => {
             <div className="dashboard-form-buttons fixed-buttons">
               <button className="dashboard-action-button" onClick={handleBack}>
                 Back
+              </button>
+              <button className="dashboard-action-button" onClick={handlePrev}>
+                Prev
               </button>
               <button className="dashboard-action-button" onClick={handleReset}>
                 Reset

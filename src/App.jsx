@@ -2,9 +2,10 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import Login from './Authentication/Login';
 import Signup from './Authentication/SignUp';
+import SignupSuccess from './Authentication/SignupSuccess'; // Import the SignupSuccess component
 import { Route, Routes } from 'react-router-dom';
-import Home from './Pages/AddBrokerModal';
-import Navbar from "./Pages/Navbar";
+import AddBrokerModal from './Pages/AddBrokerModal';
+import Navbar from './Pages/Navbar';
 import Dashboard from './Pages/Dashboard';
 import RightSideTable from './Pages/RightSideTable';
 import { ToastContainer } from 'react-toastify';
@@ -16,16 +17,18 @@ const App = () => {
     const isAuthenticated = !!localStorage.getItem('authToken');
     return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
   };
+
   return (
     <>
       <Navbar />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/signup-success" element={<SignupSuccess />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/home" element={<Home />} />
+          <Route path="/addBrokerModal" element={<AddBrokerModal />} />
           <Route path="/table" element={<RightSideTable />} />
-          <Route path='/dashboard' element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Route>
       </Routes>
       <ToastContainer 
