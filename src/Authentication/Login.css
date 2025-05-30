@@ -6,6 +6,7 @@
   justify-content: center;
   width: 100%;
   height: 100vh;
+  position: relative; /* Ensure the overlay can position correctly */
 }
 
 .container {
@@ -17,9 +18,13 @@
   border: 5px solid rgb(255, 255, 255);
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   margin: 20px;
+  transition: filter 0.3s ease; /* Smooth transition for blur effect */
 }
 
-
+/* Blur effect when popup is open */
+.container.blurred {
+  filter: blur(5px);
+}
 
 .heading {
   text-align: center;
@@ -36,15 +41,13 @@
   width: 400px;
 }
 
-
-
 .form .input {
   width: 100%;
   background: white;
   border: none;
   padding: 15px 20px;
   border-radius: 20px;
-  margin-top: px;
+  margin-top: 0px;
   box-shadow: #cff0ff 0px 10px 10px -5px;
   border-inline: 2px solid transparent;
 }
@@ -158,4 +161,80 @@
 .error-message {
   color: red;
   text-align: center;
+}
+
+/* Signup Confirmation Popup Styles */
+.signup-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay to dim the background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure the popup is above other elements */
+}
+
+.signup-confirmation-content {
+  background-color: #1e90ff; /* Blue background as requested */
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  color: #ffffff;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.signup-confirmation-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.signup-confirmation-message {
+  font-size: 1rem;
+  margin-bottom: 25px;
+}
+
+.signup-confirmation-button {
+  padding: 10px 30px;
+  background: #ffffff;
+  color: #1e90ff;
+  font-weight: bold;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.signup-confirmation-button:hover {
+  background: #f0f0f0;
+  transform: scale(1.03);
+}
+
+.signup-confirmation-button:active {
+  transform: scale(0.95);
+}
+
+/* Responsive Design for Popup */
+@media (max-width: 640px) {
+  .signup-confirmation-content {
+    padding: 20px;
+  }
+
+  .signup-confirmation-title {
+    font-size: 1.3rem;
+  }
+
+  .signup-confirmation-message {
+    font-size: 0.9rem;
+  }
+
+  .signup-confirmation-button {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+  }
 }

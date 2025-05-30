@@ -12,12 +12,14 @@ const SignUp = () => {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
+  const [isSignupSuccess, setIsSignupSuccess] = useState(false); // State to track signup success
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      navigate('/signup-success'); // Redirect to SignupSuccess if already authenticated
+      // If already authenticated, redirect to a protected route (e.g., /table)
+      navigate('/table');
     }
   }, [navigate]);
 
@@ -76,7 +78,7 @@ const SignUp = () => {
         localStorage.setItem('userRole', user.roles);
 
         toast.success('Signup successful!');
-        navigate('/signup-success'); // Navigate to SignupSuccess instead of AddBrokerModal
+        setIsSignupSuccess(true); // Show confirmation popup
       } else {
         setError('Invalid response from server.');
         toast.error('Invalid response from server.');
@@ -89,11 +91,20 @@ const SignUp = () => {
     }
   };
 
+  const handleConfirmationOk = () => {
+    setIsSignupSuccess(false); // Hide confirmation popup
+    navigate('/table'); // Navigate to a protected route after confirmation
+  };
+
   return (
     <div className="main-container">
-      <div className="container">
+      <div className={`container ${isSignupSuccess ? 'blurred' : ''}`}>
         <div className="heading">Sign Up</div>
-        {error && <p className="error-message" style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+        {error && (
+          <p className="error-message" style={{ color: 'red', textAlign: 'center' }}>
+            {error}
+          </p>
+        )}
         <form className="form" onSubmit={handleSubmit}>
           <label htmlFor="email">Email</label>
           <input
@@ -152,6 +163,20 @@ const SignUp = () => {
           </p>
         </span>
       </div>
+
+      {isSignupSuccess && (
+        <div className="signup-confirmation-overlay">
+          <div className="signup-confirmation-content">
+            <h2 className="signup-confirmation-title">User Registered Successfully</h2>
+            <p className="signup-confirmation-message">
+              Wait for a minute, admin will assign the user.
+            </p>
+            <button className="signup-confirmation-button" onClick={handleConfirmationOk}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
