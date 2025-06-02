@@ -44,8 +44,15 @@ const Dashboard = () => {
     const email = localStorage.getItem("userEmail");
     const storedUserRole = localStorage.getItem("userRole");
 
-    if (!authToken || !storedUserId || storedUserId !== userId || !storedUserRole) {
-      setError("Authentication token, user ID, or role is missing. Please log in again.");
+    if (
+      !authToken ||
+      !storedUserId ||
+      storedUserId !== userId ||
+      !storedUserRole
+    ) {
+      setError(
+        "Authentication token, user ID, or role is missing. Please log in again."
+      );
       navigate("/");
       return;
     }
@@ -79,17 +86,22 @@ const Dashboard = () => {
     if (storedUserRole !== "admin") {
       const fetchBrokerStatus = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/status`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
-            },
-          });
+          const response = await fetch(
+            `http://localhost:5000/api/brokers/${brokerId}/status`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
 
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || "Failed to fetch broker status");
+            throw new Error(
+              errorData.message || "Failed to fetch broker status"
+            );
           }
 
           const { status } = await response.json();
@@ -119,17 +131,21 @@ const Dashboard = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch("http://localhost:5000/api/brokers/assigned", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/brokers/assigned",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        const errorMessage = errorData.message || "Failed to fetch assigned broker";
+        const errorMessage =
+          errorData.message || "Failed to fetch assigned broker";
         throw new Error(errorMessage);
       }
 
@@ -234,7 +250,9 @@ const Dashboard = () => {
     const userId = localStorage.getItem("userId");
 
     if (!authToken || !userId) {
-      setError("Authentication token or user ID is missing. Please log in again.");
+      setError(
+        "Authentication token or user ID is missing. Please log in again."
+      );
       navigate("/");
       return;
     }
@@ -259,47 +277,60 @@ const Dashboard = () => {
     }
 
     // Format data as a single flattened array of strings
-    const publishData = formBlocks.reduce((acc, formBlock) => [
-      ...acc,
-      String(formBlock.tag1),
-      String(formBlock.tag2),
-      String(formBlock.tag3),
-      String(formBlock.tag4),
-      String(formBlock.tag5),
-      String(formBlock.tag6),
-      String(formBlock.tag7),
-      String(formBlock.tag8),
-      String(formBlock.baudRate),
-      String(formBlock.dataBit),
-      String(formBlock.parity),
-      String(formBlock.stopBit),
-      String(formBlock.Delay),
-    ], []);
+    const publishData = formBlocks.reduce(
+      (acc, formBlock) => [
+        ...acc,
+        String(formBlock.tag1),
+        String(formBlock.tag2),
+        String(formBlock.tag3),
+        String(formBlock.tag4),
+        String(formBlock.tag5),
+        String(formBlock.tag6),
+        String(formBlock.tag7),
+        String(formBlock.tag8),
+        String(formBlock.baudRate),
+        String(formBlock.dataBit),
+        String(formBlock.parity),
+        String(formBlock.stopBit),
+        String(formBlock.Delay),
+      ],
+      []
+    );
 
     try {
       // Publish the data to the MQTT broker
-      const publishResponse = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({
-          topic: topicName.trim(),
-          message: JSON.stringify(publishData),
-        }),
-      });
+      const publishResponse = await fetch(
+        `http://localhost:5000/api/brokers/${brokerId}/publish`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            topic: topicName.trim(),
+            message: JSON.stringify(publishData),
+          }),
+        }
+      );
 
       if (!publishResponse.ok) {
-        const errorMessage = await publishResponse.json().then((data) => data.message || "Failed to publish message.");
+        const errorMessage = await publishResponse
+          .json()
+          .then((data) => data.message || "Failed to publish message.");
         setError(errorMessage);
         throw new Error(errorMessage);
       }
 
-      setSuccess(`Published configurations to topic ${topicName} and saved successfully!`);
+      setSuccess(
+        `Published configurations to topic ${topicName} and saved successfully!`
+      );
     } catch (err) {
       console.error("Publish or save error:", err);
-      setError(err.message || "An error occurred while publishing or saving the configuration.");
+      setError(
+        err.message ||
+          "An error occurred while publishing or saving the configuration."
+      );
     }
   };
 
@@ -327,16 +358,21 @@ const Dashboard = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/disconnect`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/brokers/${brokerId}/disconnect`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
 
       if (!response.ok) {
-        const errorMessage = await response.json().then((data) => data.message || "Failed to disconnect broker.");
+        const errorMessage = await response
+          .json()
+          .then((data) => data.message || "Failed to disconnect broker.");
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
@@ -347,7 +383,9 @@ const Dashboard = () => {
       navigate("/table");
     } catch (err) {
       console.error("Disconnect error:", err);
-      toast.error(err.message || "An error occurred while disconnecting the broker.");
+      toast.error(
+        err.message || "An error occurred while disconnecting the broker."
+      );
       setShowDisconnectModal(false);
     }
   };
@@ -359,22 +397,24 @@ const Dashboard = () => {
   return (
     <div className="dashboard-layout">
       <div className="dashboard-sidebar">
-        <button 
-          className="dashboard-button" 
+        <button className="dashboard-button">Publish</button>
+        <button className="dashboard-button">Subscribe</button>
+        <button
+          className="dashboard-button"
           onClick={handlePublishClick}
           disabled={userRole === "admin"}
         >
-          Publish
+          Com Configuration
         </button>
-        <button className="dashboard-button">Subscribe</button>
-        <button className="dashboard-button">Com Configuration</button>
         <button className="dashboard-button">Wi-Fi</button>
       </div>
 
       <div className="dashboard-main">
         {showMain && (
           <>
-            <h2>Com Configuration (Broker Status: {brokerStatus || 'Unknown'})</h2>
+            <h2>
+              Com Configuration (Broker Status: {brokerStatus || "Unknown"})
+            </h2>
             <div className="form-scroll-area" key={formKey}>
               <div className="table-wrapper">
                 <table className="form-table">
@@ -471,8 +511,9 @@ const Dashboard = () => {
                             onChange={(e) => handleChange(index, e)}
                           >
                             {[
-                              110, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600,
-                              115200, 230400, 460800, 921600,
+                              110, 300, 600, 1200, 2400, 4800, 9600, 14400,
+                              19200, 38400, 57600, 115200, 230400, 460800,
+                              921600,
                             ].map((rate) => (
                               <option key={rate} value={rate}>
                                 {rate}
@@ -496,11 +537,13 @@ const Dashboard = () => {
                             value={formData.parity}
                             onChange={(e) => handleChange(index, e)}
                           >
-                            {["none", "even", "odd", "mark", "space"].map((val) => (
-                              <option key={val} value={val}>
-                                {val}
-                              </option>
-                            ))}
+                            {["none", "even", "odd", "mark", "space"].map(
+                              (val) => (
+                                <option key={val} value={val}>
+                                  {val}
+                                </option>
+                              )
+                            )}
                           </select>
                         </td>
                         <td>
@@ -551,7 +594,9 @@ const Dashboard = () => {
                 value={topicName}
                 onChange={(e) => setTopicName(e.target.value)}
               />
-              <button onClick={handlePublish} disabled={userRole === "admin"}>Publish</button>
+              <button onClick={handlePublish} disabled={userRole === "admin"}>
+                Publish
+              </button>
             </div>
           </>
         )}
