@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DisconnectModal from "../Components/DisconnectModel";
+import ComConfiguration from "../Components/Users/ComConfiguration";
 
 const getDefaultFormData = () => ({
   tag1: "",
@@ -24,13 +26,13 @@ const getDefaultFormData = () => ({
 const Dashboard = () => {
   const [formBlocks, setFormBlocks] = useState([getDefaultFormData()]);
   const [formKey, setFormKey] = useState(0);
+  const [isResetClear, setIsResetClear] = useState(true);
   const [showMain, setShowMain] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [topicName, setTopicName] = useState("");
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
-  const [isResetClear, setIsResetClear] = useState(true);
   const [brokerStatus, setBrokerStatus] = useState(null);
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
   const location = useLocation();
@@ -68,8 +70,9 @@ const Dashboard = () => {
           navigate("/");
           return;
         }
+        console.log("Assigned broker:", broker);
         setBrokerId(broker.brokerId);
-        setBrokerStatus(broker.connectionStatus);
+        setBrokerStatus(broker.connectionStatus || "unknown");
       } else {
         if (storedUserRole === "admin") {
           setError("Admins cannot publish; please assign a user.");
@@ -83,9 +86,10 @@ const Dashboard = () => {
 
     // Polling for broker status (non-admins only)
     let intervalId;
-    if (storedUserRole !== "admin") {
+    if (storedUserRole !== "admin" && brokerId) {
       const fetchBrokerStatus = async () => {
         try {
+          console.log(`Fetching status for brokerId: ${brokerId}`);
           const response = await fetch(
             `http://localhost:5000/api/brokers/${brokerId}/status`,
             {
@@ -100,13 +104,23 @@ const Dashboard = () => {
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(
-              errorData.message || "Failed to fetch broker status"
+              errorData.message || `Failed to fetch broker status (HTTP ${response.status})`
             );
           }
 
-          const { status } = await response.json();
-          if (brokerId && status !== brokerStatus) {
-            console.log(`Broker ${brokerId} status: ${status}`);
+          const data = await response.json();
+          console.log("Broker status response:", data);
+
+          // Adjust based on actual API response structure
+          const status = data.status || data.connectionStatus || "unknown";
+
+          if (status === "undefined" || status == null) {
+            console.warn(`Invalid status for broker ${brokerId}: ${status}`);
+            return;
+          }
+
+          if (status !== brokerStatus) {
+            console.log(`Broker ${brokerId} status updated to: ${status}`);
             setBrokerStatus(status);
             toast[status === "connected" ? "success" : "error"](
               `Broker ${brokerId} is ${status}`,
@@ -114,20 +128,23 @@ const Dashboard = () => {
             );
           }
         } catch (err) {
-          console.error("Error fetching broker status:", err);
+          console.error("Error fetching broker status:", err.message);
           toast.error(err.message || "Error fetching broker status.");
         }
       };
+
+      fetchBrokerStatus(); // Initial fetch
+      intervalId = setInterval(fetchBrokerStatus, 15*5000);
     }
 
-    // Cleanup polling on unmount
+    // Cleanup polling
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
         console.log("Polling stopped");
       }
     };
-  }, []);
+  }, [brokerId, userRole, navigate, userId]);
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
@@ -144,18 +161,19 @@ const Dashboard = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        const errorMessage =
-          errorData.message || "Failed to fetch assigned broker";
-        throw new Error(errorMessage);
+        throw new Error(
+          errorData.message || `Failed to fetch assigned broker (HTTP ${errorData.status})`
+        );
       }
 
       const data = await response.json();
+      console.log("Assigned broker response:", data);
       return {
         brokerId: data.brokerId,
-        connectionStatus: data.connectionStatus,
+        connectionStatus: data.connectionStatus || "unknown",
       };
     } catch (err) {
-      console.error("Error fetching assigned broker:", err);
+      console.error("Error fetching assigned broker:", err.message);
       toast.error(err.message || "Error fetching assigned broker.");
       return null;
     }
@@ -165,11 +183,11 @@ const Dashboard = () => {
     if (error) {
       toast.error(error, {
         position: "top-right",
-        autoClose: 5000,
+        autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
-        draggable: true,
+        draggable: false,
       });
     }
   }, [error]);
@@ -178,11 +196,11 @@ const Dashboard = () => {
     if (success) {
       toast.success(success, {
         position: "top-right",
-        autoClose: 5000,
+        autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
-        draggable: true,
+        draggable: false,
       });
     }
   }, [success]);
@@ -199,7 +217,6 @@ const Dashboard = () => {
   const handleReset = () => {
     setError("");
     setSuccess("");
-
     if (isResetClear) {
       const updatedForms = [...formBlocks];
       updatedForms[formBlocks.length - 1] = getDefaultFormData();
@@ -221,7 +238,6 @@ const Dashboard = () => {
   const handlePrev = () => {
     setError("");
     setSuccess("");
-
     if (formBlocks.length > 1) {
       const updatedForms = formBlocks.slice(0, -1);
       setFormBlocks(updatedForms);
@@ -236,13 +252,12 @@ const Dashboard = () => {
     setSuccess("");
     setFormBlocks([...formBlocks, getDefaultFormData()]);
     setIsResetClear(true);
-    setSuccess("New input row added!");
+    toast.success("New input row added!");
   };
 
   const handlePublish = async (e) => {
     e.stopPropagation();
     console.log("handlePublish called");
-
     setError("");
     setSuccess("");
 
@@ -276,7 +291,6 @@ const Dashboard = () => {
       return;
     }
 
-    // Format data as a single flattened array of strings
     const publishData = formBlocks.reduce(
       (acc, formBlock) => [
         ...acc,
@@ -298,7 +312,6 @@ const Dashboard = () => {
     );
 
     try {
-      // Publish the data to the MQTT broker
       const publishResponse = await fetch(
         `http://localhost:5000/api/brokers/${brokerId}/publish`,
         {
@@ -315,22 +328,18 @@ const Dashboard = () => {
       );
 
       if (!publishResponse.ok) {
-        const errorMessage = await publishResponse
-          .json()
-          .then((data) => data.message || "Failed to publish message.");
+        const errorData = await publishResponse.json();
+        const errorMessage = errorData.message || "Failed to publish message.";
         setError(errorMessage);
         throw new Error(errorMessage);
       }
 
       setSuccess(
-        `Published configurations to topic ${topicName} and saved successfully!`
+        `Published configurations to topic ${topicName} successfully!`
       );
     } catch (err) {
-      console.error("Publish or save error:", err);
-      setError(
-        err.message ||
-          "An error occurred while publishing or saving the configuration."
-      );
+      console.error("Publish error:", err.message);
+      setError(err.message || "An error occurred while publishing.");
     }
   };
 
@@ -370,9 +379,8 @@ const Dashboard = () => {
       );
 
       if (!response.ok) {
-        const errorMessage = await response
-          .json()
-          .then((data) => data.message || "Failed to disconnect broker.");
+        const errorData = await response.json();
+        const errorMessage = errorData.message || "Failed to disconnect broker.";
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
@@ -382,10 +390,8 @@ const Dashboard = () => {
       setBrokerStatus("disconnected");
       navigate("/table");
     } catch (err) {
-      console.error("Disconnect error:", err);
-      toast.error(
-        err.message || "An error occurred while disconnecting the broker."
-      );
+      console.error("Disconnect error:", err.message);
+      toast.error(err.message || "An error occurred while disconnecting.");
       setShowDisconnectModal(false);
     }
   };
@@ -412,165 +418,12 @@ const Dashboard = () => {
       <div className="dashboard-main">
         {showMain && (
           <>
-            <h2>
-              Com Configuration (Broker Status: {brokerStatus || "Unknown"})
-            </h2>
-            <div className="form-scroll-area" key={formKey}>
-              <div className="table-wrapper">
-                <table className="form-table">
-                  <thead>
-                    <tr>
-                      <th>Tagname</th>
-                      <th>Device ID</th>
-                      <th>Slave Id</th>
-                      <th>Function Code</th>
-                      <th>Address</th>
-                      <th>Length</th>
-                      <th>Data Type</th>
-                      <th>Scaling</th>
-                      <th>Baud Rate</th>
-                      <th>Data Bit</th>
-                      <th>Parity</th>
-                      <th>Stop Bit</th>
-                      <th>Delay</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formBlocks.map((formData, index) => (
-                      <tr key={index}>
-                        <td>
-                          <input
-                            type="text"
-                            id="tag1"
-                            value={formData.tag1}
-                            onChange={(e) => handleChange(index, e)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            id="tag2"
-                            value={formData.tag2}
-                            onChange={(e) => handleChange(index, e)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            id="tag3"
-                            value={formData.tag3}
-                            onChange={(e) => handleChange(index, e)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            id="tag4"
-                            value={formData.tag4}
-                            onChange={(e) => handleChange(index, e)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            id="tag5"
-                            value={formData.tag5}
-                            onChange={(e) => handleChange(index, e)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            id="tag6"
-                            value={formData.tag6}
-                            onChange={(e) => handleChange(index, e)}
-                          />
-                        </td>
-                        <td>
-                          <select
-                            id="tag7"
-                            value={formData.tag7}
-                            onChange={(e) => handleChange(index, e)}
-                          >
-                            <option value="int">int</option>
-                            <option value="float">float</option>
-                          </select>
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            id="tag8"
-                            value={formData.tag8}
-                            onChange={(e) => handleChange(index, e)}
-                          />
-                        </td>
-                        <td>
-                          <select
-                            id="baudRate"
-                            value={formData.baudRate}
-                            onChange={(e) => handleChange(index, e)}
-                          >
-                            {[
-                              110, 300, 600, 1200, 2400, 4800, 9600, 14400,
-                              19200, 38400, 57600, 115200, 230400, 460800,
-                              921600,
-                            ].map((rate) => (
-                              <option key={rate} value={rate}>
-                                {rate}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            id="dataBit"
-                            value={formData.dataBit}
-                            onChange={(e) => handleChange(index, e)}
-                          >
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            id="parity"
-                            value={formData.parity}
-                            onChange={(e) => handleChange(index, e)}
-                          >
-                            {["none", "even", "odd", "mark", "space"].map(
-                              (val) => (
-                                <option key={val} value={val}>
-                                  {val}
-                                </option>
-                              )
-                            )}
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            id="stopBit"
-                            value={formData.stopBit}
-                            onChange={(e) => handleChange(index, e)}
-                          >
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                          </select>
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            id="Delay"
-                            value={formData.Delay}
-                            onChange={(e) => handleChange(index, e)}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
+            <h2>Com Configuration (Broker Status: {brokerStatus || "Unknown"})</h2>
+            <ComConfiguration
+              formBlocks={formBlocks}
+              formKey={formKey}
+              handleChange={handleChange}
+            />
             <div className="dashboard-form-buttons fixed-buttons">
               <button className="dashboard-action-button" onClick={handleBack}>
                 Back
@@ -585,7 +438,6 @@ const Dashboard = () => {
                 Add+
               </button>
             </div>
-
             <div className="dashboard-topic-name">
               <input
                 type="text"

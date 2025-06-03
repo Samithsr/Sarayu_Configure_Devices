@@ -8,7 +8,8 @@ import DeleteModal from '../Authentication/DeleteModel';
 import AddBrokerModal from '../Pages/AddBrokerModal';
 // import UsersAssign from '../Pages/Users/UserAssign';
 import LogoutModal from '../Pages/LogoutModel';
-import AdminUserAssign from './admin/AdminUserAssign';
+// import AdminUserAssign from './admin/AdminUserAssign';
+import AdminUserAssign from './../Components/Users/AdminUserAssign';
 
 const RightSideTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
