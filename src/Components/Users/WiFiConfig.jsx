@@ -1,233 +1,107 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, useOutletContext } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-// import "../../Pages/Dashboard.css";
-// import './Dashboard.css';
-// import Dashboard from './../../Pages/Dashboard';
+import React, { useState } from 'react';
+import './WiFiConfig.css';
 
 const WiFiConfig = () => {
-  const [ssid, setSsid] = useState('');
-  const [password, setPassword] = useState('');
-  const [topicName, setTopicName] = useState('');
-  const [brokerStatus, setBrokerStatus] = useState(null);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const { brokerId, userId, userRole, setError: setParentError } = useOutletContext();
-  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    ssid: '',
+    password: '',
+    topic: '', // Added topic to formData
+  });
 
-  useEffect(() => {
-    const authToken = localStorage.getItem('authToken');
-    const storedUserId = localStorage.getItem('userId');
+  const [focusedFields, setFocusedFields] = useState({
+    ssid: false,
+    password: false,
+    topic: false,
+  });
 
-    if (!authToken || !storedUserId || storedUserId !== userId || !brokerId) {
-      setError('Authentication token, user ID, or broker ID is missing. Please log in again.');
-      navigate('/');
-      return;
-    }
-
-    const fetchBrokerStatus = async () => {
-      try {
-        console.log(`Fetching status for brokerId: ${brokerId}`);
-        const response = await fetch(
-          `http://localhost:5000/api/brokers/${brokerId}/status`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.message || `Failed to fetch broker status (HTTP ${response.status})`
-          );
-        }
-
-        const data = await response.json();
-        const status = data.status || data.connectionStatus || 'unknown';
-
-        if (status === 'undefined' || status == null) {
-          console.warn(`Invalid status for broker ${brokerId}: ${status}`);
-          return;
-        }
-
-        if (status !== brokerStatus) {
-          console.log(`Broker ${brokerId} status updated to: ${status}`);
-          setBrokerStatus(status);
-          toast[status === 'connected' ? 'success' : 'error'](
-            `Broker ${brokerId} is ${status}`,
-            { toastId: brokerId }
-          );
-        }
-      } catch (err) {
-        console.error('Error fetching broker status:', err.message);
-        toast.error(err.message || 'Error fetching broker status.');
-      }
-    };
-
-    fetchBrokerStatus();
-    const intervalId = setInterval(fetchBrokerStatus, 15 * 1000);
-
-    return () => {
-      clearInterval(intervalId);
-      console.log('Polling stopped');
-    };
-  }, [brokerId, userId, navigate]);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: false,
-      });
-      setParentError(error);
-    }
-  }, [error, setParentError]);
-
-  useEffect(() => {
-    if (success) {
-      toast.success(success, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: false,
-      });
-    }
-  }, [success]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    const authToken = localStorage.getItem('authToken');
-    const storedUserId = localStorage.getItem('userId');
-
-    if (!authToken || !storedUserId) {
-      setError('Authentication token or user ID is missing. Please log in again.');
-      navigate('/');
-      return;
-    }
-
-    if (userRole === 'admin') {
-      setError('Admins are not allowed to publish.');
-      return;
-    }
-
-    if (!ssid.trim() || !password.trim()) {
-      setError('Please enter both SSID and Password.');
-      return;
-    }
-
-    if (!topicName.trim()) {
-      setError('Please enter a topic name before publishing.');
-      return;
-    }
-
-    const publishData = {
-      ssid: String(ssid),
-      password: String(password),
-    };
-
-    try {
-      const publishResponse = await fetch(
-        `http://localhost:5000/api/brokers/${brokerId}/publish`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({
-            topic: topicName.trim(),
-            message: JSON.stringify(publishData),
-          }),
-        }
-      );
-
-      if (!publishResponse.ok) {
-        const errorData = await publishResponse.json();
-        const errorMessage = errorData.message || 'Failed to publish message.';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      setSuccess(`Published Wi-Fi configurations to topic ${topicName} successfully!`);
-      setSsid('');
-      setPassword('');
-      setTopicName('');
-    } catch (err) {
-      console.error('Publish error:', err.message);
-      setError(err.message || 'An error occurred while publishing.');
-    }
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const handleNavigation = (path) => {
-    navigate(`/dashboard${path}`, { state: { brokerId, userId } });
+  const handleFocus = (field) => {
+    setFocusedFields({
+      ...focusedFields,
+      [field]: true,
+    });
+  };
+
+  const handleBlur = (field) => {
+    setFocusedFields({
+      ...focusedFields,
+      [field]: formData[field] !== '',
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('WiFi Configuration Submitted:', formData);
+    alert('WiFi Configuration Saved: SSID - ' + formData.ssid + ', Topic - ' + formData.topic);
   };
 
   return (
-    <div className="dashboard-main window-effect">
-      <form onSubmit={handleSubmit} className="wifi-config-form">
-        <div className="form-row">
-          <label>
-            SSID:
+    <div className="wifi-config-container">
+      <div className="wifi-config-content">
+        <h2 className="wifi-config-title">WiFi Configuration</h2>
+        <form className="wifi-config-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="ssid" className={`form-label ${focusedFields.ssid || formData.ssid ? 'floating' : ''}`}>
+              WiFi SSID
+            </label>
             <input
+              required
+              className="form-input"
               type="text"
+              name="ssid"
               id="ssid"
-              value={ssid}
-              onChange={(e) => setSsid(e.target.value)}
-              placeholder="Enter Wi-Fi SSID"
+              placeholder="Enter WiFi SSID"
+              value={formData.ssid}
+              onChange={handleChange}
+              onFocus={() => handleFocus('ssid')}
+              onBlur={() => handleBlur('ssid')}
             />
-          </label>
-        </div>
-        <div className="form-row">
-          <label>
-            Password:
+          </div>
+          <div className="form-group">
+            <label htmlFor="password" className={`form-label ${focusedFields.password || formData.password ? 'floating' : ''}`}>
+              Password
+            </label>
             <input
+              required
+              className="form-input"
               type="password"
+              name="password"
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter Wi-Fi Password"
+              placeholder="Enter WiFi Password"
+              value={formData.password}
+              onChange={handleChange}
+              onFocus={() => handleFocus('password')}
+              onBlur={() => handleBlur('password')}
             />
-          </label>
-        </div>
-        <div className="form-row">
-          <label>
-            Topic Name:
+          </div>
+          <div className="form-group">
+            <label htmlFor="topic" className={`form-label ${focusedFields.topic || formData.topic ? 'floating' : ''}`}>
+              Topic
+            </label>
             <input
-              type="text"
-              id="topicName"
-              value={topicName}
-              onChange={(e) => setTopicName(e.target.value)}
-              placeholder="Enter Topic Name"
+              required
+              className="form-input"
+              type="text" // Changed to text since "Topic" is not a password
+              name="topic"
+              id="topic"
+              placeholder="Enter Topic"
+              value={formData.topic}
+              onChange={handleChange}
+              onFocus={() => handleFocus('topic')}
+              onBlur={() => handleBlur('topic')}
             />
-          </label>
-        </div>
-        <div className="dashboard-form-buttons">
-          <button
-            type="button"
-            className="dashboard-action-button"
-            onClick={() => handleNavigation('')}
-          >
-            Back
+          </div>
+          <button className="form-submit-button" type="submit">
+            Submit
           </button>
-          <button type="submit" className="dashboard-action-button" disabled={userRole === 'admin'}>
-            Connect
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

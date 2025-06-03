@@ -249,7 +249,7 @@ const Dashboard = () => {
         </button> */}
       </div>
       <div className="dashboard-main">
-        <h2>Configuration (Broker Status: {brokerStatus || 'Unknown'})</h2>
+        {/* <h2>Configuration (Broker Status: {brokerStatus || 'Unknown'})</h2> */}
         <Outlet context={{ brokerId, userId, userRole, setError }} />
       </div>
       <DisconnectModal
