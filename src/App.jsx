@@ -1,12 +1,15 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Login from './Authentication/Login';
-import Signup from './Authentication/SignUp';
-import { Route, Routes } from 'react-router-dom';
+import Signup from './Authentication/Signup';
 import AddBrokerModal from './Pages/AddBrokerModal';
 import Navbar from './Pages/Navbar';
 import Dashboard from './Pages/Dashboard';
 import RightSideTable from './Pages/RightSideTable';
+import WiFiConfig from './Components/Users/WiFiConfig';
+import ComConfiguration from './Components/Users/ComConfiguration';
+import Publish from './Components/Users/Publish'; // New component for Publish
+import Subscribe from './Components/Users/Subscribe'; // New component for Subscribe
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
@@ -26,10 +29,16 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/addBrokerModal" element={<AddBrokerModal />} />
           <Route path="/table" element={<RightSideTable />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />}>
+            <Route index element={<ComConfiguration />} /> {/* Default route */}
+            <Route path="com-config" element={<ComConfiguration />} />
+            <Route path="wifi-config" element={<WiFiConfig/>} />
+            <Route path="publish" element={<Publish />} />
+            <Route path="subscribe" element={<Subscribe />} />
+          </Route>
         </Route>
       </Routes>
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         className="custom-toast-container"
         autoClose={500}
