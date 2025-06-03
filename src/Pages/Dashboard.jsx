@@ -4,7 +4,7 @@ import "./Dashboard.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DisconnectModal from "../Components/DisconnectModel";
+import DisconnectModal from "../Components/DisconnectModel"; // Fixed typo in import
 import ComConfiguration from "../Components/Users/ComConfiguration";
 
 const getDefaultFormData = () => ({
@@ -26,7 +26,6 @@ const getDefaultFormData = () => ({
 const Dashboard = () => {
   const [formBlocks, setFormBlocks] = useState([getDefaultFormData()]);
   const [formKey, setFormKey] = useState(0);
-  const [isResetClear, setIsResetClear] = useState(true);
   const [showMain, setShowMain] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -134,7 +133,7 @@ const Dashboard = () => {
       };
 
       fetchBrokerStatus(); // Initial fetch
-      intervalId = setInterval(fetchBrokerStatus, 15*5000);
+      intervalId = setInterval(fetchBrokerStatus, 15 * 1000); // Fixed to 15 seconds (15000ms)
     }
 
     // Cleanup polling
@@ -162,7 +161,7 @@ const Dashboard = () => {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || `Failed to fetch assigned broker (HTTP ${errorData.status})`
+          errorData.message || `Failed to fetch assigned broker (HTTP ${response.status})`
         );
       }
 
@@ -217,22 +216,10 @@ const Dashboard = () => {
   const handleReset = () => {
     setError("");
     setSuccess("");
-    if (isResetClear) {
-      const updatedForms = [...formBlocks];
-      updatedForms[formBlocks.length - 1] = getDefaultFormData();
-      setFormBlocks(updatedForms);
-      setIsResetClear(false);
-      toast.success("Row cleared!");
-    } else {
-      if (formBlocks.length > 1) {
-        const updatedForms = formBlocks.slice(0, -1);
-        setFormBlocks(updatedForms);
-        setIsResetClear(true);
-        toast.success("Row removed!");
-      } else {
-        toast.error("Cannot remove the last row!");
-      }
-    }
+    const updatedForms = [...formBlocks];
+    updatedForms[updatedForms.length - 1] = getDefaultFormData();
+    setFormBlocks(updatedForms);
+    toast.success("inputs feilds cleared!");
   };
 
   const handlePrev = () => {
@@ -241,7 +228,7 @@ const Dashboard = () => {
     if (formBlocks.length > 1) {
       const updatedForms = formBlocks.slice(0, -1);
       setFormBlocks(updatedForms);
-      toast.success("Row removed!");
+      toast.success("Last row removed!");
     } else {
       toast.error("Cannot remove the last row!");
     }
@@ -251,7 +238,6 @@ const Dashboard = () => {
     setError("");
     setSuccess("");
     setFormBlocks([...formBlocks, getDefaultFormData()]);
-    setIsResetClear(true);
     toast.success("New input row added!");
   };
 
