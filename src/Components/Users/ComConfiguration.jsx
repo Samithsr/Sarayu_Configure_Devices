@@ -155,14 +155,14 @@ const ComConfiguration = () => {
           <table className="form-table">
             <thead>
               <tr>
-                <th>Tag 1</th>
-                <th>Tag 2</th>
-                <th>Tag 3</th>
-                <th>Tag 4</th>
-                <th>Tag 5</th>
-                <th>Tag 6</th>
-                <th>Tag 7</th>
-                <th>Tag 8</th>
+                <th>Tagname</th>
+                <th>Device ID</th>
+                <th>Slave ID</th>
+                <th>Function Code</th>
+                <th>Address</th>
+                <th>Length</th>
+                <th>Data Type</th>
+                <th>Scaling</th>
                 <th>Baud Rate</th>
                 <th>Data Bit</th>
                 <th>Parity</th>
