@@ -6,8 +6,9 @@ import { toast } from 'react-toastify';
 import EditModal from '../Authentication/EditModal';
 import DeleteModal from '../Authentication/DeleteModel';
 import AddBrokerModal from '../Pages/AddBrokerModal';
-import UsersAssign from '../Pages/Users/UserAssign';
+// import UsersAssign from '../Pages/Users/UserAssign';
 import LogoutModal from '../Pages/LogoutModel';
+import AdminUserAssign from './admin/AdminUserAssign';
 
 const RightSideTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -707,7 +708,7 @@ const RightSideTable = () => {
                   </div>
                 </td>
                 <td>
-                  <UsersAssign
+                  <AdminUserAssign
                     brokerId={row.brokerId}
                     assignedUserId={row.assignedUserId}
                     assignedUserEmail={row.assignedUserEmail}

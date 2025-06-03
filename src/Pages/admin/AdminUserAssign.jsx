@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaUserPlus } from 'react-icons/fa';
-import './UserAssign.css';
+import './AdminUserAssign.css';
 
-const UsersAssign = ({ brokerId, assignedUserId, assignedUserEmail, users, handleAssignUser, onConfirmationStateChange }) => {
+const AdminUserAssign = ({ brokerId, assignedUserId, assignedUserEmail, users, handleAssignUser, onConfirmationStateChange }) => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -79,4 +79,4 @@ const UsersAssign = ({ brokerId, assignedUserId, assignedUserEmail, users, handl
   );
 };
 
-export default UsersAssign;
+export default AdminUserAssign;
