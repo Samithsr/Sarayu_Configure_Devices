@@ -4,7 +4,7 @@ import './Subscribe.css';
 const Subscribe = () => {
   const [formData, setFormData] = useState({
     topicFilter: '',
-    qosLevel: '',
+    qosLevel: '0', // Default value set to '0'
   });
 
   const handleChange = (e) => {
@@ -45,18 +45,18 @@ const Subscribe = () => {
           </div>
           <div className="subscribe-form-group">
             <label htmlFor="qosLevel" className="subscribe-form-label">QoS Level</label>
-            <input
+            <select
               required
-              className="subscribe-form-input"
-              type="number"
+              className="subscribe-form-select" // New class for specific styling
               name="qosLevel"
               id="qosLevel"
-              placeholder="Enter QoS Level (0-2)"
-              min="0"
-              max="2"
               value={formData.qosLevel}
               onChange={handleChange}
-            />
+            >
+              <option value="0">0 - Almost Once</option>
+              <option value="1">1 - At least Once</option>
+              <option value="2">2 - Exactly Once</option>
+            </select>
           </div>
           <div className="subscribe-buttons-container">
             <button
@@ -64,7 +64,7 @@ const Subscribe = () => {
               className="subscribe-add-task-button"
               onClick={handleAddTask}
             >
-              + Add Task
+              + Add Topic
             </button>
             <button
               type="submit"

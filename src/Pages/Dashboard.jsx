@@ -110,7 +110,7 @@ const Dashboard = () => {
       };
 
       fetchBrokerStatus();
-      intervalId = setInterval(fetchBrokerStatus, 15 * 10000);
+      intervalId = setInterval(fetchBrokerStatus, 15 * 60 * 1000);
     }
 
     return () => {

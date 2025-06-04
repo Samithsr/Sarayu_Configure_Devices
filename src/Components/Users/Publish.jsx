@@ -2,28 +2,56 @@ import React, { useState } from 'react';
 import './Publish.css';
 
 const Publish = () => {
-  const [formData, setFormData] = useState({
-    topic: '',
-    qosLevel: '',
-    payload: '',
-  });
+  const [inputSets, setInputSets] = useState([
+    {
+      topic: '',
+      qosLevel: '0', // Default value for QoS Level
+      payload: '',
+    },
+  ]);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
+  const handleChange = (index, e) => {
+    const newInputSets = [...inputSets];
+    newInputSets[index] = {
+      ...newInputSets[index],
       [e.target.name]: e.target.value,
-    });
+    };
+    setInputSets(newInputSets);
   };
 
-  const handleAddTask = () => {
-    console.log('Add Task Clicked:', formData);
-    alert('Task Added: Topic - ' + formData.topic + ', QoS Level - ' + formData.qosLevel + ', Payload - ' + formData.payload);
+  const handleAddTopic = () => {
+    setInputSets([
+      ...inputSets,
+      {
+        topic: '',
+        qosLevel: '0',
+        payload: '',
+      },
+    ]);
   };
 
   const handlePublish = (e) => {
     e.preventDefault();
-    console.log('Publish Submitted:', formData);
-    alert('Published: Topic - ' + formData.topic + ', QoS Level - ' + formData.qosLevel + ', Payload - ' + formData.payload);
+    console.log('Publish Submitted:', inputSets);
+    const summary = inputSets.map(
+      (set, index) =>
+        `Set ${index + 1}: Topic - ${set.topic}, QoS Level - ${set.qosLevel}, Payload - ${set.payload}`
+    ).join('\n');
+    alert('Published:\n' + summary);
+  };
+
+  const handleClear = () => {
+    if (inputSets.length > 1) {
+      setInputSets(inputSets.slice(0, -1));
+    } else {
+      setInputSets([
+        {
+          topic: '',
+          qosLevel: '0',
+          payload: '',
+        },
+      ]);
+    }
   };
 
   return (
@@ -31,53 +59,59 @@ const Publish = () => {
       <div className="publish-content">
         <h2 className="publish-title">Publish</h2>
         <form className="publish-form" onSubmit={handlePublish}>
-          <div className="publish-form-group">
-            <label htmlFor="topic" className="publish-form-label">Topic</label>
-            <input
-              required
-              className="publish-form-input"
-              type="text"
-              name="topic"
-              id="topic"
-              placeholder="Enter Topic"
-              value={formData.topic}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="publish-form-group">
-            <label htmlFor="qosLevel" className="publish-form-label">QoS Level</label>
-            <input
-              required
-              className="publish-form-input"
-              type="number"
-              name="qosLevel"
-              id="qosLevel"
-              placeholder="Enter QoS Level (0-2)"
-              min="0"
-              max="2"
-              value={formData.qosLevel}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="publish-form-group">
-            <label htmlFor="payload" className="publish-form-label">Payload</label>
-            <textarea
-              required
-              className="publish-form-textarea"
-              name="payload"
-              id="payload"
-              placeholder="Enter Payload (e.g., JSON data)"
-              value={formData.payload}
-              onChange={handleChange}
-            />
+          <div className="publish-inputs-scroll-container">
+            {inputSets.map((inputSet, index) => (
+              <div key={index} className="publish-input-set">
+                <div className="publish-form-group">
+                  <label htmlFor={`topic-${index}`} className="publish-form-label">Topic {index + 1}</label>
+                  <input
+                    required
+                    className="publish-form-input"
+                    type="text"
+                    name="topic"
+                    id={`topic-${index}`}
+                    placeholder="Enter Topic"
+                    value={inputSet.topic}
+                    onChange={(e) => handleChange(index, e)}
+                  />
+                </div>
+                <div className="publish-form-group">
+                  <label htmlFor={`qosLevel-${index}`} className="publish-form-label">QoS Level</label>
+                  <select
+                    required
+                    className="publish-form-select"
+                    name="qosLevel"
+                    id={`qosLevel-${index}`}
+                    value={inputSet.qosLevel}
+                    onChange={(e) => handleChange(index, e)}
+                  >
+                    <option value="0">0 - Almost Once</option>
+                    <option value="1">1 - At least Once</option>
+                    <option value="2">2 - Exactly Once</option>
+                  </select>
+                </div>
+                <div className="publish-form-group">
+                  <label htmlFor={`payload-${index}`} className="publish-form-label">Payload</label>
+                  <textarea
+                    required
+                    className="publish-form-textarea"
+                    name="payload"
+                    id={`payload-${index}`}
+                    placeholder="Enter Payload (e.g., JSON data)"
+                    value={inputSet.payload}
+                    onChange={(e) => handleChange(index, e)}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
           <div className="publish-buttons-container">
             <button
               type="button"
               className="publish-add-task-button"
-              onClick={handleAddTask}
+              onClick={handleAddTopic}
             >
-              + Add Task
+              + Add Topic
             </button>
             <button
               type="submit"
@@ -85,11 +119,18 @@ const Publish = () => {
             >
               Publish
             </button>
+            <button
+              type="button"
+              className="publish-submit-button"
+              onClick={handleClear}
+            >
+              Clear
+            </button>
           </div>
         </form>
       </div>
     </div>
-  );
+  ); 
 };
 
 export default Publish;
