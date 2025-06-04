@@ -241,6 +241,7 @@ const Dashboard = () => {
         >
           Wi-Fi
         </button>
+        <button className={getActiveClass('/subscribe')}>Location</button>
         {/* <button
           className="dashboard-action-button"
           onClick={() => setShowDisconnectModal(true)}

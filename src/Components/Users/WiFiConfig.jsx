@@ -5,7 +5,7 @@ const WiFiConfig = () => {
   const [formData, setFormData] = useState({
     ssid: '',
     password: '',
-    topic: '', // Added topic to formData
+    topic: '',
   });
 
   const [focusedFields, setFocusedFields] = useState({
@@ -35,10 +35,38 @@ const WiFiConfig = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('WiFi Configuration Submitted:', formData);
-    alert('WiFi Configuration Saved: SSID - ' + formData.ssid + ', Topic - ' + formData.topic);
+    const payload = `${formData.ssid}.${formData.password}`; // Format payload as ssid.password
+    const requestData = {
+      topic: formData.topic,
+      payload,
+      qosLevel: '1', // Default QoS 1
+    };
+
+    console.log('Sending WiFi Config:', requestData); // Log request data
+
+    try {
+      const response = await fetch('http://localhost:5000/api/wifi/user/pub/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const result = await response.json();
+      console.log('WiFi Publish Response:', result); // Log response
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to publish WiFi configuration');
+      }
+
+      alert(`WiFi Configuration Published: SSID - ${formData.ssid}, Topic - ${formData.topic}, Payload - ${payload}`);
+    } catch (error) {
+      console.error('Error publishing WiFi configuration:', error.message);
+      alert('Failed to publish WiFi configuration: ' + error.message);
+    }
   };
 
   return (
@@ -87,7 +115,7 @@ const WiFiConfig = () => {
             <input
               required
               className="form-input"
-              type="text" // Changed to text since "Topic" is not a password
+              type="text"
               name="topic"
               id="topic"
               placeholder="Enter Topic"

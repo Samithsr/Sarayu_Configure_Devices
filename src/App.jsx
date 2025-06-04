@@ -30,7 +30,7 @@ const App = () => {
           <Route path="/addBrokerModal" element={<AddBrokerModal />} />
           <Route path="/table" element={<RightSideTable />} />
           <Route path="/dashboard" element={<Dashboard />}>
-            <Route index element={<ComConfiguration />} /> {/* Default route */}
+            <Route index element={<Publish />} /> {/* Default route */}
             <Route path="com-config" element={<ComConfiguration />} />
             <Route path="wifi-config" element={<WiFiConfig/>} />
             <Route path="publish" element={<Publish />} />

@@ -1,3 +1,4 @@
+// Publish.js
 import React, { useState } from 'react';
 import './Publish.css';
 
@@ -30,14 +31,36 @@ const Publish = () => {
     ]);
   };
 
-  const handlePublish = (e) => {
+  const handlePublish = async (e) => {
     e.preventDefault();
-    console.log('Publish Submitted:', inputSets);
-    const summary = inputSets.map(
-      (set, index) =>
-        `Set ${index + 1}: Topic - ${set.topic}, QoS Level - ${set.qosLevel}, Payload - ${set.payload}`
-    ).join('\n');
-    alert('Published:\n' + summary);
+    try {
+      const response = await fetch('http://localhost:5000/api/pub/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ inputSets }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to publish');
+      }
+
+      const result = await response.json();
+      console.log('Publish Response:', result);
+
+      // Display summary in alert
+      const summary = inputSets
+        .map(
+          (set, index) =>
+            `Set ${index + 1}: Topic - ${set.topic}, QoS Level - ${set.qosLevel}, Payload - ${set.payload}`
+        )
+        .join('\n');
+      alert('Published:\n' + summary);
+    } catch (error) {
+      console.error('Error publishing:', error.message);
+      alert('Failed to publish: ' + error.message);
+    }
   };
 
   const handleClear = () => {
@@ -85,8 +108,8 @@ const Publish = () => {
                     value={inputSet.qosLevel}
                     onChange={(e) => handleChange(index, e)}
                   >
-                    <option value="0">0 - Almost Once</option>
-                    <option value="1">1 - At least Once</option>
+                    <option value="0">0 - At Most Once</option>
+                    <option value="1">1 - At Least Once</option>
                     <option value="2">2 - Exactly Once</option>
                   </select>
                 </div>
@@ -130,7 +153,7 @@ const Publish = () => {
         </form>
       </div>
     </div>
-  ); 
+  );
 };
 
 export default Publish;

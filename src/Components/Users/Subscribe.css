@@ -1,7 +1,7 @@
 /* Subscribe Topics Container */
 .subscribe-topics-container {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-start;
   width: 100%;
   padding: 20px;
@@ -18,7 +18,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-height: 600px; /* Ensure a minimum height for the content area */
+  min-height: 600px;
 }
 
 /* Subscribe Topics Title */
@@ -27,27 +27,107 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0;
+  text-align: start;
+}
+
+/* Content Wrapper (50/50 Split) */
+.subscribe-content-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+}
+
+/* Form Wrapper (50%) */
+.subscribe-form-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Messages Wrapper (50%) */
+.messages-wrapper {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Messages Title */
+.messages-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Messages Scroll Container */
+.messages-scroll-container {
+  max-height: 400px;
+  overflow-y: auto;
+  background: #3e4a5f;
+  border-radius: 8px;
+  padding: 16px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.messages-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* No Messages Text */
+.no-messages {
+  color: #a0aec0;
+  font-size: 1rem;
   text-align: center;
+}
+
+/* Messages List */
+.messages-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Message Item */
+.message-item {
+  background: #4a5568;
+  border-radius: 8px;
+  padding: 12px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Message Content */
+.message-content {
+  margin-bottom: 8px;
+}
+
+.message-content strong {
+  color: #d1d5db;
+  margin-right: 8px;
 }
 
 /* Form Styles */
 .subscribe-topics-form {
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Allow the form to take up remaining space */
   gap: 20px;
 }
 
 /* Scrollable Container for Input Sets */
 .subscribe-inputs-scroll-container {
-  flex-grow: 1; /* Take up all available space above the buttons */
-  max-height: 400px; /* Fixed max height to enable scrolling */
+  max-height: 400px;
   overflow-y: auto;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-/* Hide Scrollbar in Webkit Browsers (Chrome, Safari) */
 .subscribe-inputs-scroll-container::-webkit-scrollbar {
   display: none;
 }
@@ -56,8 +136,8 @@
 .subscribe-input-set {
   display: flex;
   flex-direction: column;
-  gap: 24px; /* Increased gap between fields within a set */
-  padding: 24px 0; /* Increased padding for more vertical space between sets */
+  gap: 24px;
+  padding: 24px 0;
   border-bottom: 1px solid #4a5568;
 }
 
@@ -66,9 +146,9 @@
   padding-bottom: 0;
 }
 
-/* Form Group (Label + Input/Select Wrapper) */
+/* Form Group */
 .subscribe-form-group {
-  width: 40%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -82,9 +162,9 @@
   text-align: left;
 }
 
-/* Input Styles (for Topic Filter) */
+/* Input Styles */
 .subscribe-form-input {
-  width: 100%;
+  width: 80%;
   background: #4a5568;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -107,9 +187,9 @@
   border: 1px solid #ffffff;
 }
 
-/* Select Styles (for QoS Level) */
+/* Select Styles */
 .subscribe-form-select {
-  width: 100%;
+  width: 80%;
   background: #3e4a5f;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -140,7 +220,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: auto; /* Push the buttons to the bottom of the form */
 }
 
 /* Add Task Button */
@@ -186,14 +265,24 @@
 }
 
 /* Responsive Design */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .subscribe-content-wrapper {
+    flex-direction: column;
+  }
+
+  .subscribe-form-wrapper,
+  .messages-wrapper {
+    flex: none;
+    width: 100%;
+  }
+
   .subscribe-topics-container {
     padding: 10px;
   }
 
   .subscribe-topics-content {
     padding: 24px;
-    min-height: 500px; /* Adjusted for smaller screens */
+    min-height: auto;
   }
 
   .subscribe-topics-title {
@@ -228,5 +317,9 @@
   .subscribe-input-set {
     gap: 20px;
     padding: 20px 0;
+  }
+
+  .messages-scroll-container {
+    max-height: 300px;
   }
 }
