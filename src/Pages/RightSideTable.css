@@ -2,21 +2,22 @@
 .unique-table-container {
   width: 99.1vw;
   height: 100vh;
-  margin: 0;
-  padding: 0px 10px 10px 10px;
+  /* margin: 0; */
+  /* padding: 0px 10px 10px 10px; */
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   background-color: #252F3F;
   overflow: hidden;
-  box-sizing: border-box;
+  /* box-sizing: border-box; */
 }
 
 /* Header buttons container */
 .header-buttons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 10px 30px;
+  /* display: flex; */
+  /* justify-content: space-between; */
+  align-items: start;
+  gap: 5px;
+  margin: 10px 20px;
 }
 
 /* Back to Form button */
@@ -26,8 +27,10 @@
   color: #FFFFFF;
   font-size: 14px;
   font-weight: 500;
+  margin-bottom: 2px;
   border: none;
-  border-radius: 8px;
+  gap: 2px;
+  /* border-radius: 8px; */
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -61,11 +64,12 @@
 /* Scrollable wrapper */
 .unique-table-scrollable {
   flex: 1;
-  height: calc(100vh - 60px); /* Adjusted for header-buttons */
-  overflow-y: auto;
-  overflow-x: auto;
+  /* height: calc(100vh - 60px); */
+  /* overflow-y: auto; */
+  /* overflow-x: auto; */
   border-radius: 10px;
-  padding: 10px 30px;
+  /* padding: 10px 30px; */
+  margin: 20px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
   background-color: #252F3F;
 }

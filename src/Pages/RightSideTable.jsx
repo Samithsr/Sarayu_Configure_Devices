@@ -646,16 +646,18 @@ const RightSideTable = () => {
 
   return (
     <div className="unique-table-container">
-      <div className="header-buttons">
+      <div className={`unique-table-scrollable ${activeBrokerId ? 'blurred' : ''}`}>
+        <div className="header-buttons">
         <button className="back-button" onClick={handleAddClick}>
           Add+
         </button>
+        <button className="back-button">Publish</button>
+        <button className="back-button">Subscribe</button>
         {/* <button className="logout-button" onClick={handleLogout}>
           <FaSignOutAlt />
           Logout
         </button> */}
-      </div>
-      <div className={`unique-table-scrollable ${activeBrokerId ? 'blurred' : ''}`}>
+      
         <table className="unique-table">
           <thead>
             <tr>
@@ -747,6 +749,7 @@ const RightSideTable = () => {
           >
             Next
           </button>
+          </div>
         </div>
       </div>
 
