@@ -229,7 +229,7 @@ const ComConfiguration = () => {
           Back
         </button> */}
         <button className="dashboard-action-button" onClick={handlePrev}>
-          Prev
+          Remove
         </button>
         <button className="dashboard-action-button" onClick={handleReset}>
           Reset
@@ -247,8 +247,9 @@ const ComConfiguration = () => {
           onChange={(e) => setTopicName(e.target.value)}
         />
         <button onClick={handlePublish} disabled={userRole === 'admin'}>
-          Publish
+          Set
         </button>
+        <button>Read</button>
       </div>
     </div>
   );

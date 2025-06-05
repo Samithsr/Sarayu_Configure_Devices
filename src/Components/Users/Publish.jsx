@@ -132,7 +132,7 @@ const Publish = () => {
             <button
               type="button"
               className="publish-add-task-button"
-              onClick={handleAddTopic}
+              // onClick={handleAddTopic}
             >
               + Add Topic
             </button>

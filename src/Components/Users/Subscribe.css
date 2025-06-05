@@ -5,6 +5,7 @@
   align-items: flex-start;
   width: 100%;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 /* Subscribe Topics Content */
@@ -36,15 +37,18 @@
   flex-direction: row;
   gap: 20px;
   width: 100%;
+  flex-grow: 1;
 }
 
-/* Form Wrapper (50%) */
+/* Form Wrapper (Left Side, 50%) */
 .subscribe-form-wrapper {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Messages Wrapper (50%) */
+/* Messages Wrapper (Right Side, 50%) */
 .messages-wrapper {
   flex: 1;
   min-width: 0;
@@ -63,7 +67,7 @@
 
 /* Messages Scroll Container */
 .messages-scroll-container {
-  max-height: 400px;
+  max-height: 500px; /* Increased height from previous response */
   overflow-y: auto;
   background: #3e4a5f;
   border-radius: 8px;
@@ -81,6 +85,7 @@
   color: #a0aec0;
   font-size: 1rem;
   text-align: center;
+  padding: 20px;
 }
 
 /* Messages List */
@@ -118,6 +123,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: 100%;
 }
 
 /* Scrollable Container for Input Sets */
@@ -126,6 +132,7 @@
   overflow-y: auto;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  flex-grow: 1;
 }
 
 .subscribe-inputs-scroll-container::-webkit-scrollbar {
@@ -134,29 +141,33 @@
 
 /* Each Set of Inputs */
 .subscribe-input-set {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  padding: 24px 0;
+  width: 80%;
+  margin: 5px 0;
+  /* display: flex;
+  flex-direction: row;  */
+  gap: 16px;
+  padding: 16px 0;
   border-bottom: 1px solid #4a5568;
+  align-items: center;
 }
 
 .subscribe-input-set:last-child {
   border-bottom: none;
-  padding-bottom: 0;
 }
 
 /* Form Group */
 .subscribe-form-group {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+  flex: 1;
+  margin: 10px 0;
+  /* display: flex; */
+  /* flex-direction: column; */
   gap: 8px;
 }
 
 /* Label Styles */
 .subscribe-form-label {
   font-size: 1rem;
+  padding: 5px;
   font-weight: 500;
   color: #d1d5db;
   text-align: left;
@@ -164,7 +175,7 @@
 
 /* Input Styles */
 .subscribe-form-input {
-  width: 80%;
+  width: 100%; /* Adjusted to match image */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -189,7 +200,7 @@
 
 /* Select Styles */
 .subscribe-form-select {
-  width: 80%;
+  width: 100%; /* Adjusted to match image */
   background: #3e4a5f;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -219,19 +230,24 @@
 .subscribe-buttons-container {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px; /* Slightly increased gap to match image */
+  padding: 16px 0;
+  position: sticky;
+  bottom: 0;
+  background: #2d3748; /* Match form background to avoid overlap visibility */
+  z-index: 10; /* Ensure buttons stay above scrolling content */
 }
 
 /* Add Task Button */
 .subscribe-add-task-button {
-  padding: 10px 30px;
+  padding: 10px 24px; /* Adjusted padding to match image */
   background: #4a5568;
   color: #ffffff;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .subscribe-add-task-button:hover {
@@ -243,20 +259,20 @@
   transform: scale(0.95);
 }
 
-/* Subscribe Button */
+/* Subscribe and Clear Buttons */
 .subscribe-submit-button {
-  padding: 10px 30px;
-  background: #4a5568;
+  padding: 10px 24px; /* Adjusted padding to match image */
+  background: #3182ce; /* Distinct blue to differentiate, inspired by previous responses */
   color: #ffffff;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .subscribe-submit-button:hover {
-  background: #5a6b8a;
+  background: #2b6cb0;
   transform: scale(1.03);
 }
 
@@ -268,6 +284,7 @@
 @media (max-width: 768px) {
   .subscribe-content-wrapper {
     flex-direction: column;
+    gap: 16px;
   }
 
   .subscribe-form-wrapper,
@@ -277,16 +294,22 @@
   }
 
   .subscribe-topics-container {
-    padding: 10px;
+    padding: 12px;
   }
 
   .subscribe-topics-content {
-    padding: 24px;
+    padding: 20px;
     min-height: auto;
   }
 
   .subscribe-topics-title {
     font-size: 1.3rem;
+  }
+
+  .subscribe-input-set {
+    flex-direction: column; /* Stack inputs vertically on mobile */
+    gap: 12px;
+    padding: 16px 0;
   }
 
   .subscribe-form-group {
@@ -299,27 +322,27 @@
 
   .subscribe-form-input,
   .subscribe-form-select {
-    padding: 10px 14px;
-    font-size: 0.9rem;
-  }
-
-  .subscribe-add-task-button,
-  .subscribe-submit-button {
-    padding: 8px 20px;
+    width: 100%;
+    padding: 10px 12px;
     font-size: 0.9rem;
   }
 
   .subscribe-buttons-container {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 8px;
+    justify-content: center;
+    position: static; /* Remove sticky positioning on mobile */
+    padding: 12px 0;
   }
 
-  .subscribe-input-set {
-    gap: 20px;
-    padding: 20px 0;
+  .subscribe-add-task-button,
+  .subscribe-submit-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
   }
 
   .messages-scroll-container {
-    max-height: 300px;
+    max-height: 400px; /* Adjusted for mobile */
   }
 }

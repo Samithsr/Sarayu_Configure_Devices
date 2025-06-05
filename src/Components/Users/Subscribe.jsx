@@ -101,15 +101,18 @@ const Subscribe = () => {
   return (
     <div className="subscribe-topics-container">
       <div className="subscribe-topics-content">
-        <h2 className="subscribe-topics-title">Subscribe Topics</h2>
         <div className="subscribe-content-wrapper">
+          {/* Subscribe Form (Left Side) */}
           <div className="subscribe-form-wrapper">
             <form className="subscribe-topics-form" onSubmit={handleSubscribe}>
               <div className="subscribe-inputs-scroll-container">
+                <h2 className="subscribe-topics-title">Subscribe Topics</h2>
                 {inputSets.map((inputSet, index) => (
                   <div key={index} className="subscribe-input-set">
                     <div className="subscribe-form-group">
-                      <label htmlFor={`topicFilter-${index}`} className="subscribe-form-label">Topic Filter {index + 1}</label>
+                      <label htmlFor={`topicFilter-${index}`} className="subscribe-form-label">
+                        Topic Filter {index + 1}
+                      </label>
                       <input
                         required
                         className="subscribe-form-input"
@@ -122,7 +125,9 @@ const Subscribe = () => {
                       />
                     </div>
                     <div className="subscribe-form-group">
-                      <label htmlFor={`qosLevel-${index}`} className="subscribe-form-label">QoS Level</label>
+                      <label htmlFor={`qosLevel-${index}`} className="subscribe-form-label">
+                        QoS Level
+                      </label>
                       <select
                         required
                         className="subscribe-form-select"
@@ -147,10 +152,7 @@ const Subscribe = () => {
                 >
                   + Add Topic
                 </button>
-                <button
-                  type="submit"
-                  className="subscribe-submit-button"
-                >
+                <button type="submit" className="subscribe-submit-button">
                   Subscribe Topics
                 </button>
                 <button
@@ -163,6 +165,7 @@ const Subscribe = () => {
               </div>
             </form>
           </div>
+          {/* Messages Section (Right Side) */}
           <div className="messages-wrapper">
             <h3 className="messages-title">Received Messages</h3>
             <div className="messages-scroll-container">
