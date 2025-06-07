@@ -1,4 +1,3 @@
-
 /* Form scroll area */
 .form-scroll-area {
   width: 100%;
@@ -22,7 +21,7 @@
 
 .form-scroll-area::-webkit-scrollbar-thumb {
   background: #00897B; /* Teal thumb to match theme */
-  border-radius: 2px; /* Less rounded corners */
+  /* border-radius: 2px; */
 }
 
 .form-scroll-area::-webkit-scrollbar-thumb:hover {
@@ -32,29 +31,33 @@
 /* Table wrapper */
 .table-wrapper {
   width: 100%;
+  background-color: #252F3F; /* Dark background to match the image */
+  /* border-radius: 10px; */
 }
 
 /* Table styling */
 .form-table {
   width: 100%; /* Full width of table-wrapper */
-  min-width: 1440px; /* Ensure all 12 columns fit (12 × 120px) */
+  min-width: 1440px; /* Ensure all columns fit (12 × 120px) */
   border-collapse: collapse;
-  background-color: #fff;
-  border-radius: 8px;
+  background-color: #252F3F; /* Dark background to match the image */
+  /* border-radius: 8px; */
   overflow: hidden;
 }
 
+/* Table headers and cells */
 .form-table th,
 .form-table td {
   padding: 8px;
-  border: 1px solid #ccc;
   text-align: center; /* Center all columns */
   min-width: 120px; /* Ensure columns are wide enough */
+  color: #FFFFFF; /* White text to match the image */
 }
 
+/* Table headers */
 .form-table th {
   height: 5vh;
-  background-color: #00897B;
+  background-color: #035576f3; /* Teal background to match the image */
   color: white;
   font-weight: 500;
   font-size: 14px;
@@ -63,8 +66,9 @@
   z-index: 2; /* Ensure headers stay above cells */
 }
 
+/* Table cells */
 .form-table td {
-  background-color: #f9f9f9;
+  background-color: transparent; /* No background to match the image */
 }
 
 /* Form inputs */
@@ -73,15 +77,152 @@
   width: 100%; /* Full width of cell */
   padding: 8px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: none; /* Remove borders as requested previously */
+  /* border-radius: 6px; */
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: box-shadow 0.3s ease; /* Adjusted for focus effect */
   box-sizing: border-box; /* Include padding and border in width */
   text-align: center; /* Center text in inputs and selects */
+  background-color: transparent; /* Remove black background to match the edited image */
+  color: #FFFFFF; /* White text for the selected value */
+  -webkit-appearance: none; /* Remove default browser styling for WebKit */
+  -moz-appearance: none; /* Remove default browser styling for Firefox */
+  appearance: none; /* Remove default browser styling */
+  position: relative;
 }
 
+/* Custom dropdown arrow */
+.form-table select {
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); /* White downward arrow */
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px; /* Space for the arrow */
+}
+
+/* Dropdown options */
+.form-table select option {
+  color: #000000; /* Black text for dropdown options */
+  background-color: #FFFFFF; /* White background for dropdown options */
+  padding: 8px; /* Add padding for better spacing */
+}
+
+/* Focus state for inputs and selects */
 .form-table input:focus,
 .form-table select:focus {
-  border-color: #4DB6AC;
+  box-shadow: 0 0 5px rgba(77, 182, 172, 0.5); /* Teal glow for focus */
+}
+
+/* Dashboard action buttons */
+.dashboard-action-button {
+  padding: 10px;
+  width: 160px;
+  background: #3B82F6; /* Blue to match prior alignment with .dashboard-button */
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  /* border-radius: 8px; */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.dashboard-action-button:hover {
+  background: #2563EB;
+}
+
+/* Topic name input and buttons */
+.dashboard-topic-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.dashboard-topic-name input {
+  padding: 8px;
+  font-size: 14px;
+  border: none;
+  /* border-radius: 6px; */
+  background-color: #1A2533; /* Slightly darker for contrast */
+  color: #FFFFFF;
+  width: 200px;
+}
+
+.dashboard-topic-name input:focus {
+  box-shadow: 0 0 5px rgba(77, 182, 172, 0.5);
+}
+
+.dashboard-topic-name button {
+  padding: 10px;
+  width: 100px;
+  background: #3B82F6;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dashboard-topic-name button:hover {
+  background: #2563EB;
+}
+
+.dashboard-topic-name button:disabled {
+  background: #4B56F3;
+  color: #A0AEC0;
+  cursor: not-allowed;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .form-scroll-area {
+    padding-right: 5px;
+    margin-right: 5px;
+  }
+
+  .table-wrapper {
+    margin: 0;
+  }
+
+  .form-table th,
+  .form-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+    min-width: 80px;
+    max-width: 200px;
+    height: 40px;
+  }
+
+  .form-table th {
+    height: 40px;
+  }
+
+  .form-table input,
+  .form-table select {
+    font-size: 12px;
+  }
+
+  .dashboard-action-button {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .dashboard-topic-name {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .dashboard-topic-name input {
+    width: 100%;
+    max-width: 180px;
+  }
+
+  .dashboard-topic-name button {
+    padding: 8px 10px;
+    font-size: 12px;
+    width: 80px;
+  }
 }
