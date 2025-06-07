@@ -1,21 +1,24 @@
 /* Table layout container */
 .table-layout {
   display: flex;
-  width: 100vw;
+  width: 99.1vw;
   height: 100vh;
   background-color: #252F3F;
   overflow: hidden;
+  /* background-color: red; */
 }
 
 /* Sidebar styles */
 .table-sidebar {
+  height: 100vh;
   width: 200px;
   background: #1A2533;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 13px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  /* background-color: red; */
 }
 
 /* Main content area */
@@ -27,7 +30,9 @@
 
 /* Dashboard buttons */
 .dashboard-button {
-  padding: 10px 20px;
+  padding: 10px;
+  margin-left: 0px;
+  width: 160px;
   background: #3B82F6;
   color: #FFFFFF;
   font-size: 14px;
@@ -36,12 +41,12 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-align: left;
+  text-align: center;
 }
 
 .dashboard-button:hover {
   background: #2563EB;
-  transform: translateY(-1px);
+  /* transform: translateY(-1px); */
 }
 
 .dashboard-button.active {
@@ -60,15 +65,18 @@
 
 /* Table container */
 .unique-table-scrollable {
-  height: 100%;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+  /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); */
   background-color: #252F3F;
+  height: 100%;
+  /* background-color: red; */
 }
 
 /* Table styles */
 .unique-table {
-  width: 100%;
+  width: 98%;
+  margin: 0px 15px 15px 15px;
+  /* margin-left: 15px; */
   border-collapse: collapse;
   table-layout: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
@@ -282,7 +290,7 @@
 .pagination-button:disabled {
   background-color: #4B5563;
   color: #A0AEC0;
-  /* cursor not-allowed; */
+  cursor: not-allowed;
 }
 
 /* Media Queries */
