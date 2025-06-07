@@ -213,7 +213,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-layout">
       <div className="dashboard-sidebar">
-        <button
+        {/* <button
           className={getActiveClass('/publish')}
           onClick={() => handleNavigation('/publish')}
           disabled={userRole === 'admin'}
@@ -226,7 +226,7 @@ const Dashboard = () => {
           disabled={userRole === 'admin'}
         >
           Subscribe
-        </button>
+        </button> */}
         <button
           className={getActiveClass('/com-config') || getActiveClass('')}
           onClick={() => handleNavigation('/com-config')}
