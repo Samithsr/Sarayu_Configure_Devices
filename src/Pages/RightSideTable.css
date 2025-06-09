@@ -1,11 +1,11 @@
 /* Table layout container */
 .table-layout {
   display: flex;
-  width: 99.1vw;
+  width: 100vw; /* Full viewport width */
   height: 100vh;
   background-color: #252F3F;
   overflow: hidden;
-  /* background-color: red; */
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
 /* Sidebar styles */
@@ -18,14 +18,15 @@
   flex-direction: column;
   gap: 13px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-  /* background-color: red; */
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
 /* Main content area */
 .table-main {
-  flex: 1;
+  flex: 1; /* Take remaining space after sidebar */
   padding: 20px;
   overflow-y: auto;
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
 /* Dashboard buttons */
@@ -46,7 +47,6 @@
 
 .dashboard-button:hover {
   background: #2563EB;
-  /* transform: translateY(-1px); */
 }
 
 .dashboard-button.active {
@@ -66,17 +66,15 @@
 /* Table container */
 .unique-table-scrollable {
   border-radius: 10px;
-  /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); */
   background-color: #252F3F;
   height: 100%;
-  /* background-color: red; */
+  margin-right: 30px;
 }
 
 /* Table styles */
 .unique-table {
-  width: 98%;
+  width: 100%;
   margin: 0px 15px 15px 15px;
-  /* margin-left: 15px; */
   border-collapse: collapse;
   table-layout: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
@@ -297,10 +295,12 @@
 @media (max-width: 768px) {
   .table-layout {
     flex-direction: column;
+    width: 100vw; /* Ensure full width on mobile */
   }
 
   .table-sidebar {
     width: 100%;
+    height: auto; /* Allow sidebar to adjust height on mobile */
     flex-direction: row;
     flex-wrap: wrap;
     padding: 10px;
@@ -308,6 +308,7 @@
 
   .table-main {
     padding: 10px;
+    width: 100%; /* Ensure full width on mobile */
   }
 
   .dashboard-button {
