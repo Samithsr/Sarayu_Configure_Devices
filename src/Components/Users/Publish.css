@@ -1,9 +1,9 @@
 /* Global Styles to Remove Browser Scrollbar */
-html, body {
+/* html, body {
   margin: 0;
   padding: 0;
   overflow-y: hidden; /* Hide vertical scrollbar */
-}
+
 
 /* Publish Container */
 .publish-container {
@@ -40,7 +40,7 @@ html, body {
 
 /* Broker IP Select */
 .exists-Broker-ip {
-  width: 100%;
+  width: 36%;
   max-width: 40%;
   height: 40px; /* Reduced height to save space */
   background: #4a5568;
@@ -87,7 +87,8 @@ html, body {
   font-weight: 600;
   color: #ffffff;
   margin: 0;
-  text-align: center;
+  text-align: start;
+  margin-left: 10%;
 }
 
 /* Form Styles */
@@ -136,7 +137,7 @@ html, body {
 
 /* Input Styles (for Topic) */
 .publish-form-input {
-  width: 100%;
+  width: 90%;
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px; /* Reduced padding */
@@ -166,7 +167,7 @@ html, body {
 }
 
 .custom-dropdown-selected {
-  width: 100%;
+  width: 90%;
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px; /* Reduced padding */
@@ -232,7 +233,7 @@ html, body {
 
 /* Textarea Styles (for Payload) */
 .publish-form-textarea {
-  width: 100%;
+  width: 90%;
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px; /* Reduced padding */
@@ -260,9 +261,11 @@ html, body {
 /* Buttons Container */
 .publish-buttons-container {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px; /* Reduced gap */
-  margin-top: auto;
+  justify-content: start;
+  gap: 10px; /* Reduced gap */
+  margin-left: 10%;
+  /* margin-top: auto; */
+  margin-top: 10px;
 }
 
 /* Add Task Button */

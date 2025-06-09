@@ -281,9 +281,9 @@ const Publish = () => {
             ))}
           </div>
           <div className="publish-buttons-container">
-            <button type="button" className="publish-add-task-button" onClick={handleAddTopic}>
+            {/* <button type="button" className="publish-add-task-button" onClick={handleAddTopic}>
               + Add Topic
-            </button>
+            </button> */}
             <button type="submit" className="publish-submit-button">
               Publish
             </button>
