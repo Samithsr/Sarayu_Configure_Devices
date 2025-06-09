@@ -4,7 +4,8 @@
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  padding: 20px;
+  margin: 0 20px;
+  /* padding: 20px; */
   box-sizing: border-box;
 }
 
@@ -43,7 +44,7 @@
 /* Form Wrapper (Left Side, 50%) */
 .subscribe-form-wrapper {
   flex: 1;
-  min-width: 0;
+  /* min-width: 0; */
   display: flex;
   flex-direction: column;
 }
@@ -51,7 +52,7 @@
 /* Messages Wrapper (Right Side, 50%) */
 .messages-wrapper {
   flex: 1;
-  min-width: 0;
+  /* min-width: 0; */
   display: flex;
   flex-direction: column;
   gap: 12px;

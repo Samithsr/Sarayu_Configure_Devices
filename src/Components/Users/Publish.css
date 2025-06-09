@@ -1,9 +1,49 @@
-/* Global Styles to Remove Browser Scrollbar */
-/* html, body {
-  margin: 0;
-  padding: 0;
-  overflow-y: hidden; /* Hide vertical scrollbar */
+/* Grid Container for 50/50 Split */
+.grid-container {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  width: 100%;
+  height: 100vh;
+  gap: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
+.grid-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Left Side (Publish) */
+.left-side-publish-page {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.left-side-publish-page::-webkit-scrollbar {
+  display: none;
+}
+
+/* Right Side (Subscribe) */
+.right-side-subscribe-page {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.right-side-subscribe-page::-webkit-scrollbar {
+  display: none;
+}
 
 /* Publish Container */
 .publish-container {
@@ -12,22 +52,19 @@
   align-items: flex-start;
   width: 100%;
   padding: 20px;
-  max-height: 100vh; /* Ensure content fits within viewport height */
-  overflow: hidden; /* Prevent overflow */
   box-sizing: border-box;
 }
 
 /* Publish Content */
 .publish-content {
   background-color: #2d3748;
-  padding: 24px; /* Reduced padding to save space */
+  padding: 24px;
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 1200px;
   display: flex;
   flex-direction: column;
-  gap: 12px; /* Reduced gap to save space */
+  gap: 12px;
 }
 
 /* Broker IP Header */
@@ -40,15 +77,15 @@
 
 /* Broker IP Select */
 .exists-Broker-ip {
-  width: 36%;
-  max-width: 40%;
-  height: 40px; /* Reduced height to save space */
+  width: 50%;
+  max-width: 50%;
+  height: 40px;
   background: #4a5568;
   color: #ffffff;
   border: 1px solid transparent;
   border-radius: 10px;
-  padding: 8px 12px; /* Reduced padding */
-  font-size: 0.9rem; /* Reduced font size */
+  padding: 8px 12px;
+  font-size: 0.9rem;
   box-sizing: border-box;
   appearance: none;
   -webkit-appearance: none;
@@ -56,7 +93,7 @@
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
-  background-size: 14px; /* Adjusted size */
+  background-size: 14px;
   cursor: pointer;
 }
 
@@ -83,12 +120,12 @@
 
 /* Publish Title */
 .publish-title {
-  font-size: 1.3rem; /* Reduced to save space */
+  font-size: 1.3rem;
   font-weight: 600;
   color: #ffffff;
   margin: 0;
   text-align: start;
-  margin-left: 10%;
+  margin-left: 5%;
 }
 
 /* Form Styles */
@@ -96,21 +133,28 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: 16px; /* Reduced gap */
+  gap: 16px;
 }
 
-/* Container for Input Sets - No Scrolling */
+/* Container for Input Sets - Enable Scrolling */
 .publish-inputs-scroll-container {
   flex-grow: 1;
-  overflow: hidden; /* Ensure no internal scrolling */
+  overflow-y: auto;
+  max-height: 400px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.publish-inputs-scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 /* Each Set of Inputs */
 .publish-input-set {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Reduced gap to save space */
-  padding: 16px 0; /* Reduced padding */
+  gap: 16px;
+  padding: 16px 0;
   border-bottom: 1px solid #4a5568;
 }
 
@@ -121,15 +165,15 @@
 
 /* Form Group (Label + Input/Textarea Wrapper) */
 .publish-form-group {
-  width: 40%;
+  width: 56%;
   display: flex;
   flex-direction: column;
-  gap: 6px; /* Reduced gap */
+  gap: 6px;
 }
 
 /* Label Styles */
 .publish-form-label {
-  font-size: 0.9rem; /* Reduced to save space */
+  font-size: 0.9rem;
   font-weight: 500;
   color: #d1d5db;
   text-align: left;
@@ -140,10 +184,10 @@
   width: 90%;
   background: #4a5568;
   border: 1px solid transparent;
-  padding: 8px 12px; /* Reduced padding */
+  padding: 8px 12px;
   border-radius: 8px;
   color: #ffffff;
-  font-size: 0.9rem; /* Reduced font size */
+  font-size: 0.9rem;
   box-sizing: border-box;
 }
 
@@ -170,10 +214,10 @@
   width: 90%;
   background: #4a5568;
   border: 1px solid transparent;
-  padding: 8px 12px; /* Reduced padding */
+  padding: 8px 12px;
   border-radius: 8px;
   color: #ffffff;
-  font-size: 0.9rem; /* Reduced font size */
+  font-size: 0.9rem;
   box-sizing: border-box;
   text-align: left;
   cursor: pointer;
@@ -208,14 +252,14 @@
   right: 0;
   background-color: #FFFFFF;
   z-index: 10;
-  max-height: 150px; /* Reduced to save space */
+  max-height: 150px;
   overflow-y: auto;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
 }
 
 .custom-dropdown-option {
-  padding: 8px 12px; /* Reduced padding */
+  padding: 8px 12px;
   font-size: 0.9rem;
   color: #000000;
   text-align: left;
@@ -236,13 +280,13 @@
   width: 90%;
   background: #4a5568;
   border: 1px solid transparent;
-  padding: 8px 12px; /* Reduced padding */
+  padding: 8px 12px;
   border-radius: 8px;
   color: #ffffff;
-  font-size: 0.9rem; /* Reduced font size */
+  font-size: 0.9rem;
   box-sizing: border-box;
   resize: vertical;
-  min-height: 80px; /* Reduced to save space */
+  min-height: 80px;
 }
 
 .publish-form-textarea::-moz-placeholder {
@@ -262,37 +306,14 @@
 .publish-buttons-container {
   display: flex;
   justify-content: start;
-  gap: 10px; /* Reduced gap */
-  margin-left: 10%;
-  /* margin-top: auto; */
+  gap: 10px;
+  margin-left: 8%;
   margin-top: 10px;
-}
-
-/* Add Task Button */
-.publish-add-task-button {
-  padding: 8px 24px; /* Reduced padding */
-  background: #4a5568;
-  color: #ffffff;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  font-size: 0.9rem; /* Reduced font size */
-}
-
-.publish-add-task-button:hover {
-  background: #5a6b8a;
-  transform: scale(1.03);
-}
-
-.publish-add-task-button:active {
-  transform: scale(0.95);
 }
 
 /* Publish Button */
 .publish-submit-button {
-  padding: 8px 24px; /* Reduced padding */
+  padding: 8px 24px;
   background: #4a5568;
   color: #ffffff;
   font-weight: bold;
@@ -300,7 +321,7 @@
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  font-size: 0.9rem; /* Reduced font size */
+  font-size: 0.9rem;
 }
 
 .publish-submit-button:hover {
@@ -312,14 +333,301 @@
   transform: scale(0.95);
 }
 
-/* Responsive Design */
-@media (max-width: 640px) {
+/* Subscribe Topics Container */
+.subscribe-topics-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  margin: 0 20px;
+  box-sizing: border-box;
+}
+
+/* Subscribe Topics Content */
+.subscribe-topics-content {
+  background-color: #2d3748;
+  padding: 32px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 600px;
+}
+
+/* Subscribe Topics Title */
+.subscribe-topics-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  text-align: start;
+}
+
+/* Content Wrapper (50/50 Split) */
+.subscribe-content-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+  flex-grow: 1;
+}
+
+/* Form Wrapper (Left Side, 50%) */
+.subscribe-form-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Messages Wrapper (Right Side, 50%) */
+.messages-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Messages Title */
+.messages-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Messages Scroll Container */
+.messages-scroll-container {
+  max-height: 500px;
+  overflow-y: auto;
+  background: #3e4a5f;
+  border-radius: 8px;
+  padding: 16px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.messages-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* No Messages Text */
+.no-messages {
+  color: #a0aec0;
+  font-size: 1rem;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Messages List */
+.messages-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Message Item */
+.message-item {
+  background: #4a5568;
+  border-radius: 8px;
+  padding: 12px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Message Content */
+.message-content {
+  margin-bottom: 8px;
+}
+
+.message-content strong {
+  color: #d1d5db;
+  margin-right: 8px;
+}
+
+/* Form Styles */
+.subscribe-topics-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+/* Scrollable Container for Input Sets */
+.subscribe-inputs-scroll-container {
+  max-height: 400px;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  flex-grow: 1;
+}
+
+.subscribe-inputs-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each Set of Inputs */
+.subscribe-input-set {
+  width: 80%;
+  margin: 5px 0;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #4a5568;
+  align-items: center;
+}
+
+.subscribe-input-set:last-child {
+  border-bottom: none;
+}
+
+/* Form Group */
+.subscribe-form-group {
+  flex: 1;
+  margin: 10px 0;
+  gap: 8px;
+}
+
+/* Label Styles */
+.subscribe-form-label {
+  font-size: 1rem;
+  padding: 5px;
+  font-weight: 500;
+  color: #d1d5db;
+  text-align: left;
+}
+
+/* Input Styles */
+.subscribe-form-input {
+  width: 100%;
+  background: #4a5568;
+  border: 1px solid transparent;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.subscribe-form-input::-moz-placeholder {
+  color: #a0aec0;
+}
+
+.subscribe-form-input::placeholder {
+  color: #a0aec0;
+}
+
+.subscribe-form-input:focus {
+  outline: none;
+  border: 1px solid #ffffff;
+}
+
+/* Select Styles */
+.subscribe-form-select {
+  width: 100%;
+  background: #3e4a5f;
+  border: 1px solid transparent;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a0aec0' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  cursor: pointer;
+}
+
+.subscribe-form-select:hover {
+  background: #48566b;
+}
+
+.subscribe-form-select:focus {
+  outline: none;
+  border: 1px solid #ffffff;
+}
+
+/* Buttons Container */
+.subscribe-buttons-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 0;
+  position: sticky;
+  bottom: 0;
+  background: #2d3748;
+  z-index: 10;
+}
+
+/* Add Task Button */
+.subscribe-add-task-button {
+  padding: 10px 24px;
+  background: #4a5568;
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.subscribe-add-task-button:hover {
+  background: #5a6b8a;
+  transform: scale(1.03);
+}
+
+.subscribe-add-task-button:active {
+  transform: scale(0.95);
+}
+
+/* Subscribe and Clear Buttons */
+.subscribe-submit-button {
+  padding: 10px 24px;
+  background: #3182ce;
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.subscribe-submit-button:hover {
+  background: #2b6cb0;
+  transform: scale(1.03);
+}
+
+.subscribe-submit-button:active {
+  transform: scale(0.95);
+}
+
+/* Responsive Design for Subscribe and Grid */
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+  }
+
+  .left-side-publish-page,
+  .right-side-subscribe-page {
+    width: 100%;
+    height: auto;
+  }
+
   .publish-container {
     padding: 10px;
   }
 
   .publish-content {
-    padding: 16px; /* Further reduced for mobile */
+    padding: 16px;
   }
 
   .publish-title {
@@ -339,12 +647,6 @@
   .custom-dropdown-option,
   .publish-form-textarea {
     padding: 6px 10px;
-    font-size: 0.8rem;
-  }
-
-  .publish-add-task-button,
-  .publish-submit-button {
-    padding: 6px 16px;
     font-size: 0.8rem;
   }
 
@@ -371,6 +673,71 @@
   }
 
   .publish-form-textarea {
-    min-height: 60px; /* Further reduced for mobile */
+    min-height: 60px;
+  }
+
+  .subscribe-content-wrapper {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .subscribe-form-wrapper,
+  .messages-wrapper {
+    flex: none;
+    width: 100%;
+  }
+
+  .subscribe-topics-container {
+    padding: 12px;
+    margin: 0;
+  }
+
+  .subscribe-topics-content {
+    padding: 20px;
+    min-height: auto;
+  }
+
+  .subscribe-topics-title {
+    font-size: 1.3rem;
+  }
+
+  .subscribe-input-set {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 0;
+  }
+
+  .subscribe-form-group {
+    width: 100%;
+  }
+
+  .subscribe-form-label {
+    font-size: 0.9rem;
+  }
+
+  .subscribe-form-input,
+  .subscribe-form-select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .subscribe-buttons-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    position: static;
+    padding: 12px 0;
+  }
+
+  .subscribe-add-task-button,
+  .subscribe-submit-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .messages-scroll-container {
+    max-height: 400px;
   }
 }

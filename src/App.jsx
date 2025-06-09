@@ -38,7 +38,7 @@ const App = () => {
             <Route path="com-config" element={<ComConfiguration />} />
             <Route path="wifi-config" element={<WiFiConfig />} />
             <Route path="publish" element={<Publish />} />
-            <Route path="subscribe" element={<Subscribe />} />
+            {/* <Route path="subscribe" element={<Subscribe />} /> */}
           </Route>
         </Route>
       </Routes>

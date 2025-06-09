@@ -665,14 +665,14 @@ return (
      className={getActiveClass('/publish')}
      onClick={() => handleNavigation('/publish', tableData[0]?.brokerId)}
    >
-     Publish
+     Publish/Subscribe
    </button>
-   <button
+   {/* <button
      className={getActiveClass('/subscribe')}
      onClick={() => handleNavigation('/subscribe', tableData[0]?.brokerId)}
    >
      Subscribe
-   </button>
+   </button> */}
    <button className="dashboard-button" onClick={handleAddClick}>
      Add Broker
    </button>
