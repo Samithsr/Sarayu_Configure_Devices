@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import './Publish.css';
 import { toast } from 'react-toastify';
@@ -108,9 +107,9 @@ const Subscribe = () => {
           <div className="subscribe-content-wrapper">
             {/* Subscribe Form (Left Side) */}
             <div className="subscribe-form-wrapper">
+              <h2 className="subscribe-topics-title">Subscribe Topics</h2>
               <form className="subscribe-topics-form" onSubmit={handleSubscribe}>
                 <div className="subscribe-inputs-scroll-container">
-                  <h2 className="subscribe-topics-title">Subscribe Topics</h2>
                   {inputSets.map((inputSet, index) => (
                     <div key={index} className="subscribe-input-set">
                       <div className="subscribe-form-group">

@@ -317,58 +317,80 @@
   width: 100%;
   max-width: 600px; /* Limit width for better alignment */
   display: flex;
+  height: 87vh; /* Fixed height for the entire component */
   flex-direction: column;
   gap: 16px;
+  overflow: hidden; /* Prevent overflow from affecting layout */
 }
 
-/* Subscribe Topics Title */
+/* Subscribe Topics Title - Fixed at Top */
 .subscribe-topics-title {
   font-size: 1.5rem;
   font-weight: 600;
   color: #ffffff;
   margin: 0;
   text-align: center; /* Center the title */
+  padding: 8px 0; /* Add some padding for spacing */
+  flex-shrink: 0; /* Prevent title from shrinking */
 }
 
-/* Content Wrapper (50/50 Split) */
+/* Content Wrapper (Stack Vertically) */
 .subscribe-content-wrapper {
   display: flex;
-  flex-direction: row;
-  gap: 20px;
+  flex-direction: column; /* Stack form and messages vertically */
+  gap: 16px; /* Reduced gap for tighter layout */
   width: 100%;
-  flex-grow: 1;
+  flex-grow: 1; /* Allow the wrapper to take available space */
+  overflow: hidden; /* Prevent overflow from affecting layout */
 }
 
-/* Form Wrapper (Left Side, 50%) */
+/* Form Wrapper (Full Width) */
 .subscribe-form-wrapper {
-  flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%; /* Full width */
+  flex: 1; /* Take half the available space */
+  position: relative; /* Positioning context for buttons */
+  overflow: hidden; /* Prevent overflow from affecting layout */
+  max-height: 50%; /* Constrain the form area to half the content height */
 }
 
-/* Messages Wrapper (Right Side, 50%) */
+/* Messages Wrapper (Full Width, Below Form) */
 .messages-wrapper {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%; /* Full width */
+  flex: 1; /* Take half the available space */
+  max-height: 50%; /* Constrain the messages area to half the content height */
+  overflow: hidden; /* Prevent overflow from affecting layout */
 }
 
-/* Messages Title */
+/* Messages Title - Fixed at Top of Messages Section */
 .messages-title {
   font-size: 1.25rem;
   font-weight: 500;
   color: #ffffff;
   margin: 0;
-  text-align: center; /* Center the title */
+  text-align: start; /* Align left as per current design */
+  padding: 8px 0; /* Add some padding for spacing */
+  flex-shrink: 0; /* Prevent title from shrinking */
 }
 
-/* Messages Container - No Scrolling */
+/* Messages Container - Scrollable, No Scrollbar */
 .messages-scroll-container {
   background: #3e4a5f;
   border-radius: 8px;
   padding: 16px;
-  flex-grow: 1; /* Allow it to expand naturally */
+  flex-grow: 1; /* Take all available space below the title */
+  overflow-y: auto; /* Enable vertical scrolling */
+  -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
+
+/* Hide Scrollbar for WebKit Browsers (Chrome, Safari) */
+.messages-scroll-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar */
 }
 
 /* No Messages Text */
@@ -377,6 +399,10 @@
   font-size: 1rem;
   text-align: center;
   padding: 20px;
+  position: sticky; /* Fix the "No messages" text */
+  top: 0; /* Stick to the top of the messages container */
+  background: #3e4a5f; /* Match the background */
+  z-index: 1; /* Ensure it stays above the messages list */
 }
 
 /* Messages List */
@@ -413,24 +439,38 @@
 .subscribe-topics-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  height: 100%;
+  gap: 16px; /* Reduced gap for tighter layout */
+  height: 100%; /* Ensure it takes the full height of the wrapper */
+  position: relative; /* Positioning context for buttons */
+  overflow: hidden; /* Prevent overflow from affecting layout */
 }
 
-/* Container for Input Sets - No Scrolling */
+/* Container for Input Sets - Scrollable, No Scrollbar */
 .subscribe-inputs-scroll-container {
-  flex-grow: 1;
+  flex-grow: 1; /* Take all available space between title and buttons */
+  overflow-y: auto; /* Enable vertical scrolling */
+  -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  padding-bottom: 60px; /* Ensure space for the fixed buttons */
+  max-height: calc(100% - 60px); /* Constrain height to fit within form, accounting for buttons */
+  min-height: 0; /* Allow shrinking to fit within parent */
 }
 
-/* Each Set of Inputs */
+/* Hide Scrollbar for WebKit Browsers (Chrome, Safari) */
+.subscribe-inputs-scroll-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar */
+}
+
+/* Each Set of Inputs - Ensure Only This Scrolls */
 .subscribe-input-set {
-  width: 100%; /* Full width for consistency */
+  width: 50%; /* As per current design */
   margin: 0;
   padding: 16px 0;
   border-bottom: 1px solid #4a5568;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex-shrink: 0; /* Prevent input sets from shrinking */
 }
 
 .subscribe-input-set:last-child {
@@ -505,14 +545,19 @@
   border: 1px solid #ffffff;
 }
 
-/* Buttons Container */
+/* Buttons Container - Fixed at Bottom */
 .subscribe-buttons-container {
   display: flex;
-  justify-content: center; /* Center buttons */
+  justify-content: flex-end; /* Align buttons to the right */
   gap: 12px;
   padding: 16px 0;
-  position: static; /* Remove sticky positioning */
-  background: #2d3748;
+  position: absolute; /* Fix buttons at the bottom of the form */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #2d3748; /* Match the background */
+  z-index: 1; /* Ensure buttons stay above other content */
+  flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
 /* Add Task Button */
@@ -625,14 +670,15 @@
   }
 
   .subscribe-content-wrapper {
-    flex-direction: column;
-    gap: 16px;
+    flex-direction: column; /* Already column, no change needed */
+    gap: 12px; /* Reduced gap for mobile */
   }
 
   .subscribe-form-wrapper,
   .messages-wrapper {
-    flex: none;
-    width: 100%;
+    width: 100%; /* Already full width */
+    flex: 1; /* Still share space on mobile */
+    max-height: none; /* Remove max-height constraint on mobile */
   }
 
   .subscribe-topics-container {
@@ -642,6 +688,8 @@
   .subscribe-topics-content {
     padding: 10px;
     max-width: none; /* Full width on mobile */
+    height: auto; /* Allow height to adjust on mobile */
+    overflow: auto; /* Allow scrolling if content overflows on mobile */
   }
 
   .subscribe-topics-title {
@@ -649,6 +697,7 @@
   }
 
   .subscribe-input-set {
+    width: 100%; /* Full width on mobile */
     gap: 12px;
     padding: 12px 0;
   }
@@ -668,18 +717,31 @@
     font-size: 0.9rem;
   }
 
+  .subscribe-inputs-scroll-container {
+    flex-grow: 1; /* Still takes available space on mobile */
+    padding-bottom: 60px; /* Ensure space for buttons on mobile */
+    max-height: none; /* Remove max-height constraint on mobile */
+  }
+
   .subscribe-buttons-container {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 8px;
-    justify-content: center;
-    position: static;
+    justify-content: center; /* Center buttons on mobile */
     padding: 12px 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 
   .subscribe-add-task-button,
   .subscribe-submit-button {
     padding: 8px 16px;
     font-size: 0.9rem;
+  }
+
+  .no-messages {
+    padding: 10px; /* Adjust padding for mobile */
   }
 }
