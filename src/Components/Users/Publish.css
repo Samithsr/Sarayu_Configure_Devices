@@ -3,65 +3,44 @@
   display: grid;
   grid-template-columns: 50% 50%;
   width: 100%;
-  height: 100vh;
-  gap: 20px;
+  min-height: 100vh; /* Allow container to grow if needed */
   box-sizing: border-box;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.grid-container::-webkit-scrollbar {
-  display: none;
 }
 
 /* Left Side (Publish) */
 .left-side-publish-page {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center; /* Center content horizontally */
   align-items: flex-start;
   width: 100%;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.left-side-publish-page::-webkit-scrollbar {
-  display: none;
 }
 
 /* Right Side (Subscribe) */
 .right-side-subscribe-page {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center; /* Center content horizontally */
   align-items: flex-start;
   width: 100%;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.right-side-subscribe-page::-webkit-scrollbar {
-  display: none;
 }
 
 /* Publish Container */
 .publish-container {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center; /* Center content horizontally */
   align-items: flex-start;
   width: 100%;
-  padding: 20px;
+  padding: 10px; /* Reduced padding */
   box-sizing: border-box;
 }
 
 /* Publish Content */
 .publish-content {
   background-color: #2d3748;
-  padding: 24px;
+  padding: 16px; /* Reduced padding */
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
+  max-width: 600px; /* Limit width for better alignment */
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -77,8 +56,7 @@
 
 /* Broker IP Select */
 .exists-Broker-ip {
-  width: 50%;
-  max-width: 50%;
+  width: 100%; /* Full width for consistency */
   height: 40px;
   background: #4a5568;
   color: #ffffff;
@@ -124,29 +102,19 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0;
-  text-align: start;
-  margin-left: 5%;
+  text-align: center; /* Center the title */
 }
 
 /* Form Styles */
 .publish-form {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
   gap: 16px;
 }
 
-/* Container for Input Sets - Enable Scrolling */
+/* Container for Input Sets - No Scrolling */
 .publish-inputs-scroll-container {
   flex-grow: 1;
-  overflow-y: auto;
-  max-height: 400px;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.publish-inputs-scroll-container::-webkit-scrollbar {
-  display: none;
 }
 
 /* Each Set of Inputs */
@@ -165,7 +133,7 @@
 
 /* Form Group (Label + Input/Textarea Wrapper) */
 .publish-form-group {
-  width: 56%;
+  width: 100%; /* Full width for consistency */
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -181,7 +149,7 @@
 
 /* Input Styles (for Topic) */
 .publish-form-input {
-  width: 90%;
+  width: 100%; /* Full width for consistency */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -211,7 +179,7 @@
 }
 
 .custom-dropdown-selected {
-  width: 90%;
+  width: 100%; /* Full width for consistency */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -252,8 +220,6 @@
   right: 0;
   background-color: #FFFFFF;
   z-index: 10;
-  max-height: 150px;
-  overflow-y: auto;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
 }
@@ -277,7 +243,7 @@
 
 /* Textarea Styles (for Payload) */
 .publish-form-textarea {
-  width: 90%;
+  width: 100%; /* Full width for consistency */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -305,9 +271,8 @@
 /* Buttons Container */
 .publish-buttons-container {
   display: flex;
-  justify-content: start;
+  justify-content: center; /* Center buttons */
   gap: 10px;
-  margin-left: 8%;
   margin-top: 10px;
 }
 
@@ -336,24 +301,24 @@
 /* Subscribe Topics Container */
 .subscribe-topics-container {
   display: flex;
-  justify-content: center;
+  justify-content: center; /* Center content horizontally */
   align-items: flex-start;
   width: 100%;
-  margin: 0 20px;
+  padding: 10px; /* Reduced padding */
   box-sizing: border-box;
 }
 
 /* Subscribe Topics Content */
 .subscribe-topics-content {
   background-color: #2d3748;
-  padding: 32px;
+  padding: 16px; /* Reduced padding */
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
+  max-width: 600px; /* Limit width for better alignment */
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-height: 600px;
 }
 
 /* Subscribe Topics Title */
@@ -362,7 +327,7 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0;
-  text-align: start;
+  text-align: center; /* Center the title */
 }
 
 /* Content Wrapper (50/50 Split) */
@@ -395,21 +360,15 @@
   font-weight: 500;
   color: #ffffff;
   margin: 0;
+  text-align: center; /* Center the title */
 }
 
-/* Messages Scroll Container */
+/* Messages Container - No Scrolling */
 .messages-scroll-container {
-  max-height: 500px;
-  overflow-y: auto;
   background: #3e4a5f;
   border-radius: 8px;
   padding: 16px;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.messages-scroll-container::-webkit-scrollbar {
-  display: none;
+  flex-grow: 1; /* Allow it to expand naturally */
 }
 
 /* No Messages Text */
@@ -458,27 +417,20 @@
   height: 100%;
 }
 
-/* Scrollable Container for Input Sets */
+/* Container for Input Sets - No Scrolling */
 .subscribe-inputs-scroll-container {
-  max-height: 400px;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
   flex-grow: 1;
-}
-
-.subscribe-inputs-scroll-container::-webkit-scrollbar {
-  display: none;
 }
 
 /* Each Set of Inputs */
 .subscribe-input-set {
-  width: 80%;
-  margin: 5px 0;
-  gap: 16px;
+  width: 100%; /* Full width for consistency */
+  margin: 0;
   padding: 16px 0;
   border-bottom: 1px solid #4a5568;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .subscribe-input-set:last-child {
@@ -488,14 +440,13 @@
 /* Form Group */
 .subscribe-form-group {
   flex: 1;
-  margin: 10px 0;
+  margin: 0;
   gap: 8px;
 }
 
 /* Label Styles */
 .subscribe-form-label {
   font-size: 1rem;
-  padding: 5px;
   font-weight: 500;
   color: #d1d5db;
   text-align: left;
@@ -503,7 +454,7 @@
 
 /* Input Styles */
 .subscribe-form-input {
-  width: 100%;
+  width: 100%; /* Full width for consistency */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -528,7 +479,7 @@
 
 /* Select Styles */
 .subscribe-form-select {
-  width: 100%;
+  width: 100%; /* Full width for consistency */
   background: #3e4a5f;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -557,13 +508,11 @@
 /* Buttons Container */
 .subscribe-buttons-container {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center; /* Center buttons */
   gap: 12px;
   padding: 16px 0;
-  position: sticky;
-  bottom: 0;
+  position: static; /* Remove sticky positioning */
   background: #2d3748;
-  z-index: 10;
 }
 
 /* Add Task Button */
@@ -613,21 +562,21 @@
   .grid-container {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
-    height: auto;
+    min-height: auto; /* Allow expansion on mobile */
   }
 
   .left-side-publish-page,
   .right-side-subscribe-page {
     width: 100%;
-    height: auto;
   }
 
   .publish-container {
-    padding: 10px;
+    padding: 5px; /* Further reduced padding */
   }
 
   .publish-content {
-    padding: 16px;
+    padding: 10px;
+    max-width: none; /* Full width on mobile */
   }
 
   .publish-title {
@@ -661,7 +610,6 @@
   }
 
   .exists-Broker-ip {
-    max-width: 100%;
     padding: 6px 10px;
     font-size: 0.8rem;
     background-size: 12px;
@@ -688,13 +636,12 @@
   }
 
   .subscribe-topics-container {
-    padding: 12px;
-    margin: 0;
+    padding: 5px; /* Further reduced padding */
   }
 
   .subscribe-topics-content {
-    padding: 20px;
-    min-height: auto;
+    padding: 10px;
+    max-width: none; /* Full width on mobile */
   }
 
   .subscribe-topics-title {
@@ -702,9 +649,8 @@
   }
 
   .subscribe-input-set {
-    flex-direction: column;
     gap: 12px;
-    padding: 16px 0;
+    padding: 12px 0;
   }
 
   .subscribe-form-group {
@@ -735,9 +681,5 @@
   .subscribe-submit-button {
     padding: 8px 16px;
     font-size: 0.9rem;
-  }
-
-  .messages-scroll-container {
-    max-height: 400px;
   }
 }

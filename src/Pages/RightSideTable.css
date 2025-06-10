@@ -2,7 +2,7 @@
 .table-layout {
   display: flex;
   width: 100vw; /* Full viewport width */
-  height: 100vh;
+  height: 92vh;
   background-color: #252F3F;
   overflow: hidden;
   box-sizing: border-box; /* Ensure padding doesn't affect width */
@@ -25,8 +25,9 @@
 .table-main {
   flex: 1; /* Take remaining space after sidebar */
   padding: 20px;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   box-sizing: border-box; /* Ensure padding doesn't affect width */
+  /* background-color: red; */
 }
 
 /* Dashboard buttons */
