@@ -3,15 +3,15 @@
   display: grid;
   grid-template-columns: 50% 50%;
   width: 100%;
-  min-height: 100vh; /* Allow container to grow if needed */
+  min-height: 100vh;
   box-sizing: border-box;
-  gap: 10px; /* Add a small gap between columns to control spacing */
+  gap: 10px;
 }
 
 /* Left Side (Publish) */
 .left-side-publish-page {
   display: flex;
-  justify-content: flex-end; /* Align content to the right to reduce middle space */
+  justify-content: flex-end;
   align-items: flex-start;
   width: 100%;
 }
@@ -19,7 +19,7 @@
 /* Right Side (Subscribe) */
 .right-side-subscribe-page {
   display: flex;
-  justify-content: flex-start; /* Align content to the left to reduce middle space */
+  justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
 }
@@ -27,10 +27,10 @@
 /* Publish Container */
 .publish-container {
   display: flex;
-  justify-content: center; /* Center content horizontally */
+  justify-content: center;
   align-items: flex-start;
   width: 100%;
-  padding: 5px; /* Reduced padding further */
+  padding: 5px;
   box-sizing: border-box;
 }
 
@@ -38,14 +38,14 @@
 .publish-content {
   background-color: #2d3748;
   min-height: 500px;
-  padding: 10px; /* Reduced padding */
+  padding: 10px;
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 700px; /* Increased max-width to reduce empty space */
+  max-width: 700px;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Reduced gap */
+  gap: 10px;
 }
 
 /* Broker IP Header */
@@ -54,11 +54,12 @@
   font-weight: 500;
   color: #d1d5db;
   text-align: left;
+  width: 100%;
 }
 
-/* Broker IP Select */
-.exists-Broker-ip {
-  width: 50%; /* Full width for consistency */
+/* Publish Broker IP Select */
+.publish-broker-ip-select {
+  width: 50%; /* Full width within 50% wide form-group */
   height: 40px;
   background: #4a5568;
   color: #ffffff;
@@ -77,24 +78,64 @@
   cursor: pointer;
 }
 
-.exists-Broker-ip:focus {
+.publish-broker-ip-select:focus {
   outline: none;
   border: 1px solid #ffffff;
 }
 
-.exists-Broker-ip:hover {
+.publish-broker-ip-select:hover {
   background: #48556b;
 }
 
-/* Option Styles */
-.exists-Broker-ip option {
+.publish-broker-ip-select option {
   background-color: #ffffff;
   color: #000000;
   font-size: 0.9rem;
   padding: 8px 12px;
 }
 
-.exists-Broker-ip option[disabled] {
+.publish-broker-ip-select option[disabled] {
+  color: #a0aec0;
+}
+
+/* Subscribe Broker IP Select */
+.subscribe-broker-ip-select {
+  width: 100%; /* Full width within 50% wide form-group */
+  height: 40px;
+  background: #4a5568;
+  color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  cursor: pointer;
+}
+
+.subscribe-broker-ip-select:focus {
+  outline: none;
+  border: 1px solid #ffffff;
+}
+
+.subscribe-broker-ip-select:hover {
+  background: #48556b;
+}
+
+.subscribe-broker-ip-select option {
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+}
+
+.subscribe-broker-ip-select option[disabled] {
   color: #a0aec0;
 }
 
@@ -104,22 +145,19 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0;
-  text-align: center; /* Center the title */
-  /* font-size: 3em; */
-    font-weight: bold;
-    /* color:white;  */
-    text-transform: uppercase; /* Uppercase text */
-    letter-spacing: 2px; /* Space out the letters */
-    padding: 10px;
-    border-radius: 5px; /* Optional: rounded corners */
-    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) */
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 10px;
+  border-radius: 5px;
 }
 
 /* Form Styles */
 .publish-form {
   display: flex;
   flex-direction: column;
-  gap: 14px; /* Reduced gap */
+  gap: 14px;
 }
 
 /* Container for Input Sets - No Scrolling */
@@ -131,8 +169,8 @@
 .publish-input-set {
   display: flex;
   flex-direction: column;
-  gap: 14px; /* Reduced gap */
-  padding: 14px 0; /* Reduced padding */
+  gap: 14px;
+  padding: 14px 0;
   border-bottom: 1px solid #4a5568;
 }
 
@@ -143,10 +181,11 @@
 
 /* Form Group (Label + Input/Textarea Wrapper) */
 .publish-form-group {
-  width: 100%; /* Full width for consistency */
+  width: 50%; /* Constrain to match input/select width */
   display: flex;
   flex-direction: column;
   gap: 6px;
+  align-items: flex-start; /* Align label with input/select */
 }
 
 /* Label Styles */
@@ -155,11 +194,12 @@
   font-weight: 500;
   color: #d1d5db;
   text-align: left;
+  width: 100%; /* Match input/select width */
 }
 
 /* Input Styles (for Topic) */
 .publish-form-input {
-  width: 50%; /* Full width for consistency */
+  width: 100%; /* Full width within 50% wide form-group */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -185,11 +225,11 @@
 /* Custom Dropdown (for QoS Level) */
 .custom-dropdown {
   position: relative;
-  width: 100%;
+  width: 100%; /* Full width within 50% wide form-group */
 }
 
 .custom-dropdown-selected {
-  width: 50%; /* Full width for consistency */
+  width: 100%; /* Full width within 50% wide form-group */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -253,7 +293,7 @@
 
 /* Textarea Styles (for Payload) */
 .publish-form-textarea {
-  width: 70%; /* Full width for consistency */
+  width: 180%; /* Full width within 50% wide form-group */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -262,7 +302,7 @@
   font-size: 0.9rem;
   box-sizing: border-box;
   resize: vertical;
-  min-height: 80px;
+  min-height: 200px;
 }
 
 .publish-form-textarea::-moz-placeholder {
@@ -281,9 +321,9 @@
 /* Buttons Container */
 .publish-buttons-container {
   display: flex;
-  justify-content: center; /* Center buttons */
-  gap: 8px; /* Reduced gap */
-  margin-top: 8px; /* Reduced margin */
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 /* Publish Button */
@@ -311,26 +351,26 @@
 /* Subscribe Topics Container */
 .subscribe-topics-container {
   display: flex;
-  justify-content: center; /* Center content horizontally */
+  justify-content: center;
   align-items: flex-start;
   width: 100%;
-  padding: 5px; /* Reduced padding further */
+  padding: 5px;
   box-sizing: border-box;
 }
 
 /* Subscribe Topics Content */
 .subscribe-topics-content {
   background-color: #2d3748;
-  padding: 10px; /* Reduced padding */
+  padding: 10px;
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 700px; /* Increased max-width to reduce empty space */
+  max-width: 700px;
   display: flex;
-  height: 87vh; /* Fixed height for the entire component */
+  height: 87vh;
   flex-direction: column;
-  gap: 14px; /* Reduced gap */
-  overflow: hidden; /* Prevent overflow from affecting layout */
+  gap: 14px;
+  overflow: hidden;
 }
 
 /* Subscribe Topics Title - Fixed at Top */
@@ -339,65 +379,45 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0;
-  text-align: center; /* Center the title */
-  /* font-size: 3em; */
-    font-weight: bold;
-    /* color:white;  */
-    text-transform: uppercase; /* Uppercase text */
-    letter-spacing: 2px; /* Space out the letters */
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px; /* Optional: rounded corners */
-    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) */
-
-
-  /* font-size: 1.5rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin: 0; */
-  /* text-align: center; 
-  padding: 8px 0; 
-  flex-shrink: 0;
-   font-size: 3em; 
-    font-weight: bold;
-    color: white;
-    text-transform: uppercase; 
-    letter-spacing: 2px; 
-    padding: 10px;
-    border-radius: 5px; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)  */
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
 }
 
 /* Content Wrapper (Stack Vertically) */
 .subscribe-content-wrapper {
   display: flex;
-  flex-direction: column; /* Stack form and messages vertically */
-  gap: 14px; /* Reduced gap for tighter layout */
+  flex-direction: column;
+  gap: 14px;
   width: 100%;
-  flex-grow: 1; /* Allow the wrapper to take available space */
-  overflow: hidden; /* Prevent overflow from affecting layout */
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 /* Form Wrapper (Full Width) */
 .subscribe-form-wrapper {
   display: flex;
   flex-direction: column;
-  width: 100%; /* Full width */
-  flex: 1; /* Take half the available space */
-  position: relative; /* Positioning context for buttons */
-  overflow: hidden; /* Prevent overflow from affecting layout */
-  max-height: 50%; /* Constrain the form area to half the content height */
+  width: 100%;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  max-height: 50%;
 }
 
 /* Messages Wrapper (Full Width, Below Form) */
 .messages-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Reduced gap */
-  width: 100%; /* Full width */
-  flex: 1; /* Take half the available space */
-  max-height: 50%; /* Constrain the messages area to half the content height */
-  overflow: hidden; /* Prevent overflow from affecting layout */
+  gap: 10px;
+  width: 100%;
+  flex: 1;
+  max-height: 50%;
+  overflow: hidden;
 }
 
 /* Messages Title - Fixed at Top of Messages Section */
@@ -406,25 +426,25 @@
   font-weight: 500;
   color: #ffffff;
   margin: 0;
-  text-align: start; /* Align left as per current design */
-  padding: 8px 0; /* Add some padding for spacing */
-  flex-shrink: 0; /* Prevent title from shrinking */
+  text-align: start;
+  padding: 8px 0;
+  flex-shrink: 0;
 }
 
 /* Messages Container - Scrollable, No Scrollbar */
 .messages-scroll-container {
   background: #3e4a5f;
   border-radius: 8px;
-  padding: 14px; /* Reduced padding */
-  flex-grow: 1; /* Take all available space below the title */
-  overflow-y: auto; /* Enable vertical scrolling */
-  -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  padding: 14px;
+  flex-grow: 1;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Hide Scrollbar for WebKit Browsers (Chrome, Safari) */
 .messages-scroll-container::-webkit-scrollbar {
-  display: none; /* Hide scrollbar */
+  display: none;
 }
 
 /* No Messages Text */
@@ -432,11 +452,11 @@
   color: #a0aec0;
   font-size: 1rem;
   text-align: center;
-  padding: 18px; /* Reduced padding */
-  position: sticky; /* Fix the "No messages" text */
-  top: 0; /* Stick to the top of the messages container */
-  background: #3e4a5f; /* Match the background */
-  z-index: 1; /* Ensure it stays above the messages list */
+  padding: 18px;
+  position: sticky;
+  top: 0;
+  background: #3e4a5f;
+  z-index: 1;
 }
 
 /* Messages List */
@@ -446,14 +466,14 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Reduced gap */
+  gap: 10px;
 }
 
 /* Message Item */
 .message-item {
   background: #4a5568;
   border-radius: 8px;
-  padding: 10px; /* Reduced padding */
+  padding: 10px;
   color: #ffffff;
   font-size: 0.95rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -461,7 +481,7 @@
 
 /* Message Content */
 .message-content {
-  margin-bottom: 6px; /* Reduced margin */
+  margin-bottom: 6px;
 }
 
 .message-content strong {
@@ -473,38 +493,38 @@
 .subscribe-topics-form {
   display: flex;
   flex-direction: column;
-  gap: 14px; /* Reduced gap for tighter layout */
-  height: 100%; /* Ensure it takes the full height of the wrapper */
-  position: relative; /* Positioning context for buttons */
-  overflow: hidden; /* Prevent overflow from affecting layout */
+  gap: 14px;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Container for Input Sets - Scrollable, No Scrollbar */
 .subscribe-inputs-scroll-container {
-  flex-grow: 1; /* Take all available space between title and buttons */
-  overflow-y: auto; /* Enable vertical scrolling */
-  -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-  padding-bottom: 60px; /* Ensure space for the fixed buttons */
-  max-height: calc(100% - 60px); /* Constrain height to fit within form, accounting for buttons */
-  min-height: 0; /* Allow shrinking to fit within parent */
+  flex-grow: 1;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding-bottom: 60px;
+  max-height: calc(100% - 60px);
+  min-height: 0;
 }
 
 /* Hide Scrollbar for WebKit Browsers (Chrome, Safari) */
 .subscribe-inputs-scroll-container::-webkit-scrollbar {
-  display: none; /* Hide scrollbar */
+  display: none;
 }
 
 /* Each Set of Inputs - Ensure Only This Scrolls */
 .subscribe-input-set {
-  width: 50%; /* As per current design */
+  width: 100%; /* Full width container */
   margin: 0;
-  padding: 14px 0; /* Reduced padding */
+  padding: 14px 0;
   border-bottom: 1px solid #4a5568;
   display: flex;
-  flex-direction: column;
-  gap: 14px; /* Reduced gap */
-  flex-shrink: 0; /* Prevent input sets from shrinking */
+  flex-direction: column; /* Stack form groups vertically */
+  gap: 14px;
+  flex-shrink: 0;
 }
 
 .subscribe-input-set:last-child {
@@ -513,9 +533,11 @@
 
 /* Form Group */
 .subscribe-form-group {
-  flex: 1;
-  margin: 0;
+  width: 50%; /* Constrain to match input/select width */
+  display: flex;
+  flex-direction: column; /* Stack label above input/select */
   gap: 8px;
+  align-items: flex-start; /* Align label with input/select */
 }
 
 /* Label Styles */
@@ -524,29 +546,12 @@
   font-weight: 500;
   color: #d1d5db;
   text-align: left;
-}
-
-.exists-Broker-ip-header {
-  color: #ffffff;
-  margin-bottom: 2px;
-}
-
-.exists-Broker-ip {
-  display: flex;
-  align-items: start;
-  width: 50%; /* Full width for consistency */
-  background: #4a5568;
-  border: 1px solid transparent;
-  padding: 12px 16px;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 1rem;
-  box-sizing: border-box;
+  width: 100%; /* Match input/select width */
 }
 
 /* Input Styles */
 .subscribe-form-input {
-  width: 100%; /* Full width for consistency */
+  width: 100%; /* Full width within 50% wide form-group */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -571,7 +576,7 @@
 
 /* Select Styles */
 .subscribe-form-select {
-  width: 100%; /* Full width for consistency */
+  width: 100%; /* Full width within 50% wide form-group */
   background: #3e4a5f;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -600,16 +605,16 @@
 /* Buttons Container - Fixed at Bottom */
 .subscribe-buttons-container {
   display: flex;
-  justify-content: flex-end; /* Align buttons to the right */
-  gap: 10px; /* Reduced gap */
-  padding: 14px 0; /* Reduced padding */
-  position: absolute; /* Fix buttons at the bottom of the form */
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 0;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  background: #2d3748; /* Match the background */
-  z-index: 1; /* Ensure buttons stay above other content */
-  flex-shrink: 0; /* Prevent buttons from shrinking */
+  background: #2d3748;
+  z-index: 1;
+  flex-shrink: 0;
 }
 
 /* Add Task Button */
@@ -659,23 +664,23 @@
   .grid-container {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
-    min-height: auto; /* Allow expansion on mobile */
-    gap: 5px; /* Reduced gap for mobile */
+    min-height: auto;
+    gap: 5px;
   }
 
   .left-side-publish-page,
   .right-side-subscribe-page {
     width: 100%;
-    justify-content: center; /* Revert to center on mobile */
+    justify-content: center;
   }
 
   .publish-container {
-    padding: 3px; /* Further reduced padding */
+    padding: 3px;
   }
 
   .publish-content {
-    padding: 8px; /* Further reduced padding */
-    max-width: none; /* Full width on mobile */
+    padding: 8px;
+    max-width: none;
   }
 
   .publish-title {
@@ -683,7 +688,7 @@
   }
 
   .publish-form-group {
-    width: 100%;
+    width: 100%; /* Full width on mobile */
   }
 
   .publish-form-label {
@@ -693,9 +698,16 @@
   .publish-form-input,
   .custom-dropdown-selected,
   .custom-dropdown-option,
-  .publish-form-textarea {
+  .publish-form-textarea,
+  .publish-broker-ip-select { /* Added new select class */
+    width: 100%; /* Full width on mobile */
     padding: 6px 10px;
     font-size: 0.8rem;
+  }
+
+  .publish-broker-ip-select {
+    background-size: 12px;
+    background-position: right 10px center;
   }
 
   .publish-buttons-container {
@@ -708,13 +720,6 @@
     padding: 12px 0;
   }
 
-  .exists-Broker-ip {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    background-size: 12px;
-    background-position: right 10px center;
-  }
-
   .exists-Broker-ip-header {
     font-size: 0.8rem;
   }
@@ -724,26 +729,26 @@
   }
 
   .subscribe-content-wrapper {
-    flex-direction: column; /* Already column, no change needed */
-    gap: 10px; /* Further reduced gap for mobile */
+    flex-direction: column;
+    gap: 10px;
   }
 
   .subscribe-form-wrapper,
   .messages-wrapper {
-    width: 100%; /* Already full width */
-    flex: 1; /* Still share space on mobile */
-    max-height: none; /* Remove max-height constraint on mobile */
+    width: 100%;
+    flex: 1;
+    max-height: none;
   }
 
   .subscribe-topics-container {
-    padding: 3px; /* Further reduced padding */
+    padding: 3px;
   }
 
   .subscribe-topics-content {
-    padding: 8px; /* Further reduced padding */
-    max-width: none; /* Full width on mobile */
-    height: auto; /* Allow height to adjust on mobile */
-    overflow: auto; /* Allow scrolling if content overflows on mobile */
+    padding: 8px;
+    max-width: none;
+    height: auto;
+    overflow: auto;
   }
 
   .subscribe-topics-title {
@@ -751,13 +756,13 @@
   }
 
   .subscribe-input-set {
-    width: 100%; /* Full width on mobile */
+    width: 100%;
     gap: 12px;
     padding: 12px 0;
   }
 
   .subscribe-form-group {
-    width: 100%;
+    width: 100%; /* Full width on mobile */
   }
 
   .subscribe-form-label {
@@ -765,24 +770,30 @@
   }
 
   .subscribe-form-input,
-  .subscribe-form-select {
-    width: 100%;
+  .subscribe-form-select,
+  .subscribe-broker-ip-select { /* Added new select class */
+    width: 100%; /* Full width on mobile */
     padding: 10px 12px;
     font-size: 0.9rem;
   }
 
+  .subscribe-broker-ip-select {
+    background-size: 12px;
+    background-position: right 10px center;
+  }
+
   .subscribe-inputs-scroll-container {
-    flex-grow: 1; /* Still takes available space on mobile */
-    padding-bottom: 60px; /* Ensure space for buttons on mobile */
-    max-height: none; /* Remove max-height constraint on mobile */
+    flex-grow: 1;
+    padding-bottom: 60px;
+    max-height: none;
   }
 
   .subscribe-buttons-container {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 8px;
-    justify-content: center; /* Center buttons on mobile */
-    padding: 10px 0; /* Reduced padding */
+    justify-content: center;
+    padding: 10px 0;
     position: absolute;
     bottom: 0;
     left: 0;
@@ -796,6 +807,6 @@
   }
 
   .no-messages {
-    padding: 10px; /* Adjust padding for mobile */
+    padding: 10px;
   }
 }

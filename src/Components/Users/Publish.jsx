@@ -8,13 +8,12 @@ const Subscribe = () => {
     {
       brokerId: '',
       topicFilter: '',
-      qosLevel: '0', // Default value for QoS Level
+      qosLevel: '0',
     },
   ]);
-  const [messages, setMessages] = useState([]); // Store received messages
-  const [brokerOptions, setBrokerOptions] = useState([]); // Store broker options
+  const [messages, setMessages] = useState([]);
+  const [brokerOptions, setBrokerOptions] = useState([]);
 
-  // Fetch brokers on component mount
   useEffect(() => {
     const getAllBrokers = async () => {
       try {
@@ -35,12 +34,13 @@ const Subscribe = () => {
             { value: 'demo2', label: '192.168.1.101' },
           ];
           setBrokerOptions(demoBrokers);
-          if (demoBrokers.length > 0 && !inputSets[0].brokerId) {
-            setInputSets((prev) => {
-              const newInputSets = [...prev];
-              newInputSets[0].brokerId = demoBrokers[0].value;
-              return newInputSets;
-            });
+          if (demoBrokers.length > 0) {
+            setInputSets((prev) =>
+              prev.map((set) => ({
+                ...set,
+                brokerId: set.brokerId || demoBrokers[0].value,
+              }))
+            );
           }
           return;
         }
@@ -52,12 +52,13 @@ const Subscribe = () => {
         console.log('Broker Options:', options);
         setBrokerOptions(options);
 
-        if (options.length > 0 && !inputSets[0].brokerId) {
-          setInputSets((prev) => {
-            const newInputSets = [...prev];
-            newInputSets[0].brokerId = options[0].value;
-            return newInputSets;
-          });
+        if (options.length > 0) {
+          setInputSets((prev) =>
+            prev.map((set) => ({
+              ...set,
+              brokerId: set.brokerId || options[0].value,
+            }))
+          );
         }
       } catch (error) {
         console.error('Error fetching brokers:', error.message);
@@ -68,12 +69,13 @@ const Subscribe = () => {
           { value: 'demo2', label: '192.168.1.101' },
         ];
         setBrokerOptions(demoBrokers);
-        if (demoBrokers.length > 0 && !inputSets[0].brokerId) {
-          setInputSets((prev) => {
-            const newInputSets = [...prev];
-            newInputSets[0].brokerId = demoBrokers[0].value;
-            return newInputSets;
-          });
+        if (demoBrokers.length > 0) {
+          setInputSets((prev) =>
+            prev.map((set) => ({
+              ...set,
+              brokerId: set.brokerId || demoBrokers[0].value,
+            }))
+          );
         }
       }
     };
@@ -81,7 +83,6 @@ const Subscribe = () => {
     getAllBrokers();
   }, []);
 
-  // Poll for messages every 5 seconds
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -98,19 +99,11 @@ const Subscribe = () => {
       }
     };
 
-    fetchMessages(); // Initial fetch
-    const intervalId = setInterval(fetchMessages, 5000); // Poll every 5 seconds
+    fetchMessages();
+    const intervalId = setInterval(fetchMessages, 5000);
 
-    return () => clearInterval(intervalId); // Cleanup on unmount
+    return () => clearInterval(intervalId);
   }, []);
-
-  const handleBrokerChange = (e) => {
-    const newInputSets = inputSets.map((set) => ({
-      ...set,
-      brokerId: e.target.value,
-    }));
-    setInputSets(newInputSets);
-  };
 
   const handleChange = (index, e) => {
     const newInputSets = [...inputSets];
@@ -186,31 +179,33 @@ const Subscribe = () => {
       <div className="subscribe-topics-container">
         <div className="subscribe-topics-content">
           <div className="subscribe-content-wrapper">
-            {/* Subscribe Form (Left Side) */}
             <div className="subscribe-form-wrapper">
               <h2 className="subscribe-topics-title">Subscribe Topics</h2>
               <form className="subscribe-topics-form" onSubmit={handleSubscribe}>
                 <div className="subscribe-inputs-scroll-container">
-                  <label className="exists-Broker-ip-header" htmlFor="broker-ip">
-                    Broker IP
-                  </label>
-                  <select
-                    className="exists-Broker-ip"
-                    id="broker-ip"
-                    value={inputSets[0].brokerId} // Use the first inputSet's brokerId for single select
-                    onChange={handleBrokerChange}
-                  >
-                    <option value="" disabled>
-                      Select Broker IP
-                    </option>
-                    {brokerOptions.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
                   {inputSets.map((inputSet, index) => (
                     <div key={index} className="subscribe-input-set">
+                      <div className="subscribe-form-group">
+                        <label className="exists-Broker-ip-header" htmlFor={`broker-${index}`}>
+                          Broker IP
+                        </label>
+                        <select
+                          className="subscribe-broker-ip-select" // Changed class name
+                          id={`broker-${index}`}
+                          name="brokerId"
+                          value={inputSet.brokerId}
+                          onChange={(e) => handleChange(index, e)}
+                        >
+                          <option value="" disabled>
+                            Select Broker IP
+                          </option>
+                          {brokerOptions.map((item) => (
+                            <option key={item.value} value={item.value}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                       <div className="subscribe-form-group">
                         <label htmlFor={`topicFilter-${index}`} className="subscribe-form-label">
                           Topic Filter {index + 1}
@@ -267,7 +262,6 @@ const Subscribe = () => {
                 </div>
               </form>
             </div>
-            {/* Messages Section (Right Side) */}
             <div className="messages-wrapper">
               <h3 className="messages-title">Received Messages</h3>
               <div className="messages-scroll-container">
@@ -504,7 +498,7 @@ const Publish = () => {
                       Broker IP
                     </label>
                     <select
-                      className="exists-Broker-ip"
+                      className="publish-broker-ip-select" // Changed class name
                       id={`broker-${index}`}
                       value={inputSet.brokerId}
                       onChange={(e) => handleSelect(index, 'brokerId', e.target.value)}
@@ -593,4 +587,5 @@ const Publish = () => {
     </div>
   );
 };
+
 export default Publish;
