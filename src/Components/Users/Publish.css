@@ -526,12 +526,12 @@
   text-align: left;
 }
 
-.subscribe-based-ip-label{
+.exists-Broker-ip-header {
   color: #ffffff;
   margin-bottom: 2px;
 }
 
-.subscribe-based-ip{
+.exists-Broker-ip {
   display: flex;
   align-items: start;
   width: 50%; /* Full width for consistency */

@@ -6,11 +6,80 @@ import axios from "axios";
 const Subscribe = () => {
   const [inputSets, setInputSets] = useState([
     {
+      brokerId: '',
       topicFilter: '',
       qosLevel: '0', // Default value for QoS Level
     },
   ]);
   const [messages, setMessages] = useState([]); // Store received messages
+  const [brokerOptions, setBrokerOptions] = useState([]); // Store broker options
+
+  // Fetch brokers on component mount
+  useEffect(() => {
+    const getAllBrokers = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const res = await axios.get("http://localhost:5000/api/pub/get-all-brokers", {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+        });
+        const brokers = res?.data?.data;
+        
+        if (!brokers || brokers.length === 0) {
+          console.warn('No brokers returned from the API.');
+          toast.warn('No brokers available. Please add brokers in the admin page.');
+
+          const demoBrokers = [
+            { value: 'demo1', label: '192.168.1.100' },
+            { value: 'demo2', label: '192.168.1.101' },
+          ];
+          setBrokerOptions(demoBrokers);
+          if (demoBrokers.length > 0 && !inputSets[0].brokerId) {
+            setInputSets((prev) => {
+              const newInputSets = [...prev];
+              newInputSets[0].brokerId = demoBrokers[0].value;
+              return newInputSets;
+            });
+          }
+          return;
+        }
+
+        const options = brokers.map((broker) => ({
+          value: broker._id,
+          label: broker.brokerIp,
+        }));
+        console.log('Broker Options:', options);
+        setBrokerOptions(options);
+
+        if (options.length > 0 && !inputSets[0].brokerId) {
+          setInputSets((prev) => {
+            const newInputSets = [...prev];
+            newInputSets[0].brokerId = options[0].value;
+            return newInputSets;
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching brokers:', error.message);
+        toast.error('Failed to fetch brokers: ' + (error.response?.data?.message || error.message));
+
+        const demoBrokers = [
+          { value: 'demo1', label: '192.168.1.100' },
+          { value: 'demo2', label: '192.168.1.101' },
+        ];
+        setBrokerOptions(demoBrokers);
+        if (demoBrokers.length > 0 && !inputSets[0].brokerId) {
+          setInputSets((prev) => {
+            const newInputSets = [...prev];
+            newInputSets[0].brokerId = demoBrokers[0].value;
+            return newInputSets;
+          });
+        }
+      }
+    };
+
+    getAllBrokers();
+  }, []);
 
   // Poll for messages every 5 seconds
   useEffect(() => {
@@ -35,6 +104,14 @@ const Subscribe = () => {
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
 
+  const handleBrokerChange = (e) => {
+    const newInputSets = inputSets.map((set) => ({
+      ...set,
+      brokerId: e.target.value,
+    }));
+    setInputSets(newInputSets);
+  };
+
   const handleChange = (index, e) => {
     const newInputSets = [...inputSets];
     newInputSets[index] = {
@@ -48,6 +125,7 @@ const Subscribe = () => {
     setInputSets([
       ...inputSets,
       {
+        brokerId: brokerOptions.length > 0 ? brokerOptions[0].value : '',
         topicFilter: '',
         qosLevel: '0',
       },
@@ -77,7 +155,9 @@ const Subscribe = () => {
       const summary = inputSets
         .map(
           (set, index) =>
-            `Set ${index + 1}: Topic Filter - ${set.topicFilter}, QoS Level - ${set.qosLevel}`
+            `Set ${index + 1}: Broker - ${
+              brokerOptions.find((opt) => opt.value === set.brokerId)?.label || 'Unknown Broker'
+            }, Topic Filter - ${set.topicFilter}, QoS Level - ${set.qosLevel}`
         )
         .join('\n');
       alert('Subscribed:\n' + summary);
@@ -93,6 +173,7 @@ const Subscribe = () => {
     } else {
       setInputSets([
         {
+          brokerId: brokerOptions.length > 0 ? brokerOptions[0].value : '',
           topicFilter: '',
           qosLevel: '0',
         },
@@ -110,8 +191,24 @@ const Subscribe = () => {
               <h2 className="subscribe-topics-title">Subscribe Topics</h2>
               <form className="subscribe-topics-form" onSubmit={handleSubscribe}>
                 <div className="subscribe-inputs-scroll-container">
-                  <label className='subscribe-based-ip-label' htmlFor="">Broker IP</label>
-                  <select className="subscribe-based-ip" name="" id=""></select>
+                  <label className="exists-Broker-ip-header" htmlFor="broker-ip">
+                    Broker IP
+                  </label>
+                  <select
+                    className="exists-Broker-ip"
+                    id="broker-ip"
+                    value={inputSets[0].brokerId} // Use the first inputSet's brokerId for single select
+                    onChange={handleBrokerChange}
+                  >
+                    <option value="" disabled>
+                      Select Broker IP
+                    </option>
+                    {brokerOptions.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
                   {inputSets.map((inputSet, index) => (
                     <div key={index} className="subscribe-input-set">
                       <div className="subscribe-form-group">
