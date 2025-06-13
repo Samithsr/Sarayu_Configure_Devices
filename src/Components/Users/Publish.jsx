@@ -494,5 +494,4 @@ const Publish = () => {
     </div>
   );
 };
-
 export default Publish;

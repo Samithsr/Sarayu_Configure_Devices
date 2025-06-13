@@ -5,12 +5,13 @@
   width: 100%;
   min-height: 100vh; /* Allow container to grow if needed */
   box-sizing: border-box;
+  gap: 10px; /* Add a small gap between columns to control spacing */
 }
 
 /* Left Side (Publish) */
 .left-side-publish-page {
   display: flex;
-  justify-content: center; /* Center content horizontally */
+  justify-content: flex-end; /* Align content to the right to reduce middle space */
   align-items: flex-start;
   width: 100%;
 }
@@ -18,7 +19,7 @@
 /* Right Side (Subscribe) */
 .right-side-subscribe-page {
   display: flex;
-  justify-content: center; /* Center content horizontally */
+  justify-content: flex-start; /* Align content to the left to reduce middle space */
   align-items: flex-start;
   width: 100%;
 }
@@ -29,21 +30,22 @@
   justify-content: center; /* Center content horizontally */
   align-items: flex-start;
   width: 100%;
-  padding: 10px; /* Reduced padding */
+  padding: 5px; /* Reduced padding further */
   box-sizing: border-box;
 }
 
 /* Publish Content */
 .publish-content {
   background-color: #2d3748;
-  padding: 16px; /* Reduced padding */
+  min-height: 500px;
+  padding: 10px; /* Reduced padding */
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 600px; /* Limit width for better alignment */
+  max-width: 700px; /* Increased max-width to reduce empty space */
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px; /* Reduced gap */
 }
 
 /* Broker IP Header */
@@ -56,7 +58,7 @@
 
 /* Broker IP Select */
 .exists-Broker-ip {
-  width: 100%; /* Full width for consistency */
+  width: 50%; /* Full width for consistency */
   height: 40px;
   background: #4a5568;
   color: #ffffff;
@@ -109,7 +111,7 @@
 .publish-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px; /* Reduced gap */
 }
 
 /* Container for Input Sets - No Scrolling */
@@ -121,8 +123,8 @@
 .publish-input-set {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px 0;
+  gap: 14px; /* Reduced gap */
+  padding: 14px 0; /* Reduced padding */
   border-bottom: 1px solid #4a5568;
 }
 
@@ -149,7 +151,7 @@
 
 /* Input Styles (for Topic) */
 .publish-form-input {
-  width: 100%; /* Full width for consistency */
+  width: 50%; /* Full width for consistency */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -179,7 +181,7 @@
 }
 
 .custom-dropdown-selected {
-  width: 100%; /* Full width for consistency */
+  width: 50%; /* Full width for consistency */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -243,7 +245,7 @@
 
 /* Textarea Styles (for Payload) */
 .publish-form-textarea {
-  width: 100%; /* Full width for consistency */
+  width: 70%; /* Full width for consistency */
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -272,8 +274,8 @@
 .publish-buttons-container {
   display: flex;
   justify-content: center; /* Center buttons */
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px; /* Reduced gap */
+  margin-top: 8px; /* Reduced margin */
 }
 
 /* Publish Button */
@@ -304,22 +306,22 @@
   justify-content: center; /* Center content horizontally */
   align-items: flex-start;
   width: 100%;
-  padding: 10px; /* Reduced padding */
+  padding: 5px; /* Reduced padding further */
   box-sizing: border-box;
 }
 
 /* Subscribe Topics Content */
 .subscribe-topics-content {
   background-color: #2d3748;
-  padding: 16px; /* Reduced padding */
+  padding: 10px; /* Reduced padding */
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 600px; /* Limit width for better alignment */
+  max-width: 700px; /* Increased max-width to reduce empty space */
   display: flex;
   height: 87vh; /* Fixed height for the entire component */
   flex-direction: column;
-  gap: 16px;
+  gap: 14px; /* Reduced gap */
   overflow: hidden; /* Prevent overflow from affecting layout */
 }
 
@@ -338,7 +340,7 @@
 .subscribe-content-wrapper {
   display: flex;
   flex-direction: column; /* Stack form and messages vertically */
-  gap: 16px; /* Reduced gap for tighter layout */
+  gap: 14px; /* Reduced gap for tighter layout */
   width: 100%;
   flex-grow: 1; /* Allow the wrapper to take available space */
   overflow: hidden; /* Prevent overflow from affecting layout */
@@ -359,7 +361,7 @@
 .messages-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px; /* Reduced gap */
   width: 100%; /* Full width */
   flex: 1; /* Take half the available space */
   max-height: 50%; /* Constrain the messages area to half the content height */
@@ -381,7 +383,7 @@
 .messages-scroll-container {
   background: #3e4a5f;
   border-radius: 8px;
-  padding: 16px;
+  padding: 14px; /* Reduced padding */
   flex-grow: 1; /* Take all available space below the title */
   overflow-y: auto; /* Enable vertical scrolling */
   -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
@@ -398,7 +400,7 @@
   color: #a0aec0;
   font-size: 1rem;
   text-align: center;
-  padding: 20px;
+  padding: 18px; /* Reduced padding */
   position: sticky; /* Fix the "No messages" text */
   top: 0; /* Stick to the top of the messages container */
   background: #3e4a5f; /* Match the background */
@@ -412,14 +414,14 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px; /* Reduced gap */
 }
 
 /* Message Item */
 .message-item {
   background: #4a5568;
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px; /* Reduced padding */
   color: #ffffff;
   font-size: 0.95rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -427,7 +429,7 @@
 
 /* Message Content */
 .message-content {
-  margin-bottom: 8px;
+  margin-bottom: 6px; /* Reduced margin */
 }
 
 .message-content strong {
@@ -439,7 +441,7 @@
 .subscribe-topics-form {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Reduced gap for tighter layout */
+  gap: 14px; /* Reduced gap for tighter layout */
   height: 100%; /* Ensure it takes the full height of the wrapper */
   position: relative; /* Positioning context for buttons */
   overflow: hidden; /* Prevent overflow from affecting layout */
@@ -465,11 +467,11 @@
 .subscribe-input-set {
   width: 50%; /* As per current design */
   margin: 0;
-  padding: 16px 0;
+  padding: 14px 0; /* Reduced padding */
   border-bottom: 1px solid #4a5568;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px; /* Reduced gap */
   flex-shrink: 0; /* Prevent input sets from shrinking */
 }
 
@@ -549,8 +551,8 @@
 .subscribe-buttons-container {
   display: flex;
   justify-content: flex-end; /* Align buttons to the right */
-  gap: 12px;
-  padding: 16px 0;
+  gap: 10px; /* Reduced gap */
+  padding: 14px 0; /* Reduced padding */
   position: absolute; /* Fix buttons at the bottom of the form */
   bottom: 0;
   left: 0;
@@ -608,19 +610,21 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
     min-height: auto; /* Allow expansion on mobile */
+    gap: 5px; /* Reduced gap for mobile */
   }
 
   .left-side-publish-page,
   .right-side-subscribe-page {
     width: 100%;
+    justify-content: center; /* Revert to center on mobile */
   }
 
   .publish-container {
-    padding: 5px; /* Further reduced padding */
+    padding: 3px; /* Further reduced padding */
   }
 
   .publish-content {
-    padding: 10px;
+    padding: 8px; /* Further reduced padding */
     max-width: none; /* Full width on mobile */
   }
 
@@ -671,7 +675,7 @@
 
   .subscribe-content-wrapper {
     flex-direction: column; /* Already column, no change needed */
-    gap: 12px; /* Reduced gap for mobile */
+    gap: 10px; /* Further reduced gap for mobile */
   }
 
   .subscribe-form-wrapper,
@@ -682,11 +686,11 @@
   }
 
   .subscribe-topics-container {
-    padding: 5px; /* Further reduced padding */
+    padding: 3px; /* Further reduced padding */
   }
 
   .subscribe-topics-content {
-    padding: 10px;
+    padding: 8px; /* Further reduced padding */
     max-width: none; /* Full width on mobile */
     height: auto; /* Allow height to adjust on mobile */
     overflow: auto; /* Allow scrolling if content overflows on mobile */
@@ -728,7 +732,7 @@
     flex-wrap: wrap;
     gap: 8px;
     justify-content: center; /* Center buttons on mobile */
-    padding: 12px 0;
+    padding: 10px 0; /* Reduced padding */
     position: absolute;
     bottom: 0;
     left: 0;
