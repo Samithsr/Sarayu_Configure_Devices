@@ -110,6 +110,8 @@ const Subscribe = () => {
               <h2 className="subscribe-topics-title">Subscribe Topics</h2>
               <form className="subscribe-topics-form" onSubmit={handleSubscribe}>
                 <div className="subscribe-inputs-scroll-container">
+                  <label className='subscribe-based-ip-label' htmlFor="">Broker IP</label>
+                  <select className="subscribe-based-ip" name="" id=""></select>
                   {inputSets.map((inputSet, index) => (
                     <div key={index} className="subscribe-input-set">
                       <div className="subscribe-form-group">
