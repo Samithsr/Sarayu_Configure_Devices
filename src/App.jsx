@@ -1,5 +1,5 @@
-import React from 'react';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import React,{useEffect} from 'react';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import Login from './Authentication/Login';
 import Signup from './Authentication/Signup';
 import AddBrokerModal from './Pages/AddBrokerModal';
@@ -12,13 +12,30 @@ import Publish from './Components/Users/Publish';
 import Subscribe from './Components/Users/Subscribe';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { jwtDecode } from "jwt-decode";
 import './App.css';
 
 const App = () => {
+
+  const location = useLocation()
+
   const ProtectedRoute = () => {
     const isAuthenticated = !!localStorage.getItem('authToken');
     return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
   };
+
+   useEffect(() => {
+    const jwt = localStorage.getItem("authToken"); // Retrieve token from localStorage
+    try {
+      const jwtUser = jwtDecode(jwt); // Decode JWT token
+      if (Date.now() >= jwtUser.exp * 1000) { // Check if token is expired
+        localStorage.removeItem("authToken"); // Remove expired token
+        window.location.reload(); // Reload page to reset state
+      }
+    } catch (error) {
+      console.error("Error decoding JWT:", error); // Log decoding errors
+    }
+  }, [location]);
 
   return (
     <>
