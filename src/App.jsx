@@ -1,4 +1,5 @@
-import React,{useEffect} from 'react';
+// App.js
+import React, { useEffect } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import Login from './Authentication/Login';
 import Signup from './Authentication/Signup';
@@ -10,30 +11,30 @@ import WiFiConfig from './Components/Users/WiFiConfig';
 import ComConfiguration from './Components/Users/ComConfiguration';
 import Publish from './Components/Users/Publish';
 import Subscribe from './Components/Users/Subscribe';
+import Firmware from './Components/Users/Firmware';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { jwtDecode } from "jwt-decode";
 import './App.css';
 
 const App = () => {
-
-  const location = useLocation()
+  const location = useLocation();
 
   const ProtectedRoute = () => {
     const isAuthenticated = !!localStorage.getItem('authToken');
     return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
   };
 
-   useEffect(() => {
-    const jwt = localStorage.getItem("authToken"); // Retrieve token from localStorage
+  useEffect(() => {
+    const jwt = localStorage.getItem("authToken");
     try {
-      const jwtUser = jwtDecode(jwt); // Decode JWT token
-      if (Date.now() >= jwtUser.exp * 1000) { // Check if token is expired
-        localStorage.removeItem("authToken"); // Remove expired token
-        window.location.reload(); // Reload page to reset state
+      const jwtUser = jwtDecode(jwt);
+      if (Date.now() >= jwtUser.exp * 1000) {
+        localStorage.removeItem("authToken");
+        window.location.reload();
       }
     } catch (error) {
-      console.error("Error decoding JWT:", error); // Log decoding errors
+      console.error("Error decoding JWT:", error);
     }
   }, [location]);
 
@@ -46,16 +47,16 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/addBrokerModal" element={<AddBrokerModal />} />
           <Route path="/table" element={<RightSideTable />}>
-            <Route index element={<div />} /> {/* Placeholder for /table to show the table */}
+            <Route index element={<div />} />
             <Route path="publish" element={<Publish />} />
             <Route path="subscribe" element={<Subscribe />} />
+            <Route path="firmware" element={<Firmware />} /> {/* Moved Firmware here */}
           </Route>
           <Route path="/dashboard" element={<Dashboard />}>
-            <Route index element={<ComConfiguration />} /> {/* Changed default to ComConfiguration */}
+            <Route index element={<ComConfiguration />} />
             <Route path="com-config" element={<ComConfiguration />} />
             <Route path="wifi-config" element={<WiFiConfig />} />
             <Route path="publish" element={<Publish />} />
-            {/* <Route path="subscribe" element={<Subscribe />} /> */}
           </Route>
         </Route>
       </Routes>

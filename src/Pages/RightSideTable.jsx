@@ -667,6 +667,12 @@ return (
    >
      Publish/Subscribe
    </button>
+   <button
+      className={getActiveClass('/firmware')}
+          onClick={() => handleNavigation('/firmware', tableData[0]?.brokerId)}
+        >
+          Firmware
+        </button>
    {/* <button
      className={getActiveClass('/subscribe')}
      onClick={() => handleNavigation('/subscribe', tableData[0]?.brokerId)}

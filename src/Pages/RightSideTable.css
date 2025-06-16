@@ -2,7 +2,8 @@
 .table-layout {
   display: flex;
   width: 100vw; /* Full viewport width */
-  height: 92vh;
+  height: 92.8vh;
+  /* background-color: red; */
   background-color: #252F3F;
   overflow: hidden;
   box-sizing: border-box; /* Ensure padding doesn't affect width */
