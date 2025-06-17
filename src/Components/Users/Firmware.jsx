@@ -1,23 +1,78 @@
-import React, { useState } from 'react';
-import './Firmware.css';
+import React, { useEffect, useState } from "react";
+import "./Firmware.css";
 
 const Firmware = () => {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [apiData, setApiData] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState("");
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    setSelectedFile(file);
-  };
-
-  const handleUpload = () => {
-    if (selectedFile) {
-      alert(`Uploading: ${selectedFile.name}`);
+    if (file && file.name.toLowerCase().endsWith(".bin")) {
+      setSelectedFile(file);
+      setUploadStatus("");
+    } else {
+      setSelectedFile(null);
+      setUploadStatus("Please select a .bin file");
     }
   };
 
+  const fetchVersions = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/get-all-versions");
+      
+      const data = await response.json();
+      console.log(data);
+      if (data.success) {
+        setApiData(data.result);
+      } else {
+        setUploadStatus(data.message || "Failed to fetch versions");
+        console.error("Failed to fetch versions:", data.message);
+      }
+    } catch (err) {
+      setUploadStatus("Error fetching versions");
+      console.error("Error fetching versions:", err.message);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setUploadStatus("Please select a file");
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.success) {
+        setUploadStatus(`File uploaded successfully: ${selectedFile.name}`);
+        setSelectedFile(null);
+        await fetchVersions(); // Refresh the table data
+      } else {
+        setUploadStatus(`Upload failed: ${data.message}`);
+      }
+    } catch (err) {
+      setUploadStatus(`Upload error: ${err.message}`);
+      console.error("Upload error:", err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVersions();
+  }, []);
+
   return (
     <div className="firmware">
-      {/* Top: Firmware Upload Card */}
       <div className="firmware__top">
         <div className="firmware__card">
           <header className="firmware__header">
@@ -35,7 +90,7 @@ const Firmware = () => {
             <label htmlFor="firmware-file" className="firmware__button">
               Choose File
             </label>
-            <p className="firmware__info">File must be .bin, up to 40MB</p>
+            <p className="firmware__info">File must be .bin</p>
 
             {selectedFile && (
               <div className="firmware__file-loader">
@@ -43,48 +98,48 @@ const Firmware = () => {
                 <p className="firmware__filename">Selected: {selectedFile.name}</p>
               </div>
             )}
+            {uploadStatus && <p className="firmware__status">{uploadStatus}</p>}
           </section>
 
           <button
             className="firmware__upload-button"
             onClick={handleUpload}
-            disabled={!selectedFile}
+            disabled={!selectedFile || uploading}
           >
-            Upload
+            {uploading ? "Uploading..." : "Upload"}
           </button>
         </div>
       </div>
 
-      {/* Bottom: Table */}
       <div className="firmware__bottom">
         <table className="firmware__table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>URL</th>
+              <th>Firmware File</th>
               <th>Publish</th>
-              {/* <th>Role</th> */}
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>John Doe</td>
-              <td>john@example.com</td>
-              {/* <td>Admin</td> */}
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Jane Smith</td>
-              <td>jane@example.com</td>
-              {/* <td>User</td> */}
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Mike Johnson</td>
-              <td>mike@example.com</td>
-              {/* <td>Editor</td> */}
-            </tr>
+            {apiData.length > 0 ? (
+              apiData.map((url, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      {url}
+                    </a>
+                  </td>
+                  <td>
+                    <button className="url-section-button">Send</button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3">No firmware versions available</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
