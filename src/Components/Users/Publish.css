@@ -58,7 +58,7 @@
 }
 
 /* Publish Broker IP Select */
-.publish-broker-ip-select {
+.publish-broker-ip-selects {
   width: 50%; /* Full width within 50% wide form-group */
   height: 40px;
   background: #4a5568;
@@ -78,23 +78,23 @@
   cursor: pointer;
 }
 
-.publish-broker-ip-select:focus {
+.publish-broker-ip-selects:focus {
   outline: none;
   border: 1px solid #ffffff;
 }
 
-.publish-broker-ip-select:hover {
+.publish-broker-ip-selects:hover {
   background: #48556b;
 }
 
-.publish-broker-ip-select option {
+.publish-broker-ip-selects option {
   background-color: #ffffff;
   color: #000000;
   font-size: 0.9rem;
   padding: 8px 12px;
 }
 
-.publish-broker-ip-select option[disabled] {
+.publish-broker-ip-selects option[disabled] {
   color: #a0aec0;
 }
 

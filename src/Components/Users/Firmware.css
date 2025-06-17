@@ -9,12 +9,11 @@
 
 /* Top section (40% height) */
 .firmware__top {
-    height: 40%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #f9f9f9;
-    /* background-color: red; */
+  height: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f9f9f9;
 }
 
 /* Card stays fixed width */
@@ -116,23 +115,6 @@
   border-radius: 6px;
 }
 
-.url-section-button{
-    padding: 5px 10px;
-    border: none;
-    font-size: 16px;
-    font-weight: 400;
-    border-radius: 50px;
-    background-color:#5a3de6;
-    color:#fff;
-}
-
-.url-section-button:hover{
-    color:#fff;
-    background-color: rgba(12, 76, 172, 0.786);
-    border-radius: 50px;
-}
-
-
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -150,7 +132,6 @@
   background-color: #fff;
   border-radius: 10px;
   overflow: hidden;
-  border-bottom: 20px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid #ddd;
 }
@@ -158,7 +139,7 @@
 .firmware__table td {
   padding: 12px 16px;
   text-align: center;
-  border: 1px solid #ddd; /* This shows both vertical and horizontal lines */
+  border: 1px solid #ddd;
 }
 .firmware__table th {
   background-color: #6b48ff;
@@ -167,4 +148,87 @@
 }
 .firmware__table tbody tr:hover {
   background-color: #f7f7f7;
+}
+
+/* Broker IP select */
+.publish-broker-ip-select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 180px;
+  font-size: 14px;
+  color: #333;
+  background-color: white;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+.publish-broker-ip-select:focus {
+  outline: none;
+  border-color: #6b48ff;
+  box-shadow: 0 0 5px rgba(107, 72, 255, 0.3);
+}
+.publish-broker-ip-select option {
+  color: #333;
+}
+
+/* Topic input */
+.firmware__input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 180px;
+  font-size: 14px;
+  font-family: 'Segoe UI', sans-serif;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.firmware__input::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+.firmware__input:hover {
+  border-color: #6b48ff;
+}
+.firmware__input:focus {
+  outline: none;
+  border-color: #6b48ff;
+  box-shadow: 0 0 5px rgba(107, 72, 255, 0.3);
+}
+
+/* Publish button */
+.url-section-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #6b48ff;
+  color: #fff;
+  cursor: pointer;
+  width: 100px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+.url-section-button:hover:not(:disabled) {
+  background-color: #5a3de6;
+  box-shadow: 0 2px 5px rgba(107, 72, 255, 0.3);
+  transform: translateY(-1px);
+}
+/* .url-section-button:disabled {
+  background-color: #b6d7b9;
+  color: #fff;
+  cursor: not-allowed;
+  box-shadow: none;
+} */
+.url-section-button.sending {
+  background-color: #6b48ff; /* Maintain same color as enabled state */
+  color: #fff;
+  cursor: pointer; /* Keep pointer cursor to indicate interactivity */
+}
+
+/* Status messages */
+.firmware__status {
+  margin: 10px 0;
+  color: #333;
+  font-size: 14px;
+  text-align: center;
 }

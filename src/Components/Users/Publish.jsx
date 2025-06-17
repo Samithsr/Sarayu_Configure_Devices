@@ -498,7 +498,7 @@ const Publish = () => {
                       Broker IP
                     </label>
                     <select
-                      className="publish-broker-ip-select" // Changed class name
+                      className="publish-broker-ip-selects" // Changed class name
                       id={`broker-${index}`}
                       value={inputSet.brokerId}
                       onChange={(e) => handleSelect(index, 'brokerId', e.target.value)}
