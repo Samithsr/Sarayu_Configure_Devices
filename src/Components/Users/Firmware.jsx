@@ -58,17 +58,6 @@ const Firmware = () => {
     fetchVersions();
   }, []);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.name.toLowerCase().endsWith(".bin")) {
-      setSelectedFile(file);
-      setUploadStatus("");
-    } else {
-      setSelectedFile(null);
-      setUploadStatus("Please select a .bin file");
-    }
-  };
-
   const fetchVersions = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/get-all-versions");
@@ -91,6 +80,17 @@ const Firmware = () => {
     } catch (err) {
       setUploadStatus("Error fetching versions");
       console.error("Error fetching versions:", err.message);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.name.toLowerCase().endsWith(".bin")) {
+      setSelectedFile(file);
+      setUploadStatus("");
+    } else {
+      setSelectedFile(null);
+      setUploadStatus("Please select a .bin file");
     }
   };
 
@@ -160,10 +160,13 @@ const Firmware = () => {
 
     try {
       const token = localStorage.getItem("accessToken");
+      const selectedBroker = brokerOptions.find((b) => b.value === brokerIp);
+      const brokerIpAddress = selectedBroker ? selectedBroker.label : brokerIp;
+
       const response = await axios.post(
         `http://localhost:5000/api/publish`,
         {
-          brokerIp: brokerOptions.find(b => b.value === brokerIp)?.label || brokerIp,
+          brokerIp: brokerIpAddress,
           topic,
           message: url,
         },
@@ -181,8 +184,9 @@ const Firmware = () => {
 
       const data = response.data;
       if (data.success) {
-        setPublishStatus(`Published successfully: ${url.split("/").pop()}`);
-        toast.success(`Published successfully: ${url.split("/").pop()}`);
+        const filename = url.split("/").pop();
+        setPublishStatus(`Published URL "${url}" to topic "${topic}"`);
+        toast.success(`Published "${filename}" to topic "${topic}"`);
       } else {
         setPublishStatus(`Publish failed: ${data.message || "Unknown error"}`);
         toast.error(`Publish failed: ${data.message || "Unknown error"}`);
