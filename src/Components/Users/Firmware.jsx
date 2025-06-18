@@ -161,11 +161,11 @@ const Firmware = () => {
     try {
       const token = localStorage.getItem("accessToken");
       const response = await axios.post(
-        `http://localhost:5000/api/brokers/${brokerIp}/publish`,
+        `http://localhost:5000/api/publish`,
         {
+          brokerIp: brokerOptions.find(b => b.value === brokerIp)?.label || brokerIp,
           topic,
           message: url,
-          qos: 0, // Default QoS level, as in Publish component
         },
         {
           headers: {
@@ -191,13 +191,10 @@ const Firmware = () => {
       let errorMessage = "Publish error: " + (error.response?.data?.message || error.message);
       if (error.response && error.response.status >= 400) {
         errorMessage = `Publish error: Server responded with status ${error.response.status}`;
-        if (error.response.data && typeof error.response.data === "string" && error.response.data.includes("<!DOCTYPE")) {
-          errorMessage = `Publish error: Server returned an HTML page (status ${error.response.status}). Please verify the endpoint /api/brokers/${brokerIp}/publish is correct and returns JSON.`;
-        }
       }
       setPublishStatus(errorMessage);
       toast.error(errorMessage);
-      console.error("Publish error:", error, "Response data:", error.response?.data);
+      console.error("Publish error:", error);
     } finally {
       setPublishing((prev) => {
         const newPublishing = [...prev];
@@ -301,7 +298,7 @@ const Firmware = () => {
                       onClick={() => handlePublish(index)}
                       disabled={!publishData[index]?.brokerIp || !publishData[index]?.topic || publishing[index]}
                     >
-                      {publishing[index] ? "Sending..." : "Send"}
+                      {publishing[index] ? "Sending..." : "Publish"}
                     </button>
                   </td>
                 </tr>
