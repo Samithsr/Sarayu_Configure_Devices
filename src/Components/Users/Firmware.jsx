@@ -27,9 +27,8 @@ const Firmware = () => {
         if (!brokers || brokers.length === 0) {
           console.warn("No brokers returned from the API.");
           toast.warn("No brokers available. Please add brokers in the admin page.");
-
           const demoBrokers = [
-            { value: "demo1", label: "192.168.1.100" },
+            { value: "demo1", label: "localhost" },
             { value: "demo2", label: "192.168.1.101" },
           ];
           setBrokerOptions(demoBrokers);
@@ -42,37 +41,40 @@ const Firmware = () => {
         }));
         console.log("Broker Options:", options);
         setBrokerOptions(options);
+        fetchVersions();
       } catch (error) {
         console.error("Error fetching brokers:", error.message);
         toast.error("Failed to fetch brokers: " + (error.response?.data?.message || error.message));
-
         const demoBrokers = [
-          { value: "demo1", label: "192.168.1.100" },
+          { value: "demo1", label: "localhost" },
           { value: "demo2", label: "192.168.1.101" },
         ];
         setBrokerOptions(demoBrokers);
+        fetchVersions();
       }
     };
 
     getAllBrokers();
-    fetchVersions();
   }, []);
 
   const fetchVersions = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/get-all-versions");
+      const ip = "localhost";
+      const response = await fetch(`http://localhost:5000/api/get-all-versions?ip=${encodeURIComponent(ip)}`);
       const data = await response.json();
-      console.log("Fetched versions:", data);
+      console.log("Fetched versions for IP", ip, ":", data);
       if (data.success) {
-        setApiData(data.result);
+        const urls = data.result.map((url) => url.trim()); // Trim URLs to avoid whitespace
+        console.log("Processed URLs:", urls);
+        setApiData(urls);
         setPublishData(
-          data.result.map((url) => ({
+          urls.map((url) => ({
             url,
             brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
             topic: "",
           }))
         );
-        setPublishing(data.result.map(() => false));
+        setPublishing(urls.map(() => false));
       } else {
         setUploadStatus(data.message || "Failed to fetch versions");
         console.error("Failed to fetch versions:", data.message);
@@ -127,15 +129,13 @@ const Firmware = () => {
 
   const handleBrokerChange = (index, value) => {
     setPublishData((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, brokerIp: value } : item
-      )
+      prev.map((item, i) => (i === index ? { ...item, brokerIp: value } : item))
     );
   };
 
   const handleTopicChange = (index, value) => {
     setPublishData((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, topic: value } : item))
+      prev.map((item, i) => (i === index ? { ...item, topic: value.trim() } : item))
     );
   };
 
@@ -163,6 +163,8 @@ const Firmware = () => {
       const selectedBroker = brokerOptions.find((b) => b.value === brokerIp);
       const brokerIpAddress = selectedBroker ? selectedBroker.label : brokerIp;
 
+      console.log("Publishing:", { url, brokerIp: brokerIpAddress, topic }); // Detailed logging
+
       const response = await axios.post(
         `http://localhost:5000/api/publish`,
         {
@@ -185,19 +187,16 @@ const Firmware = () => {
       const data = response.data;
       if (data.success) {
         const filename = url.split("/").pop();
-        setPublishStatus(`Published URL "${url}" to topic "${topic}"`);
-        toast.success(`Published "${filename}" to topic "${topic}"`);
+        setPublishStatus(`Published URL "${url}" to topic "${topic}" on broker ${brokerIpAddress}`);
+        toast.success(`Published "${filename}" to topic "${topic}" on broker ${brokerIpAddress}`);
       } else {
         setPublishStatus(`Publish failed: ${data.message || "Unknown error"}`);
         toast.error(`Publish failed: ${data.message || "Unknown error"}`);
       }
     } catch (error) {
-      let errorMessage = "Publish error: " + (error.response?.data?.message || error.message);
-      if (error.response && error.response.status >= 400) {
-        errorMessage = `Publish error: Server responded with status ${error.response.status}`;
-      }
-      setPublishStatus(errorMessage);
-      toast.error(errorMessage);
+      const errorMessage = error.response?.data?.message || error.message;
+      setPublishStatus(`Publish error: ${errorMessage}`);
+      toast.error(`Publish error: ${errorMessage}`);
       console.error("Publish error:", error);
     } finally {
       setPublishing((prev) => {
