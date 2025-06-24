@@ -30,8 +30,8 @@ const Subscribe = () => {
           toast.warn('No brokers available. Please add brokers in the admin page.');
 
           const demoBrokers = [
-            { value: 'demo1', label: '192.168.1.100' },
-            { value: 'demo2', label: '192.168.1.101' },
+            // { value: 'demo1', label: '192.168.1.100' },
+            // { value: 'demo2', label: '192.168.1.101' },
           ];
           setBrokerOptions(demoBrokers);
           if (demoBrokers.length > 0) {
@@ -65,8 +65,8 @@ const Subscribe = () => {
         toast.error('Failed to fetch brokers: ' + (error.response?.data?.message || error.message));
 
         const demoBrokers = [
-          { value: 'demo1', label: '192.168.1.100' },
-          { value: 'demo2', label: '192.168.1.101' },
+          // { value: 'demo1', label: '192.168.1.100' },
+          // { value: 'demo2', label: '192.168.1.101' },
         ];
         setBrokerOptions(demoBrokers);
         if (demoBrokers.length > 0) {
@@ -326,8 +326,8 @@ const Publish = () => {
         toast.warn('No brokers available. Please add brokers in the admin page.');
 
         const demoBrokers = [
-          { value: 'demo1', label: '192.168.1.100' },
-          { value: 'demo2', label: '192.168.1.101' },
+          // { value: 'demo1', label: '192.168.1.100' },
+          // { value: 'demo2', label: '192.168.1.101' },
         ];
         setBrokerOptions(demoBrokers);
         if (demoBrokers.length > 0 && !inputSets[0].brokerId) {
