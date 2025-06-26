@@ -26,12 +26,12 @@ const Firmware = () => {
           return;
         }
 
-        const res = await axios.get("http://localhost:5000/api/pub/get-all-brokers", {
+        const res = await axios.get("http://localhost:5000/api/brokers", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        const brokers = res?.data?.data;
+        const brokers = res?.data;
 
         if (!brokers || brokers.length === 0) {
           console.warn("No brokers returned from the API.");
@@ -47,6 +47,8 @@ const Firmware = () => {
         const options = brokers.map((broker) => ({
           value: broker._id,
           label: broker.brokerIp,
+          username: broker.username || "",
+          password: broker.password || "",
         }));
         console.log("Broker Options:", options);
         setBrokerOptions(options);
@@ -81,8 +83,8 @@ const Firmware = () => {
             url,
             brokerIp: brokerIp || (brokerOptions.length > 0 ? brokerOptions[0].value : ""),
             topic: "",
-            mqttUsername: "",
-            mqttPassword: "",
+            mqttUsername: selectedBroker ? selectedBroker.username : "",
+            mqttPassword: selectedBroker ? selectedBroker.password : "",
           }))
         );
         setPublishing(data.result.map(() => false));
@@ -143,9 +145,17 @@ const Firmware = () => {
   };
 
   const handleBrokerChange = (index, value) => {
+    const selectedBroker = brokerOptions.find((b) => b.value === value);
     setPublishData((prev) =>
       prev.map((item, i) =>
-        i === index ? { ...item, brokerIp: value } : item
+        i === index
+          ? {
+              ...item,
+              brokerIp: value,
+              mqttUsername: selectedBroker ? selectedBroker.username : "",
+              mqttPassword: selectedBroker ? selectedBroker.password : "",
+            }
+          : item
       )
     );
     fetchVersions(value);
@@ -318,7 +328,7 @@ const Firmware = () => {
               <th>Broker IP</th>
               <th>Topic</th>
               <th>MQTT Username</th>
-              <th>MIQTT Password</th>
+              <th>MQTT Password</th>
               <th>Publish</th>
             </tr>
           </thead>
