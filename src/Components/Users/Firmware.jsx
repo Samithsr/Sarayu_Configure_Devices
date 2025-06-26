@@ -69,22 +69,20 @@ const Firmware = () => {
     getAllBrokers();
   }, [navigate]);
 
-  const fetchVersions = async (brokerIp = "") => {
+  const fetchVersions = async () => {
     try {
-      const selectedBroker = brokerOptions.find((b) => b.value === brokerIp);
-      const ip = selectedBroker ? selectedBroker.label : "localhost";
-      const response = await fetch(`http://localhost:5000/api/get-all-versions?ip=${encodeURIComponent(ip)}`);
+      const response = await fetch(`http://localhost:5000/api/get-all-versions`);
       const data = await response.json();
-      console.log("Fetched versions for IP", ip, ":", data);
+      console.log("Fetched versions:", data);
       if (data.success) {
         setApiData(data.result);
         setPublishData(
           data.result.map((url) => ({
             url,
-            brokerIp: brokerIp || (brokerOptions.length > 0 ? brokerOptions[0].value : ""),
+            brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
             topic: "",
-            mqttUsername: selectedBroker ? selectedBroker.username : "",
-            mqttPassword: selectedBroker ? selectedBroker.password : "",
+            mqttUsername: brokerOptions.length > 0 ? brokerOptions[0].username : "",
+            mqttPassword: brokerOptions.length > 0 ? brokerOptions[0].password : "",
           }))
         );
         setPublishing(data.result.map(() => false));
@@ -158,7 +156,6 @@ const Firmware = () => {
           : item
       )
     );
-    fetchVersions(value);
   };
 
   const handleTopicChange = (index, value) => {
@@ -235,7 +232,6 @@ const Firmware = () => {
         const filename = url.split("/").pop();
         setPublishStatus(`Published URL "${url}" to topic "${topic}" on broker ${brokerIpAddress}`);
         toast.success(`Published "${filename}" to topic "${topic}" on broker ${brokerIpAddress}`);
-        await fetchVersions(brokerIp);
       } else {
         setPublishStatus(`Publish failed: ${data.message || "Unknown error"}`);
         toast.error(`Publish failed: ${data.message || "Unknown error"}`);
@@ -265,6 +261,8 @@ const Firmware = () => {
       });
     }
   };
+
+  console.log("Api data: ", apiData);
 
   return (
     <div className="firmware">
