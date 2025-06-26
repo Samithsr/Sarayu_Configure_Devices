@@ -305,7 +305,7 @@ const Firmware = () => {
       </div>
 
       <div className="firmware__bottom">
-        {publishStatus && <p className="firmware__status">{publishStatus}</p>}
+        {publishStatus && <p className="firmware__published">{publishStatus}</p>}
         <table className="firmware__table">
           <thead>
             <tr>
