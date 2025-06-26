@@ -167,18 +167,6 @@ const Firmware = () => {
     );
   };
 
-  const handleMqttUsernameChange = (index, value) => {
-    setPublishData((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, mqttUsername: value } : item))
-    );
-  };
-
-  const handleMqttPasswordChange = (index, value) => {
-    setPublishData((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, mqttPassword: value } : item))
-    );
-  };
-
   const handlePublish = async (index) => {
     const { url, brokerIp, topic, mqttUsername, mqttPassword } = publishData[index];
     if (!brokerIp) {
@@ -192,8 +180,8 @@ const Firmware = () => {
       return;
     }
     if (!mqttUsername || !mqttPassword) {
-      setPublishStatus("Please enter MQTT credentials");
-      toast.error("Please enter MQTT username and password");
+      setPublishStatus("MQTT credentials are missing");
+      toast.error("MQTT credentials are missing");
       return;
     }
 
@@ -327,8 +315,6 @@ const Firmware = () => {
               <th>Firmware File</th>
               <th>Broker IP</th>
               <th>Topic</th>
-              <th>MQTT Username</th>
-              <th>MQTT Password</th>
               <th>Publish</th>
             </tr>
           </thead>
@@ -369,24 +355,6 @@ const Firmware = () => {
                     />
                   </td>
                   <td>
-                    <input
-                      type="text"
-                      value={publishData[index]?.mqttUsername || ""}
-                      onChange={(e) => handleMqttUsernameChange(index, e.target.value)}
-                      placeholder="Enter MQTT username"
-                      className="firmware__input"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="password"
-                      value={publishData[index]?.mqttPassword || ""}
-                      onChange={(e) => handleMqttPasswordChange(index, e.target.value)}
-                      placeholder="Enter MQTT password"
-                      className="firmware__input"
-                    />
-                  </td>
-                  <td>
                     <button
                       className="url-section-button"
                       onClick={() => handlePublish(index)}
@@ -405,7 +373,7 @@ const Firmware = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7">No firmware versions available</td>
+                <td colSpan="5">No firmware versions available</td>
               </tr>
             )}
           </tbody>
