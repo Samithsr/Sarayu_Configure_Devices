@@ -1,109 +1,119 @@
-import React, { useState, useEffect } from 'react';
-import './Publish.css';
-import { toast } from 'react-toastify';
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import "./Publish.css";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Subscribe = () => {
   const [inputSets, setInputSets] = useState([
     {
-      brokerId: '',
-      topicFilter: '',
-      qosLevel: '0',
+      brokerIp: "",
+      topicFilter: "",
+      qosLevel: "0",
+      mqttUsername: "",
+      mqttPassword: "",
     },
   ]);
   const [messages, setMessages] = useState([]);
   const [brokerOptions, setBrokerOptions] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const getAllBrokers = async () => {
+    const fetchBrokers = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
-        const res = await axios.get("http://localhost:5000/api/pub/get-all-brokers", {
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) {
+          console.error("No auth token found, redirecting to login");
+          toast.error("Please log in to access brokers.");
+          navigate("/");
+          return;
+        }
+
+        const response = await fetch("http://localhost:5000/api/brokers", {
+          method: "GET",
           headers: {
-            Authorization: token ? `Bearer ${token}` : undefined,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
           },
         });
-        const brokers = res?.data?.data;
-        
-        if (!brokers || brokers.length === 0) {
-          console.warn('No brokers returned from the API.');
-          toast.warn('No brokers available. Please add brokers in the admin page.');
 
-          const demoBrokers = [
-            // { value: 'demo1', label: '192.168.1.100' },
-            // { value: 'demo2', label: '192.168.1.101' },
-          ];
-          setBrokerOptions(demoBrokers);
-          if (demoBrokers.length > 0) {
-            setInputSets((prev) =>
-              prev.map((set) => ({
-                ...set,
-                brokerId: set.brokerId || demoBrokers[0].value,
-              }))
-            );
+        if (!response.ok) {
+          const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
+          if (response.status === 401) {
+            console.error("Unauthorized, clearing token and redirecting to login");
+            localStorage.clear();
+            toast.error("Session expired. Please log in again.");
+            navigate("/");
+            return;
           }
+          throw new Error(errorMessage);
+        }
+
+        const brokers = await response.json();
+        console.log("Fetched brokers:", brokers);
+
+        if (!brokers || !Array.isArray(brokers) || brokers.length === 0) {
+          console.warn("No brokers returned from the API or invalid data structure");
+          toast.warn("No brokers available. Please add brokers in the admin page.");
+          setBrokerOptions([{ value: "", label: "No Brokers Available" }]);
           return;
         }
 
         const options = brokers.map((broker) => ({
-          value: broker._id,
+          value: broker.brokerIp,
           label: broker.brokerIp,
         }));
-        console.log('Broker Options:', options);
+        console.log("Broker Options:", options);
+
         setBrokerOptions(options);
-
-        if (options.length > 0) {
-          setInputSets((prev) =>
-            prev.map((set) => ({
-              ...set,
-              brokerId: set.brokerId || options[0].value,
-            }))
-          );
-        }
+        setInputSets((prev) =>
+          prev.map((set) => ({
+            ...set,
+            brokerIp: set.brokerIp || (options.length > 0 ? options[0].value : ""),
+          }))
+        );
       } catch (error) {
-        console.error('Error fetching brokers:', error.message);
-        toast.error('Failed to fetch brokers: ' + (error.response?.data?.message || error.message));
-
-        const demoBrokers = [
-          // { value: 'demo1', label: '192.168.1.100' },
-          // { value: 'demo2', label: '192.168.1.101' },
-        ];
-        setBrokerOptions(demoBrokers);
-        if (demoBrokers.length > 0) {
-          setInputSets((prev) =>
-            prev.map((set) => ({
-              ...set,
-              brokerId: set.brokerId || demoBrokers[0].value,
-            }))
-          );
-        }
+        console.error("Error fetching brokers:", error.message);
+        toast.error("Failed to fetch brokers: " + error.message);
+        setBrokerOptions([{ value: "", label: "Error Fetching Brokers" }]);
       }
     };
 
-    getAllBrokers();
-  }, []);
+    fetchBrokers();
+  }, [navigate]);
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/messages');
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) {
+          console.error("No auth token for fetching messages");
+          toast.error("Please log in to fetch messages.");
+          navigate("/");
+          return;
+        }
+        const response = await fetch("http://localhost:5000/api/messages", {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
         const result = await response.json();
+        console.log("Fetched messages:", result.messages);
         if (response.ok) {
-          console.log('Fetched messages:', result.messages);
           setMessages(result.messages);
         } else {
-          console.error('Failed to fetch messages:', result.error);
+          console.error("Failed to fetch messages:", result.message);
+          toast.error("Failed to fetch messages: " + result.message);
         }
       } catch (error) {
-        console.error('Error fetching messages:', error.message);
+        console.error("Error fetching messages:", error.message);
+        toast.error("Error fetching messages: " + error.message);
       }
     };
 
     fetchMessages();
-    const intervalId = setInterval(fetchMessages, 5000);
-
+    const intervalId = setInterval(fetchMessages, 1000 * 60);
     return () => clearInterval(intervalId);
-  }, []);
+  }, [navigate]);
 
   const handleChange = (index, e) => {
     const newInputSets = [...inputSets];
@@ -118,45 +128,60 @@ const Subscribe = () => {
     setInputSets([
       ...inputSets,
       {
-        brokerId: brokerOptions.length > 0 ? brokerOptions[0].value : '',
-        topicFilter: '',
-        qosLevel: '0',
+        brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
+        topicFilter: "",
+        qosLevel: "0",
+        mqttUsername: "",
+        mqttPassword: "",
       },
     ]);
   };
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
-    console.log('Subscribe Topics Submitted:', inputSets);
+    console.log("Subscribe Topics Submitted:", inputSets);
 
     try {
-      const response = await fetch('http://localhost:5000/api/subscribe', {
-        method: 'POST',
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) {
+        throw new Error("Please log in to subscribe.");
+      }
+
+      for (const [index, set] of inputSets.entries()) {
+        if (!set.brokerIp) {
+          throw new Error(`Set ${index + 1}: Please select a broker IP`);
+        }
+        if (!set.topicFilter) {
+          throw new Error(`Set ${index + 1}: Please enter a topic filter`);
+        }
+      }
+
+      const response = await fetch("http://localhost:5000/api/subscribe", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({ inputSets }),
       });
 
       const result = await response.json();
-      console.log('Subscribe Response:', result);
+      console.log("Subscribe Response:", result);
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to subscribe');
+        throw new Error(result.message || "Failed to subscribe");
       }
 
       const summary = inputSets
         .map(
           (set, index) =>
-            `Set ${index + 1}: Broker - ${
-              brokerOptions.find((opt) => opt.value === set.brokerId)?.label || 'Unknown Broker'
-            }, Topic Filter - ${set.topicFilter}, QoS Level - ${set.qosLevel}`
+            `Set ${index + 1}: Broker - ${set.brokerIp}, Topic Filter - ${set.topicFilter}, QoS Level - ${set.qosLevel}, Username - ${set.mqttUsername}, Password - ${set.mqttPassword ? "****" : ""}`
         )
-        .join('\n');
-      alert('Subscribed:\n' + summary);
+        .join("\n");
+      toast.success("Subscribed:\n" + summary);
     } catch (error) {
-      console.error('Error subscribing:', error.message);
-      alert('Failed to subscribe: ' + error.message);
+      console.error("Error subscribing:", error.message);
+      toast.error(error.message);
     }
   };
 
@@ -166,16 +191,18 @@ const Subscribe = () => {
     } else {
       setInputSets([
         {
-          brokerId: brokerOptions.length > 0 ? brokerOptions[0].value : '',
-          topicFilter: '',
-          qosLevel: '0',
+          brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
+          topicFilter: "",
+          qosLevel: "0",
+          mqttUsername: "",
+          mqttPassword: "",
         },
       ]);
     }
   };
 
   return (
-    <div className='right-side-subscribe-page'>
+    <div className="right-side-subscribe-page">
       <div className="subscribe-topics-container">
         <div className="subscribe-topics-content">
           <div className="subscribe-content-wrapper">
@@ -190,17 +217,18 @@ const Subscribe = () => {
                           Broker IP
                         </label>
                         <select
-                          className="subscribe-broker-ip-select" // Changed class name
+                          required
+                          className="subscribe-broker-ip-select"
                           id={`broker-${index}`}
-                          name="brokerId"
-                          value={inputSet.brokerId}
+                          name="brokerIp"
+                          value={inputSet.brokerIp}
                           onChange={(e) => handleChange(index, e)}
                         >
                           <option value="" disabled>
                             Select Broker IP
                           </option>
                           {brokerOptions.map((item) => (
-                            <option key={item.value} value={item.value}>
+                            <option key={item.value} value={item.value} disabled={item.value === ""}>
                               {item.label}
                             </option>
                           ))}
@@ -238,6 +266,34 @@ const Subscribe = () => {
                           <option value="2">2 - Exactly Once</option>
                         </select>
                       </div>
+                      <div className="subscribe-form-group">
+                        <label htmlFor={`mqttUsername-${index}`} className="subscribe-form-label">
+                          MQTT Username
+                        </label>
+                        <input
+                          className="subscribe-form-input"
+                          type="text"
+                          name="mqttUsername"
+                          id={`mqttUsername-${index}`}
+                          placeholder="Enter MQTT Username"
+                          value={inputSet.mqttUsername}
+                          onChange={(e) => handleChange(index, e)}
+                        />
+                      </div>
+                      <div className="subscribe-form-group">
+                        <label htmlFor={`mqttPassword-${index}`} className="subscribe-form-label">
+                          MQTT Password
+                        </label>
+                        <input
+                          className="subscribe-form-input"
+                          type="password"
+                          name="mqttPassword"
+                          id={`mqttPassword-${index}`}
+                          placeholder="Enter MQTT Password"
+                          value={inputSet.mqttPassword}
+                          onChange={(e) => handleChange(index, e)}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -246,10 +302,15 @@ const Subscribe = () => {
                     type="button"
                     className="subscribe-add-task-button"
                     onClick={handleAddTopic}
+                    disabled={brokerOptions[0]?.value === ""}
                   >
                     + Add Topic
                   </button>
-                  <button type="submit" className="subscribe-submit-button">
+                  <button
+                    type="submit"
+                    className="subscribe-submit-button"
+                    disabled={brokerOptions[0]?.value === ""}
+                  >
                     Subscribe Topics
                   </button>
                   <button
@@ -296,91 +357,84 @@ const Subscribe = () => {
 const Publish = () => {
   const [inputSets, setInputSets] = useState([
     {
-      brokerId: '',
-      topic: '',
-      qosLevel: '0',
-      payload: '',
+      brokerIp: "",
+      topic: "",
+      qosLevel: "0",
+      payload: "",
+      mqttUsername: "",
+      mqttPassword: "",
     },
   ]);
+  const [publishing, setPublishing] = useState([]);
+  const [publishStatuses, setPublishStatuses] = useState([]);
   const [brokerOptions, setBrokerOptions] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState({});
-  const [allBrokers, setAllBrokers] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getAllBrokers();
-  }, []);
-
-  const getAllBrokers = async () => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      const res = await axios.get("http://localhost:5000/api/pub/get-all-brokers", {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : undefined,
-        },
-      });
-      const brokers = res?.data?.data;
-      setAllBrokers(brokers);
-
-      if (!brokers || brokers.length === 0) {
-        console.warn('No brokers returned from the API.');
-        toast.warn('No brokers available. Please add brokers in the admin page.');
-
-        const demoBrokers = [
-          // { value: 'demo1', label: '192.168.1.100' },
-          // { value: 'demo2', label: '192.168.1.101' },
-        ];
-        setBrokerOptions(demoBrokers);
-        if (demoBrokers.length > 0 && !inputSets[0].brokerId) {
-          setInputSets((prev) => {
-            const newInputSets = [...prev];
-            newInputSets[0].brokerId = demoBrokers[0].value;
-            return newInputSets;
-          });
+    const fetchBrokers = async () => {
+      try {
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) {
+          console.error("No auth token found, redirecting to login");
+          toast.error("Please log in to access brokers.");
+          navigate("/");
+          return;
         }
-        return;
-      }
 
-      const options = brokers.map((broker) => ({
-        value: broker._id,
-        label: broker.brokerIp,
-      }));
-      console.log('Broker Options:', options);
-      setBrokerOptions(options);
-
-      if (options.length > 0 && !inputSets[0].brokerId) {
-        setInputSets((prev) => {
-          const newInputSets = [...prev];
-          newInputSets[0].brokerId = options[0].value;
-          return newInputSets;
+        const response = await fetch("http://localhost:5000/api/brokers", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
         });
+
+        if (!response.ok) {
+          const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
+          if (response.status === 401) {
+            console.error("Unauthorized, clearing token and redirecting to login");
+            localStorage.clear();
+            toast.error("Session expired. Please log in again.");
+            navigate("/");
+            return;
+          }
+          throw new Error(errorMessage);
+        }
+
+        const brokers = await response.json();
+        console.log("Fetched brokers:", brokers);
+
+        if (!brokers || !Array.isArray(brokers) || brokers.length === 0) {
+          console.warn("No brokers returned from the API or invalid data structure");
+          toast.warn("No brokers available. Please add brokers in the admin page.");
+          setBrokerOptions([{ value: "", label: "No Brokers Available" }]);
+          return;
+        }
+
+        const options = brokers.map((broker) => ({
+          value: broker.brokerIp,
+          label: broker.brokerIp,
+        }));
+        console.log("Broker Options:", options);
+
+        setBrokerOptions(options);
+        setInputSets((prev) =>
+          prev.map((set) => ({
+            ...set,
+            brokerIp: set.brokerIp || (options.length > 0 ? options[0].value : ""),
+          }))
+        );
+        setPublishing((prev) => (prev.length ? prev : Array(options.length).fill(false)));
+        setPublishStatuses((prev) => (prev.length ? prev : Array(options.length).fill("")));
+      } catch (error) {
+        console.error("Error fetching brokers:", error.message);
+        toast.error("Failed to fetch brokers: " + error.message);
+        setBrokerOptions([{ value: "", label: "Error Fetching Brokers" }]);
       }
-    } catch (error) {
-      console.error('Error fetching brokers:', error.message);
-      toast.error('Failed to fetch brokers: ' + (error.response?.data?.message || error.message));
+    };
 
-      const demoBrokers = [
-        { value: 'demo1', label: '192.168.1.100' },
-        { value: 'demo2', label: '192.168.1.101' },
-      ];
-      setBrokerOptions(demoBrokers);
-      if (demoBrokers.length > 0 && !inputSets[0].brokerId) {
-        setInputSets((prev) => {
-          const newInputSets = [...prev];
-          newInputSets[0].brokerId = demoBrokers[0].value;
-          return newInputSets;
-        });
-      }
-    }
-  };
-
-  console.log("Fetched broker IPs:", allBrokers);
-
-  const toggleDropdown = (index, field) => {
-    setDropdownOpen((prev) => ({
-      ...prev,
-      [`${index}-${field}`]: !prev[`${index}-${field}`],
-    }));
-  };
+    fetchBrokers();
+  }, [navigate]);
 
   const handleChange = (index, e) => {
     const newInputSets = [...inputSets];
@@ -391,127 +445,188 @@ const Publish = () => {
     setInputSets(newInputSets);
   };
 
-  const handleSelect = (index, field, value) => {
-    const newInputSets = [...inputSets];
-    newInputSets[index][field] = value;
-    setInputSets(newInputSets);
-    if (field === 'qosLevel') {
-      setDropdownOpen((prev) => ({
-        ...prev,
-        [`${index}-${field}`]: false,
-      }));
-    }
-  };
-
   const handleAddTopic = () => {
     setInputSets([
       ...inputSets,
       {
-        brokerId: brokerOptions.length > 0 ? brokerOptions[0].value : '',
-        topic: '',
-        qosLevel: '0',
-        payload: '',
+        brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
+        topic: "",
+        qosLevel: "0",
+        payload: "",
+        mqttUsername: "",
+        mqttPassword: "",
       },
     ]);
+    setPublishing([...publishing, false]);
+    setPublishStatuses([...publishStatuses, ""]);
   };
 
-  const handlePublish = async (e) => {
-    e.preventDefault();
+  const handlePublish = async (index) => {
+    const { brokerIp, topic, qosLevel, payload, mqttUsername, mqttPassword } = inputSets[index];
+    if (!brokerIp) {
+      setPublishStatuses((prev) => {
+        const newStatuses = [...prev];
+        newStatuses[index] = "Please select a broker IP";
+        return newStatuses;
+      });
+      toast.error("Please select a broker IP");
+      return;
+    }
+    if (!topic) {
+      setPublishStatuses((prev) => {
+        const newStatuses = [...prev];
+        newStatuses[index] = "Please enter a topic";
+        return newStatuses;
+      });
+      toast.error("Please enter a topic");
+      return;
+    }
+    if (!payload) {
+      setPublishStatuses((prev) => {
+        const newStatuses = [...prev];
+        newStatuses[index] = "Please enter a payload";
+        return newStatuses;
+      });
+      toast.error("Please enter a payload");
+      return;
+    }
+
+    setPublishing((prev) => {
+      const newPublishing = [...prev];
+      newPublishing[index] = true;
+      return newPublishing;
+    });
+    setPublishStatuses((prev) => {
+      const newStatuses = [...prev];
+      newStatuses[index] = "";
+      return newStatuses;
+    });
+
     try {
-      const token = localStorage.getItem('accessToken');
-      for (const inputSet of inputSets) {
-        const { brokerId, topic, qosLevel, payload } = inputSet;
-
-        if (!brokerId) {
-          throw new Error('Please select a broker for all sets.');
-        }
-
-        console.log(`Publishing to broker ${brokerId}, topic ${topic}, QoS ${qosLevel}`);
-        const response = await axios.post(
-          `http://localhost:5000/api/brokers/${brokerId}/publish`,
-          {
-            topic,
-            message: payload,
-            qos: parseInt(qosLevel, 10),
-          },
-          {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined,
-            },
-          }
-        );
-
-        if (!response.data) {
-          throw new Error('Failed to publish');
-        }
-
-        console.log('Publish Response:', response.data);
+      const authToken = localStorage.getItem("authToken");
+      console.log("Publishing with token:", authToken ? "Token present" : "No token");
+      if (!authToken) {
+        setPublishStatuses((prev) => {
+          const newStatuses = [...prev];
+          newStatuses[index] = "Please log in to publish.";
+          return newStatuses;
+        });
+        toast.error("Please log in to publish.");
+        navigate("/");
+        return;
       }
 
-      const summary = inputSets
-        .map(
-          (set, index) =>
-            `Set ${index + 1}: Broker - ${
-              brokerOptions.find((opt) => opt.value === set.brokerId)?.label || 'Unknown Broker'
-            }, Topic - ${set.topic}, QoS Level - ${set.qosLevel}, Payload - ${set.payload}`
-        )
-        .join('\n');
-      toast.success('Published:\n' + summary);
+      const payloadData = {
+        brokerIp,
+        topic,
+        qosLevel: parseInt(qosLevel, 10),
+        payload,
+        mqttUsername: mqttUsername || "",
+        mqttPassword: mqttPassword || "",
+      };
+      console.log("Publishing request payload:", payloadData);
+
+      const response = await fetch("http://localhost:5000/api/pub/publish", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(payloadData),
+      });
+
+      const result = await response.json();
+      console.log("Publish response:", result);
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to publish");
+      }
+
+      const summary = `Published to topic "${topic}" on broker ${brokerIp}`;
+      setPublishStatuses((prev) => {
+        const newStatuses = [...prev];
+        newStatuses[index] = summary;
+        return newStatuses;
+      });
+      toast.success(summary);
     } catch (error) {
-      console.error('Error publishing:', error.response || error.message);
-      toast.error('Failed to publish: ' + (error.response?.data?.message || error.message));
+      console.error("Publish error:", error.message);
+      const errorMessage = error.message.includes("Unauthorized") || error.message.includes("Session expired")
+        ? "Unauthorized: Please log in again."
+        : `Publish error: ${error.message}`;
+      setPublishStatuses((prev) => {
+        const newStatuses = [...prev];
+        newStatuses[index] = errorMessage;
+        return newStatuses;
+      });
+      toast.error(errorMessage);
+      if (error.message.includes("Unauthorized") || error.message.includes("Session expired")) {
+        localStorage.clear();
+        navigate("/");
+      }
+    } finally {
+      setPublishing((prev) => {
+        const newPublishing = [...prev];
+        newPublishing[index] = false;
+        return newPublishing;
+      });
     }
   };
 
   const handleClear = () => {
     if (inputSets.length > 1) {
       setInputSets(inputSets.slice(0, -1));
+      setPublishing(publishing.slice(0, -1));
+      setPublishStatuses(publishStatuses.slice(0, -1));
     } else {
       setInputSets([
         {
-          brokerId: brokerOptions.length > 0 ? brokerOptions[0].value : '',
-          topic: '',
-          qosLevel: '0',
-          payload: '',
+          brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
+          topic: "",
+          qosLevel: "0",
+          payload: "",
+          mqttUsername: "",
+          mqttPassword: "",
         },
       ]);
+      setPublishing([false]);
+      setPublishStatuses([""]);
     }
   };
 
-  const qosLevelOptions = [
-    { value: '0', label: '0 - At Most Once' },
-    { value: '1', label: '1 - At Least Once' },
-    { value: '2', label: '2 - Exactly Once' },
-  ];
-
   return (
     <div className="grid-container">
-      <div className='left-side-publish-page'>
+      <div className="left-side-publish-page">
         <div className="publish-container">
           <div className="publish-content">
             <h2 className="publish-title">Publish Page</h2>
-            <form className="publish-form" onSubmit={handlePublish}>
+            <form className="publish-form">
               <div className="publish-inputs-scroll-container">
                 {inputSets.map((inputSet, index) => (
                   <div key={index} className="publish-input-set">
-                    <label className="exists-Broker-ip-header" htmlFor={`broker-${index}`}>
-                      Broker IP
-                    </label>
-                    <select
-                      className="publish-broker-ip-selects" // Changed class name
-                      id={`broker-${index}`}
-                      value={inputSet.brokerId}
-                      onChange={(e) => handleSelect(index, 'brokerId', e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select Broker IP
-                      </option>
-                      {brokerOptions.map((item) => (
-                        <option key={item.value} value={item.value}>
-                          {item.label}
+                    {publishStatuses[index] && <p className="publish-status">{publishStatuses[index]}</p>}
+                    <div className="publish-form-group">
+                      <label className="exists-Broker-ip-header" htmlFor={`broker-${index}`}>
+                        Broker IP
+                      </label>
+                      <select
+                        required
+                        className="publish-broker-ip-selects"
+                        id={`broker-${index}`}
+                        name="brokerIp"
+                        value={inputSet.brokerIp}
+                        onChange={(e) => handleChange(index, e)}
+                      >
+                        <option value="" disabled>
+                          Select Broker IP
                         </option>
-                      ))}
-                    </select>
+                        {brokerOptions.map((item) => (
+                          <option key={item.value} value={item.value} disabled={item.value === ""}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <div className="publish-form-group">
                       <label htmlFor={`topic-${index}`} className="publish-form-label">
                         Topic {index + 1}
@@ -528,31 +643,21 @@ const Publish = () => {
                       />
                     </div>
                     <div className="publish-form-group">
-                      <label className="publish-form-label">QoS Level</label>
-                      <div className="custom-dropdown">
-                        <div
-                          className="custom-dropdown-selected"
-                          onClick={() => toggleDropdown(index, 'qosLevel')}
-                        >
-                          {qosLevelOptions.find((opt) => opt.value === inputSet.qosLevel)?.label || 'Select QoS Level'}
-                          <span className="dropdown-arrow"></span>
-                        </div>
-                        {dropdownOpen[`${index}-qosLevel`] && (
-                          <div className="custom-dropdown-options">
-                            {qosLevelOptions.map((option) => (
-                              <div
-                                key={option.value}
-                                className={`custom-dropdown-option ${
-                                  option.value === inputSet.qosLevel ? 'selected-option' : ''
-                                }`}
-                                onClick={() => handleSelect(index, 'qosLevel', option.value)}
-                              >
-                                {option.label}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <label htmlFor={`qosLevel-${index}`} className="publish-form-label">
+                        QoS Level
+                      </label>
+                      <select
+                        required
+                        className="publish-form-select"
+                        name="qosLevel"
+                        id={`qosLevel-${index}`}
+                        value={inputSet.qosLevel}
+                        onChange={(e) => handleChange(index, e)}
+                      >
+                        <option value="0">0 - At Most Once</option>
+                        <option value="1">1 - At Least Once</option>
+                        <option value="2">2 - Exactly Once</option>
+                      </select>
                     </div>
                     <div className="publish-form-group">
                       <label htmlFor={`payload-${index}`} className="publish-form-label">
@@ -568,14 +673,61 @@ const Publish = () => {
                         onChange={(e) => handleChange(index, e)}
                       />
                     </div>
+                    <div className="publish-form-group">
+                      <label htmlFor={`mqttUsername-${index}`} className="publish-form-label">
+                        MQTT Username
+                      </label>
+                      <input
+                        className="publish-form-input"
+                        type="text"
+                        name="mqttUsername"
+                        id={`mqttUsername-${index}`}
+                        placeholder="Enter MQTT Username"
+                        value={inputSet.mqttUsername}
+                        onChange={(e) => handleChange(index, e)}
+                      />
+                    </div>
+                    <div className="publish-form-group">
+                      <label htmlFor={`mqttPassword-${index}`} className="publish-form-label">
+                        MQTT Password
+                      </label>
+                      <input
+                        className="publish-form-input"
+                        type="password"
+                        name="mqttPassword"
+                        id={`mqttPassword-${index}`}
+                        placeholder="Enter MQTT Password"
+                        value={inputSet.mqttPassword}
+                        onChange={(e) => handleChange(index, e)}
+                      />
+                    </div>
+                    <div className="publish-form-group">
+                      <button
+                        type="button"
+                        className="publish-submit-button"
+                        onClick={() => handlePublish(index)}
+                        disabled={publishing[index] || inputSet.brokerIp === ""}
+                      >
+                        {publishing[index] ? "Publishing..." : "Publish"}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
               <div className="publish-buttons-container">
-                <button type="submit" className="publish-submit-button">
-                  Publish
+                <button
+                  type="button"
+                  className="publish-add-task-button"
+                  onClick={handleAddTopic}
+                  disabled={brokerOptions[0]?.value === ""}
+                >
+                  + Add Topic
                 </button>
-                <button type="button" className="publish-submit-button" onClick={handleClear}>
+                <button
+                  type="button"
+                  className="publish-submit-button"
+                  onClick={handleClear}
+                >
                   Clear
                 </button>
               </div>
