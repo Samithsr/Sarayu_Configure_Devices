@@ -48,6 +48,19 @@
   gap: 10px;
 }
 
+/* Publish Status */
+.publish-status {
+  background-color: #4a5568;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin: 0 0 10px 0;
+  width: 50%;
+  text-align: left;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 /* Broker IP Header */
 .exists-Broker-ip-header {
   font-size: 1rem;
@@ -59,7 +72,7 @@
 
 /* Publish Broker IP Select */
 .publish-broker-ip-selects {
-  width: 50%; /* Full width within 50% wide form-group */
+  width: 50%;
   height: 40px;
   background: #4a5568;
   color: #ffffff;
@@ -100,7 +113,7 @@
 
 /* Subscribe Broker IP Select */
 .subscribe-broker-ip-select {
-  width: 100%; /* Full width within 50% wide form-group */
+  width: 100%;
   height: 40px;
   background: #4a5568;
   color: #ffffff;
@@ -181,11 +194,11 @@
 
 /* Form Group (Label + Input/Textarea Wrapper) */
 .publish-form-group {
-  width: 50%; /* Constrain to match input/select width */
+  width: 50%;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  align-items: flex-start; /* Align label with input/select */
+  align-items: flex-start;
 }
 
 /* Label Styles */
@@ -194,12 +207,12 @@
   font-weight: 500;
   color: #d1d5db;
   text-align: left;
-  width: 100%; /* Match input/select width */
+  width: 100%;
 }
 
-/* Input Styles (for Topic) */
+/* Input Styles (for Topic and QoS Level) */
 .publish-form-input {
-  width: 100%; /* Full width within 50% wide form-group */
+  width: 100%;
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -207,6 +220,9 @@
   color: #ffffff;
   font-size: 0.9rem;
   box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .publish-form-input::-moz-placeholder {
@@ -222,78 +238,9 @@
   border: 1px solid #ffffff;
 }
 
-/* Custom Dropdown (for QoS Level) */
-.custom-dropdown {
-  position: relative;
-  width: 100%; /* Full width within 50% wide form-group */
-}
-
-.custom-dropdown-selected {
-  width: 100%; /* Full width within 50% wide form-group */
-  background: #4a5568;
-  border: 1px solid transparent;
-  padding: 8px 12px;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 0.9rem;
-  box-sizing: border-box;
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.custom-dropdown-selected:hover {
-  background: #48556b;
-}
-
-.custom-dropdown-selected:focus {
-  outline: none;
-  border: 1px solid #ffffff;
-}
-
-.dropdown-arrow {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  margin-left: 6px;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 4px solid #a0aec0;
-}
-
-.custom-dropdown-options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: #FFFFFF;
-  z-index: 10;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-}
-
-.custom-dropdown-option {
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  color: #000000;
-  text-align: left;
-  cursor: pointer;
-  border-bottom: 1px solid #ccc;
-}
-
-.custom-dropdown-option:last-child {
-  border-bottom: none;
-}
-
-.custom-dropdown-option:hover {
-  background-color: #f0f0f0;
-}
-
 /* Textarea Styles (for Payload) */
 .publish-form-textarea {
-  width: 180%; /* Full width within 50% wide form-group */
+  width: 180%;
   background: #4a5568;
   border: 1px solid transparent;
   padding: 8px 12px;
@@ -322,11 +269,11 @@
 .publish-buttons-container {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   margin-top: 8px;
 }
 
-/* Publish Button */
+/* Publish and Clear Buttons */
 .publish-submit-button {
   padding: 8px 24px;
   background: #4a5568;
@@ -517,12 +464,12 @@
 
 /* Each Set of Inputs - Ensure Only This Scrolls */
 .subscribe-input-set {
-  width: 100%; /* Full width container */
+  width: 100%;
   margin: 0;
   padding: 14px 0;
   border-bottom: 1px solid #4a5568;
   display: flex;
-  flex-direction: column; /* Stack form groups vertically */
+  flex-direction: column;
   gap: 14px;
   flex-shrink: 0;
 }
@@ -533,11 +480,11 @@
 
 /* Form Group */
 .subscribe-form-group {
-  width: 50%; /* Constrain to match input/select width */
+  width: 50%;
   display: flex;
-  flex-direction: column; /* Stack label above input/select */
+  flex-direction: column;
   gap: 8px;
-  align-items: flex-start; /* Align label with input/select */
+  align-items: flex-start;
 }
 
 /* Label Styles */
@@ -546,12 +493,12 @@
   font-weight: 500;
   color: #d1d5db;
   text-align: left;
-  width: 100%; /* Match input/select width */
+  width: 100%;
 }
 
 /* Input Styles */
 .subscribe-form-input {
-  width: 100%; /* Full width within 50% wide form-group */
+  width: 100%;
   background: #4a5568;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -576,7 +523,7 @@
 
 /* Select Styles */
 .subscribe-form-select {
-  width: 100%; /* Full width within 50% wide form-group */
+  width: 100%;
   background: #3e4a5f;
   border: 1px solid transparent;
   padding: 12px 16px;
@@ -687,8 +634,14 @@
     font-size: 1.1rem;
   }
 
+  .publish-status {
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+
   .publish-form-group {
-    width: 100%; /* Full width on mobile */
+    width: 100%;
   }
 
   .publish-form-label {
@@ -696,23 +649,22 @@
   }
 
   .publish-form-input,
-  .custom-dropdown-selected,
-  .custom-dropdown-option,
   .publish-form-textarea,
-  .publish-broker-ip-select { /* Added new select class */
-    width: 100%; /* Full width on mobile */
+  .publish-broker-ip-selects {
+    width: 100%;
     padding: 6px 10px;
     font-size: 0.8rem;
   }
 
-  .publish-broker-ip-select {
+  .publish-broker-ip-selects {
     background-size: 12px;
     background-position: right 10px center;
   }
 
   .publish-buttons-container {
-    flex-direction: column;
+    flex-direction: row;
     gap: 6px;
+    justify-content: center;
   }
 
   .publish-input-set {
@@ -762,7 +714,7 @@
   }
 
   .subscribe-form-group {
-    width: 100%; /* Full width on mobile */
+    width: 100%;
   }
 
   .subscribe-form-label {
@@ -771,8 +723,8 @@
 
   .subscribe-form-input,
   .subscribe-form-select,
-  .subscribe-broker-ip-select { /* Added new select class */
-    width: 100%; /* Full width on mobile */
+  .subscribe-broker-ip-select {
+    width: 100%;
     padding: 10px 12px;
     font-size: 0.9rem;
   }
