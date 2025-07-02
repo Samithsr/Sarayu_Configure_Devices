@@ -12,6 +12,7 @@ import ComConfiguration from './Components/Users/ComConfiguration';
 import Publish from './Components/Users/Publish';
 import Subscribe from './Components/Users/Subscribe';
 import Firmware from './Components/Users/Firmware';
+import Location from './Components/Users/Location/Location'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { jwtDecode } from "jwt-decode";
@@ -57,8 +58,9 @@ const App = () => {
             <Route path="com-config" element={<ComConfiguration />} />
             <Route path="wifi-config" element={<WiFiConfig />} />
             <Route path="publish" element={<Publish />} />
-          </Route>
-        </Route>
+            <Route path="subscribe" element={<Location/>}  />
+            </Route>       
+            </Route>       
       </Routes>
       <ToastContainer
         position="top-right"

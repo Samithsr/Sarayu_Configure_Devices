@@ -1,0 +1,133 @@
+/* Location Config Wrapper */
+.loc-config-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  padding: 20px;
+}
+
+/* Location Config Panel */
+.loc-config-panel {
+  background-color: #2d3748;
+  padding: 32px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Location Config Heading */
+.loc-config-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  text-align: center;
+}
+
+/* Form Styles */
+.loc-config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Input Section (Label + Input Wrapper) */
+.input-section {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Label Styles */
+.input-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #d1d5db;
+  text-align: left;
+}
+
+/* Input Styles */
+.input-field {
+  width: 100%;
+  background: #4a5568;
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.input-field::-moz-placeholder {
+  color: #a0aec0;
+}
+
+.input-field::placeholder {
+  color: #a0aec0;
+}
+
+.input-field:focus {
+  outline: none;
+  border: 1px solid #ffffff;
+}
+
+/* Submit Button */
+.submit-btn {
+  padding: 10px 30px;
+  background: #4a5568;
+  color: #ffffff;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  align-self: flex-end;
+}
+
+.submit-btn:hover {
+  background: #5a6b8a;
+  transform: scale(1.03);
+}
+
+.submit-btn:active {
+  transform: scale(0.95);
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .loc-config-wrapper {
+    padding: 10px;
+  }
+
+  .loc-config-panel {
+    padding: 24px;
+  }
+
+  .loc-config-heading {
+    font-size: 1.3rem;
+  }
+
+  .input-section {
+    width: 100%;
+  }
+
+  .input-label {
+    font-size: 0.9rem;
+  }
+
+  .input-field {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  .submit-btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+  }
+}

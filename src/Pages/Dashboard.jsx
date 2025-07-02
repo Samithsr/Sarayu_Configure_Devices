@@ -3,7 +3,6 @@ import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DisconnectModal from '../Components/DisconnectModel';
-// import WiFiConfig from '../Components/Users/WiFiConfig';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -213,20 +212,6 @@ const Dashboard = () => {
   return (
     <div className="dashboard-layout">
       <div className="dashboard-sidebar">
-        {/* <button
-          className={getActiveClass('/publish')}
-          onClick={() => handleNavigation('/publish')}
-          disabled={userRole === 'admin'}
-        >
-          Publish
-        </button>
-        <button
-          className={getActiveClass('/subscribe')}
-          onClick={() => handleNavigation('/subscribe')}
-          disabled={userRole === 'admin'}
-        >
-          Subscribe
-        </button> */}
         <button
           className={getActiveClass('/com-config') || getActiveClass('')}
           onClick={() => handleNavigation('/com-config')}
@@ -241,16 +226,14 @@ const Dashboard = () => {
         >
           Wi-Fi
         </button>
-        <button className={getActiveClass('/subscribe')}>Location</button>
-        {/* <button
-          className="dashboard-action-button"
-          onClick={() => setShowDisconnectModal(true)}
+        <button
+          className={getActiveClass('/subscribe')}
+          onClick={() => handleNavigation('/subscribe')} // Add navigation handler
         >
-          Back
-        </button> */}
+          Location
+        </button>
       </div>
       <div className="dashboard-main">
-        {/* <h2>Configuration (Broker Status: {brokerStatus || 'Unknown'})</h2> */}
         <Outlet context={{ brokerId, userId, userRole, setError }} />
       </div>
       <DisconnectModal
