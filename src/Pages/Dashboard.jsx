@@ -97,10 +97,10 @@ const Dashboard = () => {
           if (status !== brokerStatus) {
             console.log(`Broker ${brokerId} status updated to: ${status}`);
             setBrokerStatus(status);
-            toast[status === 'connected' ? 'success' : 'error'](
-              `Broker ${brokerId} is ${status}`,
-              { toastId: brokerId }
-            );
+            // toast[status === 'connected' ? 'success' : 'error'](
+            //   `Broker ${brokerId} is ${status}`,
+            //   { toastId: brokerId }
+            // );
           }
         } catch (err) {
           console.error('Error fetching broker status:', err.message);

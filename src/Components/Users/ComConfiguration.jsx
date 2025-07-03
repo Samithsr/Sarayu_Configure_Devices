@@ -97,25 +97,21 @@ const ComConfiguration = () => {
       return;
     }
 
-    const publishData = formBlocks.reduce(
-      (acc, formBlock) => [
-        ...acc,
-        String(formBlock.tag1),
-        String(formBlock.tag2),
-        String(formBlock.tag3),
-        String(formBlock.tag4),
-        String(formBlock.tag5),
-        String(formBlock.tag6),
-        String(formBlock.tag7),
-        String(formBlock.tag8),
-        String(formBlock.baudRate),
-        String(formBlock.dataBit),
-        String(formBlock.parity),
-        String(formBlock.stopBit),
-        String(formBlock.Delay),
-      ],
-      []
-    );
+    const payload = formBlocks.map((formBlock) => ({
+      tagname: formBlock.tag1,
+      deviceId: formBlock.tag2,
+      slaveId: formBlock.tag3,
+      functionCode: formBlock.tag4,
+      address: formBlock.tag5,
+      length: formBlock.tag6,
+      dataType: formBlock.tag7,
+      scaling: formBlock.tag8,
+      baudRate: formBlock.baudRate,
+      dataBit: formBlock.dataBit,
+      parity: formBlock.parity,
+      stopBit: formBlock.stopBit,
+      delay: formBlock.Delay,
+    }));
 
     try {
       const publishResponse = await fetch(
@@ -128,7 +124,8 @@ const ComConfiguration = () => {
           },
           body: JSON.stringify({
             topic: topicName.trim(),
-            message: JSON.stringify(publishData),
+            message: JSON.stringify(payload),
+            label: 'Com Configuration',
           }),
         }
       );
@@ -141,11 +138,12 @@ const ComConfiguration = () => {
       }
 
       const successMessage = `Published configurations to topic ${topicName} successfully!`;
-      setSuccess(successMessage); // Update state for potential UI display
-      toast.success(successMessage); // Display toast notification
+      setSuccess(successMessage);
+      toast.success(successMessage);
     } catch (err) {
       console.error('Publish error:', err.message);
       setError(err.message || 'An error occurred while publishing.');
+      toast.error(err.message || 'Failed to publish Com configuration.');
     }
   };
 
@@ -157,7 +155,7 @@ const ComConfiguration = () => {
             <thead>
               <tr>
                 <th>Tagname</th>
-                <th>Device Id</th> {/* Updated to "Device Id" */}
+                <th>Device Id</th>
                 <th>Slave ID</th>
                 <th>Function Code</th>
                 <th>Address</th>

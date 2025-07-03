@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './WiFiConfig.css';
@@ -18,6 +18,43 @@ const WiFiConfig = () => {
 
   const { brokerId, userId, userRole, setError } = useOutletContext();
   const navigate = useNavigate();
+
+  // Fetch the latest WiFi configuration on mount
+  useEffect(() => {
+    const fetchLatestConfig = async () => {
+      try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('http://localhost:5000/api/published-data/latest', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const wifiConfig = data.find((item) => item.label === 'WiFi Configuration');
+          if (wifiConfig) {
+            const payload = JSON.parse(wifiConfig.message);
+            setFormData({
+              ssid: payload.ssid || '',
+              password: payload.password || '',
+              topic: wifiConfig.topic || '',
+            });
+            setFocusedFields({
+              ssid: !!payload.ssid,
+              password: !!payload.password,
+              topic: !!wifiConfig.topic,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching latest WiFi configuration:', error.message);
+      }
+    };
+
+    fetchLatestConfig();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -82,7 +119,7 @@ const WiFiConfig = () => {
         },
         body: JSON.stringify({
           topic: formData.topic.trim(),
-          message: JSON.stringify(payload), // Send structured payload
+          message: JSON.stringify(payload),
           label: 'WiFi Configuration',
         }),
       });
@@ -99,6 +136,11 @@ const WiFiConfig = () => {
         ssid: '',
         password: '',
         topic: '',
+      });
+      setFocusedFields({
+        ssid: false,
+        password: false,
+        topic: false,
       });
     } catch (error) {
       console.error('Error publishing WiFi configuration:', error.message);
@@ -163,7 +205,7 @@ const WiFiConfig = () => {
               onBlur={() => handleBlur('topic')}
             />
           </div>
-          <button className="form-submit-button" type="submit" disabled={userRole === 'admin'}>
+          <button className="submit-btn" type="submit" disabled={userRole === 'admin'}>
             Submit
           </button>
         </form>

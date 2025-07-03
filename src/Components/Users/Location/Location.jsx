@@ -60,7 +60,7 @@ const Location = () => {
         },
         body: JSON.stringify({
           topic: formData.topic.trim(),
-          message: JSON.stringify(payload), // Send structured payload
+          message: JSON.stringify(payload),
           label: 'Location Configuration',
         }),
       });

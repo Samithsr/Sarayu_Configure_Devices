@@ -77,32 +77,30 @@
   border: 1px solid #ffffff;
 }
 
-/* Button Container (to prevent overflow) */
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 1rem;
-}
-
 /* Submit Button */
-.form-submit-button {
-  padding: 0.625rem 1.875rem;
-  background: #00897B;
-  color: #ffffff;
-  font-weight: bold;
+.submit-btn {
+  padding: 0.75rem 2rem;
+  background-color: #2563eb;
+  color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.form-submit-button:hover {
-  background: #4DB6AC;
-  transform: scale(1.03);
+.submit-btn:hover {
+  background-color: #1e40af;
+  transform: scale(1.05);
 }
 
-.form-submit-button:active {
+.submit-btn:active {
   transform: scale(0.95);
+}
+
+.submit-btn:disabled {
+  background-color: #6b7280;
+  cursor: not-allowed;
 }
 
 /* Responsive Design */
@@ -132,12 +130,8 @@
     font-size: 0.9rem;
   }
 
-  .button-container {
-    padding-top: 0.5rem;
-  }
-
-  .form-submit-button {
-    padding: 0.5rem 1.5rem;
+  .submit-btn {
+    padding: 0.625rem 1.75rem;
     font-size: 0.9rem;
   }
 }
@@ -151,11 +145,7 @@
     font-size: 1.4rem;
   }
 
-  .button-container {
-    padding-top: 0.75rem;
-  }
-
-  .form-submit-button {
+  .submit-btn {
     padding: 0.625rem 1.875rem;
     font-size: 1rem;
   }
@@ -188,11 +178,7 @@
     font-size: 1.1rem;
   }
 
-  .button-container {
-    padding-top: 1rem;
-  }
-
-  .form-submit-button {
+  .submit-btn {
     padding: 0.75rem 2rem;
     font-size: 1.1rem;
   }
