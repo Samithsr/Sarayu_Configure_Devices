@@ -41,8 +41,7 @@
   width: 40%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  position: relative;
+  gap: 0.25rem; /* Reduced gap for tighter spacing */
 }
 
 /* Label Styles */
@@ -50,20 +49,7 @@
   font-size: 1rem;
   font-weight: 500;
   color: #d1d5db;
-  position: absolute;
-  top: 50%;
-  left: 1rem;
-  transform: translateY(-50%);
-  transition: all 0.2s ease-in-out;
-  pointer-events: none;
-  background: #4a5568;
-  padding: 0 0.25rem;
-}
-
-.form-label.floating {
-  top: 0;
-  transform: translateY(-100%);
-  font-size: 0.75rem;
+  margin-bottom: 0.25rem; /* Space between label and input */
 }
 
 /* Input Styles */
@@ -91,6 +77,13 @@
   border: 1px solid #ffffff;
 }
 
+/* Button Container (to prevent overflow) */
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+}
+
 /* Submit Button */
 .form-submit-button {
   padding: 0.625rem 1.875rem;
@@ -101,7 +94,6 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  align-self: flex-end;
 }
 
 .form-submit-button:hover {
@@ -135,13 +127,13 @@
     font-size: 0.9rem;
   }
 
-  .form-label.floating {
-    font-size: 0.7rem;
-  }
-
   .form-input {
     padding: 0.75rem 0.875rem;
     font-size: 0.9rem;
+  }
+
+  .button-container {
+    padding-top: 0.5rem;
   }
 
   .form-submit-button {
@@ -157,6 +149,15 @@
 
   .wifi-config-title {
     font-size: 1.4rem;
+  }
+
+  .button-container {
+    padding-top: 0.75rem;
+  }
+
+  .form-submit-button {
+    padding: 0.625rem 1.875rem;
+    font-size: 1rem;
   }
 }
 
@@ -182,13 +183,13 @@
     font-size: 1.1rem;
   }
 
-  .form-label.floating {
-    font-size: 0.8rem;
-  }
-
   .form-input {
     padding: 0.75rem 1.25rem;
     font-size: 1.1rem;
+  }
+
+  .button-container {
+    padding-top: 1rem;
   }
 
   .form-submit-button {

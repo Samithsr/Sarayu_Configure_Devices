@@ -140,7 +140,9 @@ const ComConfiguration = () => {
         throw new Error(errorMessage);
       }
 
-      setSuccess(`Published configurations to topic ${topicName} successfully!`);
+      const successMessage = `Published configurations to topic ${topicName} successfully!`;
+      setSuccess(successMessage); // Update state for potential UI display
+      toast.success(successMessage); // Display toast notification
     } catch (err) {
       console.error('Publish error:', err.message);
       setError(err.message || 'An error occurred while publishing.');

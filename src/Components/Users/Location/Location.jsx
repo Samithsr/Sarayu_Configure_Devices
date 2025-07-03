@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import './Location.css';
 
 const Location = () => {
@@ -8,7 +9,8 @@ const Location = () => {
     topic: '',
   });
 
-  const { setError } = useOutletContext();
+  const { brokerId, userId, userRole, setError } = useOutletContext();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -19,35 +21,66 @@ const Location = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    const payload = formData.locationName; // Use locationName as payload, similar to ssid.password in WiFiConfig
-    const requestData = {
-      topic: formData.topic,
-      payload,
-      qosLevel: '1', // Match WiFiConfig's default QoS
+    const authToken = localStorage.getItem('authToken');
+    const storedUserId = localStorage.getItem('userId');
+
+    if (!authToken || !storedUserId) {
+      setError('Authentication token or user ID is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    if (userRole === 'admin') {
+      setError('Admins are not allowed to publish.');
+      return;
+    }
+
+    if (!formData.topic.trim()) {
+      setError('Please enter a topic name before publishing.');
+      return;
+    }
+
+    if (!formData.locationName) {
+      setError('Please fill in the location name before publishing.');
+      return;
+    }
+
+    const payload = {
+      locationName: formData.locationName,
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/wifi/user/pub/publish', {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify({
+          topic: formData.topic.trim(),
+          message: JSON.stringify(payload), // Send structured payload
+          label: 'Location Configuration',
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to publish location (HTTP ${response.status})`);
+        const errorMessage = errorData.message || `Failed to publish location (HTTP ${response.status})`;
+        setError(errorMessage);
+        throw new Error(errorMessage);
       }
 
-      // alert(`Location configuration published: Location - ${formData.locationName}, Topic - ${formData.topic}`);
+      toast.success(`Location Configuration Published: Location - ${formData.locationName}, Topic - ${formData.topic}`);
       setFormData({
         locationName: '',
         topic: '',
       });
-    } catch (err) {
-      setError(err.message || 'An error occurred while publishing location.');
+    } catch (error) {
+      console.error('Error publishing location configuration:', error.message);
+      setError(error.message || 'An error occurred while publishing location.');
+      toast.error(error.message || 'Failed to publish location configuration.');
     }
   };
 
@@ -86,7 +119,7 @@ const Location = () => {
               onChange={handleChange}
             />
           </div>
-          <button className="submit-btn" type="submit">
+          <button className="submit-btn" type="submit" disabled={userRole === 'admin'}>
             Submit
           </button>
         </form>

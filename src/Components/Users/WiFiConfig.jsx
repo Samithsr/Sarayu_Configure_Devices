@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useOutletContext, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import './WiFiConfig.css';
 
 const WiFiConfig = () => {
@@ -13,6 +15,9 @@ const WiFiConfig = () => {
     password: false,
     topic: false,
   });
+
+  const { brokerId, userId, userRole, setError } = useOutletContext();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -37,35 +42,68 @@ const WiFiConfig = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = `${formData.ssid}.${formData.password}`; // Format payload as ssid.password
-    const requestData = {
-      topic: formData.topic,
-      payload,
-      qosLevel: '1', // Default QoS 1
+    setError('');
+
+    const authToken = localStorage.getItem('authToken');
+    const storedUserId = localStorage.getItem('userId');
+
+    if (!authToken || !storedUserId) {
+      setError('Authentication token or user ID is missing. Please log in again.');
+      navigate('/');
+      return;
+    }
+
+    if (userRole === 'admin') {
+      setError('Admins are not allowed to publish.');
+      return;
+    }
+
+    if (!formData.topic.trim()) {
+      setError('Please enter a topic name before publishing.');
+      return;
+    }
+
+    if (!formData.ssid || !formData.password) {
+      setError('Please fill in all fields before publishing.');
+      return;
+    }
+
+    const payload = {
+      ssid: formData.ssid,
+      password: formData.password,
     };
 
-    console.log('Sending WiFi Config:', requestData); // Log request data
-
     try {
-      const response = await fetch('http://localhost:5000/api/wifi/user/pub/publish', {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify({
+          topic: formData.topic.trim(),
+          message: JSON.stringify(payload), // Send structured payload
+          label: 'WiFi Configuration',
+        }),
       });
 
-      const result = await response.json();
-      console.log('WiFi Publish Response:', result); // Log response
-
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to publish WiFi configuration');
+        const errorData = await response.json();
+        const errorMessage = errorData.message || 'Failed to publish WiFi configuration.';
+        setError(errorMessage);
+        throw new Error(errorMessage);
       }
 
-      alert(`WiFi Configuration Published: SSID - ${formData.ssid}, Topic - ${formData.topic}, Payload - ${payload}`);
+      toast.success(`WiFi Configuration Published: SSID - ${formData.ssid}, Topic - ${formData.topic}`);
+      setFormData({
+        ssid: '',
+        password: '',
+        topic: '',
+      });
     } catch (error) {
       console.error('Error publishing WiFi configuration:', error.message);
-      alert('Failed to publish WiFi configuration: ' + error.message);
+      setError(error.message || 'An error occurred while publishing WiFi configuration.');
+      toast.error(error.message || 'Failed to publish WiFi configuration.');
     }
   };
 
@@ -125,7 +163,7 @@ const WiFiConfig = () => {
               onBlur={() => handleBlur('topic')}
             />
           </div>
-          <button className="form-submit-button" type="submit">
+          <button className="form-submit-button" type="submit" disabled={userRole === 'admin'}>
             Submit
           </button>
         </form>
