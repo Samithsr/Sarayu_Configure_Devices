@@ -1,11 +1,10 @@
 /* Table layout container */
 .table-layout {
   display: flex;
-  width: 100vw; /* Full viewport width */
-  height: 92.8vh;
-  /* background-color: red; */
+  width: 100%; /* Full viewport width */
+  height: 100%;
   background-color: #252F3F;
-  overflow: hidden;
+  /* overflow: hidden; */
   box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
@@ -26,9 +25,7 @@
 .table-main {
   flex: 1; /* Take remaining space after sidebar */
   padding: 20px;
-  /* overflow-y: auto; */
   box-sizing: border-box; /* Ensure padding doesn't affect width */
-  /* background-color: red; */
 }
 
 /* Dashboard buttons */
@@ -85,7 +82,7 @@
 /* Table headers and cells */
 .unique-table th,
 .unique-table td {
-  padding: 8px 16px;
+  padding: 7.4px 16px;
   border: 1px solid #4B5563;
   text-align: center;
   vertical-align: middle;
@@ -293,7 +290,232 @@
   cursor: not-allowed;
 }
 
-/* Media Queries */
+/* Responsive Design for 1440px */
+@media (max-width: 1440px) {
+  .table-sidebar {
+    width: 180px;
+    padding: 15px;
+  }
+
+  .dashboard-button {
+    width: 140px;
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .table-main {
+    padding: 15px;
+  }
+
+  .unique-table-scrollable {
+    margin-right: 20px;
+  }
+
+  .unique-table th,
+  .unique-table td {
+    padding: 6px 12px;
+    font-size: 13px;
+    min-width: 100px;
+    max-width: 220px;
+    height: 45px;
+  }
+
+  .unique-table th {
+    font-size: 15px;
+    height: 45px;
+  }
+
+  .status-wrapper {
+    width: 200px;
+    height: 45px;
+    gap: 6px;
+  }
+
+  .status-icon-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .status-icon-button svg {
+    font-size: 18px;
+  }
+
+  .status-text {
+    font-size: 12px;
+    max-width: 150px;
+  }
+
+  .action-buttons {
+    gap: 6px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 6px;
+  }
+
+  .edit-button svg,
+  .delete-button svg {
+    font-size: 15px;
+  }
+
+  .pagination-button {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+/* Responsive Design for 1280px */
+@media (max-width: 1280px) {
+  .table-sidebar {
+    width: 160px;
+    padding: 12px;
+  }
+
+  .dashboard-button {
+    width: 120px;
+    font-size: 12px;
+    padding: 7px;
+  }
+
+  .table-main {
+    padding: 12px;
+  }
+
+  .unique-table-scrollable {
+    margin-right: 15px;
+  }
+
+  .unique-table th,
+  .unique-table td {
+    padding: 5px 10px;
+    font-size: 12px;
+    min-width: 90px;
+    max-width: 200px;
+    height: 40px;
+  }
+
+  .unique-table th {
+    font-size: 14px;
+    height: 40px;
+  }
+
+  .status-wrapper {
+    width: 180px;
+    height: 40px;
+    gap: 5px;
+  }
+
+  .status-icon-button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .status-icon-button svg {
+    font-size: 17px;
+  }
+
+  .status-text {
+    font-size: 11px;
+    max-width: 130px;
+  }
+
+  .action-buttons {
+    gap: 5px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 5px;
+  }
+
+  .edit-button svg,
+  .delete-button svg {
+    font-size: 14px;
+  }
+
+  .pagination-button {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+}
+
+/* Responsive Design for 1024px */
+@media (max-width: 1024px) {
+  .table-sidebar {
+    width: 140px;
+    padding: 10px;
+  }
+
+  .dashboard-button {
+    width: 100px;
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .table-main {
+    padding: 10px;
+  }
+
+  .unique-table-scrollable {
+    margin-right: 10px;
+  }
+
+  .unique-table th,
+  .unique-table td {
+    padding: 4px 8px;
+    font-size: 11px;
+    min-width: 80px;
+    max-width: 180px;
+    height: 35px;
+  }
+
+  .unique-table th {
+    font-size: 13px;
+    height: 35px;
+  }
+
+  .status-wrapper {
+    width: 160px;
+    height: 35px;
+    gap: 4px;
+  }
+
+  .status-icon-button {
+    width: 28px;
+    height: 28px;
+  }
+
+  .status-icon-button svg {
+    font-size: 16px;
+  }
+
+  .status-text {
+    font-size: 10px;
+    max-width: 120px;
+  }
+
+  .action-buttons {
+    gap: 4px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 4px;
+  }
+
+  .edit-button svg,
+  .delete-button svg {
+    font-size: 13px;
+  }
+
+  .pagination-button {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}
+
+/* Existing Mobile Media Query */
 @media (max-width: 768px) {
   .table-layout {
     flex-direction: column;

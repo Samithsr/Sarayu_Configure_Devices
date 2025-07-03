@@ -15,7 +15,7 @@
 
 /* Add Modal Content */
 .add-modal-content {
-  background-color: #1f2a44;
+  background-color: #262629df;
   padding: 24px;
   border-radius: 10px;
   width: 100%;
@@ -81,7 +81,6 @@
   bottom: -20px;
   right: 0;
   left: 0;
-  /* margin-top: 4px; */
 }
 
 /* Add Modal Buttons */
@@ -134,7 +133,98 @@
   }
 }
 
-/* Responsive Design */
+/* Responsive Design for 1440px */
+@media (max-width: 1440px) {
+  .add-modal-content {
+    max-width: 400px;
+    padding: 20px;
+  }
+
+  .add-modal-title {
+    font-size: 1.4rem;
+  }
+
+  .add-form-group label {
+    font-size: 0.85rem;
+  }
+
+  .add-form-group input {
+    padding: 9px 11px;
+    font-size: 0.85rem;
+  }
+
+  .add-error-message {
+    font-size: 0.75rem;
+  }
+
+  .add-modal-button {
+    padding: 9px 18px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Responsive Design for 1280px */
+@media (max-width: 1280px) {
+  .add-modal-content {
+    max-width: 380px;
+    padding: 18px;
+  }
+
+  .add-modal-title {
+    font-size: 1.3rem;
+  }
+
+  .add-form-group label {
+    font-size: 0.8rem;
+  }
+
+  .add-form-group input {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  .add-error-message {
+    font-size: 0.7rem;
+  }
+
+  .add-modal-button {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Responsive Design for 1024px */
+@media (max-width: 1024px) {
+  .add-modal-content {
+    max-width: 360px;
+    padding: 16px;
+  }
+
+  .add-modal-title {
+    font-size: 1.2rem;
+  }
+
+  .add-form-group label {
+    font-size: 0.75rem;
+  }
+
+  .add-form-group input {
+    padding: 7px 9px;
+    font-size: 0.75rem;
+  }
+
+  .add-error-message {
+    font-size: 0.65rem;
+    bottom: -18px;
+  }
+
+  .add-modal-button {
+    padding: 7px 14px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Existing Mobile Media Query */
 @media (max-width: 640px) {
   .add-modal-content {
     max-width: 90%;

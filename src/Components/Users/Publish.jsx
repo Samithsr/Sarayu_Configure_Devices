@@ -203,8 +203,7 @@ const Subscribe = ({ brokerOptions }) => {
     }
     setIsSubscribed(false);
   };
-
-  return (
+return (
     <div className="right-side-subscribe-page">
       <div className="subscribe-topics-container">
         <div className="subscribe-topics-content">
@@ -212,7 +211,7 @@ const Subscribe = ({ brokerOptions }) => {
             <div className="subscribe-form-wrapper">
               <h2 className="subscribe-topics-title">Subscribe Topics</h2>
               <form className="subscribe-topics-form" onSubmit={isSubscribed ? handleUnsubscribe : handleSubscribe}>
-                <div className="subscribe-inputs-scroll-container">
+                <div className="subscribe-inputs-container"> {/* Updated class name */}
                   {subscribeInputSets.map((inputSet, index) => (
                     <div key={index} className="subscribe-input-set">
                       <div className="subscribe-form-group">
@@ -302,8 +301,8 @@ const Subscribe = ({ brokerOptions }) => {
               </form>
             </div>
             <div className="messages-wrapper">
-              <h3 class Ascend className="messages-title">Received Messages</h3>
-              <div class="messages-scroll-container">
+              <h3 className="messages-title">Received Messages</h3> {/* Fixed typo */}
+              <div className="messages-scroll-container">
                 {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
                   <ul className="messages-list">
                     {subscribeInputSets

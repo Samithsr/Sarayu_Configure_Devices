@@ -2,10 +2,10 @@
 .firmware {
   display: flex;
   flex-direction: column;
-  height: 97vh;
+  height: 97.5vh;
   width: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5;
+  background-color: #2d3748; /* Matches Publish.css background */
 }
 
 /* Top section (40% height) */
@@ -14,7 +14,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f9f9f9;
+  background: #2d3748; /* Matches Publish.css content background */
   padding: 20px;
   position: relative;
 }
@@ -22,63 +22,69 @@
 /* Card with consistent width and spacing */
 .firmware__card {
   width: 90%;
-  max-width: 500px;
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 30px;
-  border: 2px dashed #d1d5db;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  max-width: 700px; /* Matches Publish.css max-width */
+  background-color: #2d3748; /* Matches Publish.css content background */
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* Matches Publish.css shadow */
   text-align: center;
   position: relative;
+  border: 1px solid #4a5568; /* Matches Publish.css border color */
 }
 
 /* Bottom section (60% height) */
 .firmware__bottom {
-  height: 60%;
-  overflow-y: auto;
-  padding: 30px 40px;
-  background-color: #f0f2f5;
+  height: 65%;
+  padding: 20px 40px;
+  background-color: #2d3748; /* Matches Publish.css background */
   position: relative;
 }
 
 /* Upload area styles */
 .firmware__header {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 .firmware__title {
-  font-size: 24px;
-  color: #2c3e50;
-  margin: 0;
+  font-size: 1.3rem; /* Matches Publish.css title */
   font-weight: 600;
+  color: #ffffff; /* Matches Publish.css text */
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 10px;
+  border-radius: 5px;
 }
 .firmware__upload {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 14px; /* Matches Publish.css gap */
 }
 .firmware__file-input {
   display: none;
 }
 .firmware__button {
-  background-color: #6b48ff;
-  color: #fff;
+  background-color: #3182ce; /* Matches Publish.css primary button */
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
-  padding: 12px 40px;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: 10px; /* Matches Publish.css button radius */
+  padding: 10px 24px; /* Matches Publish.css button padding */
+  font-size: 0.9rem; /* Matches Publish.css font size */
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out; /* Matches Publish.css transition */
 }
 .firmware__button:hover {
-  background-color: #5a3de6;
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(90, 61, 230, 0.3);
+  background-color: #2b6cb0;
+  transform: scale(1.03); /* Matches Publish.css transform */
+}
+.firmware__button:active {
+  transform: scale(0.95); /* Matches Publish.css transform */
 }
 .firmware__info {
-  color: #6b7280;
-  font-size: 14px;
+  color: #a0aec0; /* Matches Publish.css placeholder color */
+  font-size: 0.9rem; /* Matches Publish.css font size */
   margin: 0;
 }
 
@@ -87,22 +93,22 @@
   position: absolute;
   bottom: 20px;
   right: 20px;
-  background-color: #28a745;
-  color: white;
+  background-color: #3182ce; /* Matches Publish.css primary button */
+  color: #ffffff;
   border: none;
   padding: 10px 24px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
+  border-radius: 10px; /* Matches Publish.css button radius */
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out;
 }
 .firmware__upload-button:hover:not(:disabled) {
-  background-color: #218838;
-  box-shadow: 0 3px 10px rgba(33, 136, 56, 0.3);
+  background-color: #2b6cb0; /* Matches Publish.css button hover */
+  transform: scale(1.03);
 }
 .firmware__upload-button:disabled {
-  background-color: #b6d7b9;
+  background-color: #4a5568; /* Matches Publish.css disabled input background */
   cursor: not-allowed;
 }
 
@@ -116,7 +122,7 @@
   width: 80%;
   height: 8px;
   margin: 0 auto 12px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%);
+  background: linear-gradient(90deg, #4a5568 25%, #6b7280 50%, #4a5568 75%); /* Matches Publish.css colors */
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite linear;
   border-radius: 6px;
@@ -127,8 +133,8 @@
   100% { background-position: 200% 0; }
 }
 .firmware__filename {
-  font-size: 15px;
-  color: #374151;
+  font-size: 0.9rem; /* Matches Publish.css font size */
+  color: #d1d5db; /* Matches Publish.css label color */
   word-break: break-word;
   margin: 0;
 }
@@ -137,30 +143,37 @@
 .firmware__table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #fff;
-  border-radius: 12px;
+  background-color: #2d3748; /* Matches Publish.css content background */
+  border-radius: 10px; /* Matches Publish.css radius */
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* Matches Publish.css shadow */
+  border: 1px solid #4a5568; /* Matches Publish.css border color */
   margin-top: 50px; /* Space for status message */
 }
 .firmware__table thead {
-  background-color: #6b48ff;
-  color: white;
+  background-color: #4a5568; /* Matches Publish.css input background */
+  color: #ffffff; /* Matches Publish.css text */
   font-weight: 600;
-  font-size: 15px;
+  font-size: 0.9rem; /* Matches Publish.css font size */
+}
+.firmware__table thead tr th {
+  position: sticky; /* Fix header cells */
+  top: 0;
+  z-index: 1; /* Ensure header stays above scrolling body */
+  background-color: #4a5568; /* Prevent transparency */
 }
 .firmware__table td {
-  padding: 5px 16px;
+  padding: 12px 16px; /* Matches Publish.css padding */
   text-align: center;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #4a5568; /* Matches Publish.css border color */
 }
 .firmware__table th {
-  padding: 15px 16px ;
+  padding: 20px 16px; /* Increased th height */
 }
 .firmware__table th:nth-child(1),
 .firmware__table td:nth-child(1) {
   width: 5%; /* Reduced width for ID column */
+  color: #ffffff; /* Changed to white */
 }
 .firmware__table th:nth-child(2),
 .firmware__table td:nth-child(2) {
@@ -180,7 +193,7 @@
 }
 .firmware__table tbody {
   display: block;
-  max-height: 320px; /* Approx height for 5 rows */
+  max-height: 300px; /* Adjusted for small laptop screens */
   overflow-y: auto;
   -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
   scrollbar-width: none; /* Hide scrollbar for Firefox */
@@ -195,15 +208,15 @@
   table-layout: fixed; /* Ensure consistent column widths */
 }
 .firmware__table tbody tr:hover {
-  background-color: #f9fafb;
+  /* background-color: #3e4a5f; */
 }
 .firmware__table a {
-  color: #6b48ff;
+  color: #3182ce; /* Matches Publish.css primary button color */
   text-decoration: none;
-  white-space: nowrap; /* Prevent URL wrapping */
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Add ellipsis for long URLs */
-  display: block; /* Ensure full width usage */
+  text-overflow: ellipsis;
+  display: block;
 }
 .firmware__table a:hover {
   text-decoration: underline;
@@ -211,74 +224,84 @@
 
 /* Broker IP select */
 .publish-broker-ip-select {
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  width: 100%; /* Full width of column */
-  font-size: 14px;
-  color: #374151;
-  background-color: white;
+  width: 100%; /* Matches Publish.css */
+  height: 40px; /* Matches Publish.css */
+  padding: 8px 12px; /* Matches Publish.css */
+  border: 1px solid transparent; /* Matches Publish.css */
+  border-radius: 8px; /* Matches Publish.css */
+  font-size: 0.9rem; /* Matches Publish.css */
+  color: #ffffff; /* Matches Publish.css */
+  background-color: #4a5568; /* Matches Publish.css input background */
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease; /* Matches Publish.css */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); /* Matches Publish.css */
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
 }
 .publish-broker-ip-select:focus {
-  outline: none laser;
-  border-color: #6b48ff;
-  box-shadow: 0 0 6px rgba(107, 72, 255, 0.3);
+  outline: none;
+  border: 1px solid #ffffff; /* Matches Publish.css */
+}
+.publish-broker-ip-select:hover {
+  background-color: #48556b; /* Matches Publish.css hover */
 }
 .publish-broker-ip-select option {
-  color: #374151;
+  color: #000000; /* Matches Publish.css */
+  background-color: #ffffff;
 }
 
 /* Topic input */
 .firmware__input {
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  width: 100%; /* Full width of column */
-  font-size: 14px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transition: all 0.3s ease;
+  width: 100%; /* Matches Publish.css */
+  height: 40px; /* Matches Publish.css */
+  padding: 8px 12px; /* Matches Publish.css */
+  border: 1px solid transparent; /* Matches Publish.css */
+  border-radius: 8px; /* Matches Publish.css */
+  font-size: 0.9rem; /* Matches Publish.css */
+  color: #ffffff; /* Matches Publish.css */
+  background-color: #4a5568; /* Matches Publish.css input background */
+  transition: all 0.2s ease; /* Matches Publish.css */
 }
 .firmware__input::placeholder {
-  color: #9ca3af;
-  font-style: italic;
+  color: #a0aec0; /* Matches Publish.css placeholder */
 }
 .firmware__input:hover {
-  border-color: #6b48ff;
+  background-color: #48556b; /* Matches Publish.css hover */
 }
 .firmware__input:focus {
   outline: none;
-  border-color: #6b48ff;
-  box-shadow: 0 0 6px rgba(107, 72, 255, 0.3);
+  border: 1px solid #ffffff; /* Matches Publish.css */
 }
 
 /* Publish button */
 .url-section-button {
-  padding: 10px 16px;
+  width: 100%; /* Matches Publish.css */
+  height: 40px; /* Matches Publish.css input height */
+  padding: 8px 16px; /* Matches Publish.css */
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #6b48ff;
-  color: #fff;
+  border-radius: 10px; /* Matches Publish.css button radius */
+  font-size: 0.9rem; /* Matches Publish.css */
+  font-weight: 600; /* Matches Publish.css */
+  background-color: #3182ce; /* Matches Publish.css primary button */
+  color: #ffffff;
   cursor: pointer;
-  width: 100%; /* Full width of column */
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out; /* Matches Publish.css */
 }
 .url-section-button:hover:not(:disabled) {
-  background-color: #5a3de6;
-  box-shadow: 0 3px 10px rgba(90, 61, 230, 0.3);
-  transform: translateY(-2px);
+  background-color: #2b6cb0; /* Matches Publish.css button hover */
+  transform: scale(1.03); /* Matches Publish.css */
 }
 .url-section-button:disabled {
-  background-color: #b6d7b9;
+  background-color: #4a5568; /* Matches Publish.css disabled input background */
   cursor: not-allowed;
 }
 .url-section-button.sending {
-  background-color: #6b48ff;
-  color: #fff;
+  background-color: #3182ce; /* Matches Publish.css primary button */
+  color: #ffffff;
   cursor: pointer;
 }
 
@@ -291,13 +314,13 @@
   transform: translateX(-50%);
   margin: 0;
   padding: 12px 24px;
-  color: #fff;
-  font-size: 14px;
+  color: #ffffff; /* Matches Publish.css text */
+  font-size: 0.9rem; /* Matches Publish.css */
   font-weight: 500;
   text-align: center;
-  background-color: #28a745;
+  background-color: #3182ce; /* Matches Publish.css primary button */
   border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* Matches Publish.css shadow */
   z-index: 10;
   max-width: 90%;
   word-wrap: break-word;
@@ -308,7 +331,7 @@
 /* Error status styling */
 .firmware__status.error,
 .firmware__published.error {
-  background-color: #dc3545;
+  background-color: #dc3545; /* Matches common error color */
 }
 
 /* Fade in and out animation for status messages */
@@ -317,4 +340,90 @@
   10% { opacity: 1; transform: translateX(-50%) translateY(0); }
   90% { opacity: 1; transform: translateX(-50%) translateY(0); }
   100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .firmware {
+    height: auto;
+  }
+
+  .firmware__top {
+    height: auto;
+    padding: 10px;
+  }
+
+  .firmware__card {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .firmware__title {
+    font-size: 1.1rem; /* Matches Publish.css */
+  }
+
+  .firmware__button {
+    padding: 8px 16px; /* Matches Publish.css mobile */
+    font-size: 0.9rem; /* Matches Publish.css */
+  }
+
+  .firmware__upload-button {
+    padding: 8px 16px; /* Matches Publish.css mobile */
+    font-size: 0.9rem; /* Matches Publish.css */
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .firmware__info,
+  .firmware__filename {
+    font-size: 0.8rem; /* Matches Publish.css mobile */
+  }
+
+  .firmware__bottom {
+    padding: 10px;
+  }
+
+  .firmware__table {
+    margin-top: 40px;
+  }
+
+  .firmware__table thead {
+    font-size: 0.8rem; /* Matches Publish.css mobile */
+  }
+
+  .firmware__table thead tr th {
+    position: sticky; /* Fix header cells on mobile */
+    top: 0;
+    z-index: 1;
+    background-color: #4a5568; /* Prevent transparency */
+  }
+
+  .firmware__table td {
+    padding: 8px 10px; /* Matches Publish.css mobile */
+  }
+
+  .firmware__table th {
+    padding: 16px 10px; /* Increased th height for mobile */
+  }
+
+  .publish-broker-ip-select,
+  .firmware__input,
+  .url-section-button {
+    width: 100%;
+    height: 36px; /* Matches Publish.css mobile */
+    padding: 6px 10px; /* Matches Publish.css mobile */
+    font-size: 0.8rem; /* Matches Publish.css mobile */
+    border-radius: 8px;
+  }
+
+  .publish-broker-ip-select {
+    background-size: 12px; /* Matches Publish.css mobile */
+    background-position: right 10px center; /* Matches Publish.css mobile */
+  }
+
+  .firmware__status,
+  .firmware__published {
+    font-size: 0.8rem; /* Matches Publish.css mobile */
+    padding: 8px 16px; /* Matches Publish.css mobile */
+  }
 }
