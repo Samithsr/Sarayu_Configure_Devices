@@ -4,20 +4,20 @@
   justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
-  padding: 20px;
+  padding: 1.5rem;
 }
 
 /* WiFi Config Content */
 .wifi-config-content {
   background-color: #2d3748;
-  padding: 32px;
-  border-radius: 10px;
+  padding: 2rem;
+  border-radius: 8px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 1200px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
 /* WiFi Config Title */
@@ -33,7 +33,7 @@
 .wifi-config-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 /* Form Group (Label + Input Wrapper) */
@@ -41,7 +41,8 @@
   width: 40%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
+  position: relative;
 }
 
 /* Label Styles */
@@ -49,49 +50,62 @@
   font-size: 1rem;
   font-weight: 500;
   color: #d1d5db;
-  text-align: left;
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  transition: all 0.2s ease-in-out;
+  pointer-events: none;
+  background: #4a5568;
+  padding: 0 0.25rem;
+}
+
+.form-label.floating {
+  top: 0;
+  transform: translateY(-100%);
+  font-size: 0.75rem;
 }
 
 /* Input Styles */
 .form-input {
   width: 100%;
   background: #4a5568;
-  border: 1px solid transparent; /* Reserve space for the border */
-  padding: 10px 16px;
+  border: 1px solid transparent;
+  padding: 0.875rem 1rem;
   border-radius: 8px;
   color: #ffffff;
   font-size: 1rem;
-  box-sizing: border-box; /* Ensure padding and border are included in width */
+  box-sizing: border-box;
 }
 
 .form-input::-moz-placeholder {
-  color: #a0aec0;
+  color: transparent;
 }
 
 .form-input::placeholder {
-  color: #a0aec0;
+  color: transparent;
 }
 
 .form-input:focus {
   outline: none;
-  border: 1px solid #ffffff; /* Highlight border on focus */
+  border: 1px solid #ffffff;
 }
 
 /* Submit Button */
 .form-submit-button {
-  padding: 10px 30px;
-  background: #4a5568;
+  padding: 0.625rem 1.875rem;
+  background: #00897B;
   color: #ffffff;
   font-weight: bold;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   align-self: flex-end;
 }
 
 .form-submit-button:hover {
-  background: #5a6b8a;
+  background: #4DB6AC;
   transform: scale(1.03);
 }
 
@@ -100,13 +114,13 @@
 }
 
 /* Responsive Design */
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
   .wifi-config-container {
-    padding: 10px;
+    padding: 1rem;
   }
 
   .wifi-config-content {
-    padding: 24px;
+    padding: 1.5rem;
   }
 
   .wifi-config-title {
@@ -114,20 +128,71 @@
   }
 
   .form-group {
-    width: 100%;
+    width: 60%;
   }
 
   .form-label {
     font-size: 0.9rem;
   }
 
+  .form-label.floating {
+    font-size: 0.7rem;
+  }
+
   .form-input {
-    padding: 10px 14px;
+    padding: 0.75rem 0.875rem;
     font-size: 0.9rem;
   }
 
   .form-submit-button {
-    padding: 8px 20px;
+    padding: 0.5rem 1.5rem;
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 1280px) {
+  .form-group {
+    width: 50%;
+  }
+
+  .wifi-config-title {
+    font-size: 1.4rem;
+  }
+}
+
+@media (min-width: 1440px) and (max-width: 1920px) {
+  .wifi-config-container {
+    padding: 2rem;
+  }
+
+  .wifi-config-content {
+    padding: 2.5rem;
+    max-width: 1400px;
+  }
+
+  .wifi-config-title {
+    font-size: 1.6rem;
+  }
+
+  .form-group {
+    width: 35%;
+  }
+
+  .form-label {
+    font-size: 1.1rem;
+  }
+
+  .form-label.floating {
+    font-size: 0.8rem;
+  }
+
+  .form-input {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.1rem;
+  }
+
+  .form-submit-button {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
   }
 }

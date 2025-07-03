@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import './ComConfiguration.css'
-// import ' ./Dashboard.css'
-
+import './ComConfiguration.css';
 
 const getDefaultFormData = () => ({
   tag1: '',
@@ -157,7 +155,7 @@ const ComConfiguration = () => {
             <thead>
               <tr>
                 <th>Tagname</th>
-                <th>Device ID</th>
+                <th>Device Id</th> {/* Updated to "Device Id" */}
                 <th>Slave ID</th>
                 <th>Function Code</th>
                 <th>Address</th>
@@ -226,9 +224,6 @@ const ComConfiguration = () => {
         </div>
       </div>
       <div className="fixed-buttons">
-        {/* <button className="dashboard-action-button" onClick={() => navigate('/dashboard')}>
-          Back
-        </button> */}
         <button className="dashboard-action-button" onClick={handlePrev}>
           Remove
         </button>
