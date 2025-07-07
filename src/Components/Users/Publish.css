@@ -5,6 +5,8 @@
   width: 100%;
   min-height: 100%;
   box-sizing: border-box;
+  max-height: 89.6vh !important;
+  overflow: hidden;
   gap: 10px;
 }
 
@@ -14,6 +16,8 @@
   justify-content: flex-end;
   align-items: flex-start;
   width: 100%;
+  /* height: 60vh; */
+  /* background-color: red; */
 }
 
 /* Right Side (Subscribe) */
@@ -22,6 +26,7 @@
   justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
+  height: 94vh;
 }
 
 /* Publish Container */
@@ -314,7 +319,7 @@
   width: 100%;
   max-width: 700px;
   display: flex;
-  height: 97vh;
+  height: 90vh;
   flex-direction: column;
   gap: 14px;
   overflow: hidden;
@@ -363,7 +368,7 @@
   gap: 10px;
   width: 100%;
   flex: 1;
-  max-height: 50%;
+  max-height: 40%;
   overflow: hidden;
 }
 

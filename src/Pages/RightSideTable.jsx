@@ -29,7 +29,6 @@ const RightSideTable = () => {
   const endIndex = startIndex + rowsPerPage;
   const currentData = tableData.slice(startIndex, endIndex);
 
-  // Determine active route for button styling
   const getActiveClass = (path) => {
     return location.pathname === `/table${path}` || (path === '' && location.pathname === '/table')
       ? 'dashboard-button active'
@@ -447,374 +446,363 @@ const RightSideTable = () => {
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
- setCurrentPage(currentPage - 1);
-}
-};
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
-const handleNextPage = () => {
-if (currentPage < totalPages) {
- setCurrentPage(currentPage + 1);
-}
-};
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
-const handleDeleteClick = (brokerId) => {
-setBrokerIdToDelete(brokerId);
-setShowDeleteModal(true);
-};
+  const handleDeleteClick = (brokerId) => {
+    setBrokerIdToDelete(brokerId);
+    setShowDeleteModal(true);
+  };
 
-const handleDeleteConfirm = async () => {
-const authToken = localStorage.getItem('authToken');
-if (!authToken) {
- toast.error('Authentication token is missing. Please log in again.');
- navigate('/');
- setShowDeleteModal(false);
- setBrokerIdToDelete(null);
- return;
-}
+  const handleDeleteConfirm = async () => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
+      setShowDeleteModal(false);
+      setBrokerIdToDelete(null);
+      return;
+    }
 
-try {
- const response = await fetch(`http://localhost:5000/api/brokers/${brokerIdToDelete}`, {
-   method: 'DELETE',
-   headers: {
-     'Content-Type': 'application/json',
-     Authorization: `Bearer ${authToken}`,
-   },
- });
+    try {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerIdToDelete}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
- if (!response.ok) {
-   const errorMessage = await response.json().then((data) => data.message || `Failed to delete broker (Status: ${response.status})`);
-   toast.error(errorMessage);
-   throw new Error(errorMessage);
- }
+      if (!response.ok) {
+        const errorMessage = await response.json().then((data) => data.message || `Failed to delete broker (Status: ${response.status})`);
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
 
- toast.success(`Broker ${brokerIdToDelete} deleted successfully!`);
- setShowDeleteModal(false);
- setBrokerIdToDelete(null);
- await fetchTableData(users);
-} catch (err) {
- console.error('Delete error:', err);
- toast.error(err.message || 'An error occurred while deleting the broker.');
- setShowDeleteModal(false);
- setBrokerIdToDelete(null);
-}
-};
+      toast.success(`Broker ${brokerIdToDelete} deleted successfully!`);
+      setShowDeleteModal(false);
+      setBrokerIdToDelete(null);
+      await fetchTableData(users);
+    } catch (err) {
+      console.error('Delete error:', err);
+      toast.error(err.message || 'An error occurred while deleting the broker.');
+      setShowDeleteModal(false);
+      setBrokerIdToDelete(null);
+    }
+  };
 
-const handleDeleteCancel = () => {
-setShowDeleteModal(false);
-setBrokerIdToDelete(null);
-};
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setBrokerIdToDelete(null);
+  };
 
-const handleEditClick = (row) => {
-setBrokerToEdit(row);
-setShowEditModal(true);
-};
+  const handleEditClick = (row) => {
+    setBrokerToEdit(row);
+    setShowEditModal(true);
+  };
 
-const handleEditConfirm = async (updatedData) => {
-const authToken = localStorage.getItem('authToken');
-if (!authToken) {
- toast.error('Authentication token is missing. Please log in again.');
- navigate('/');
- setShowEditModal(false);
- setBrokerToEdit(null);
- return;
-}
+  const handleEditConfirm = async (updatedData) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
+      setShowEditModal(false);
+      setBrokerToEdit(null);
+      return;
+    }
 
-try {
- const response = await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}`, {
-   method: 'PUT',
-   headers: {
-     'Content-Type': 'application/json',
-     Authorization: `Bearer ${authToken}`,
-   },
-   body: JSON.stringify({
-     brokerIp: updatedData.brokerIp,
-     portNumber: parseInt(updatedData.portNumber, 10),
-     username: updatedData.username || '',
-     password: updatedData.password || '',
-     label: updatedData.label,
-   }),
- });
+    try {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          brokerIp: updatedData.brokerIp,
+          portNumber: parseInt(updatedData.portNumber, 10),
+          username: updatedData.username || '',
+          password: updatedData.password || '',
+          label: updatedData.label,
+        }),
+      });
 
- if (!response.ok) {
-   const errorMessage = await response.json().then((data) => data.message || `Failed to update broker (Status: ${response.status})`);
-   toast.error(errorMessage);
-   throw new Error(errorMessage);
- }
+      if (!response.ok) {
+        const errorMessage = await response.json().then((data) => data.message || `Failed to update broker (Status: ${response.status})`);
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
 
- const updatedBroker = await response.json();
- const isPasswordChanged = updatedData.password !== brokerToEdit.rawPassword;
+      const updatedBroker = await response.json();
+      const isPasswordChanged = updatedData.password !== brokerToEdit.rawPassword;
 
- const updatedTableData = tableData.map((item) =>
-   item.brokerId === brokerToEdit.brokerId
-     ? {
-         ...item,
-         brokerip: updatedBroker.brokerIp || 'N/A',
-         port: updatedBroker.portNumber ? updatedBroker.portNumber.toString() : 'N/A',
-         user: updatedBroker.username || 'N/A',
-         password: updatedBroker.password ? '*'.repeat(updatedBroker.password.length) : 'N/A',
-         rawPassword: updatedBroker.password || '',
-         label: updatedBroker.label || 'N/A',
-         connectionStatus: updatedBroker.connectionStatus || 'disconnected',
-         connectionErrors: [],
-       }
-     : item
- );
- setTableData(updatedTableData);
+      const updatedTableData = tableData.map((item) =>
+        item.brokerId === brokerToEdit.brokerId
+          ? {
+              ...item,
+              brokerip: updatedBroker.brokerIp || 'N/A',
+              port: updatedBroker.portNumber ? updatedBroker.portNumber.toString() : 'N/A',
+              user: updatedBroker.username || 'N/A',
+              password: updatedBroker.password ? '*'.repeat(updatedBroker.password.length) : 'N/A',
+              rawPassword: updatedBroker.password || '',
+              label: updatedBroker.label || 'N/A',
+              connectionStatus: updatedBroker.connectionStatus || 'disconnected',
+              connectionErrors: [],
+            }
+          : item
+      );
+      setTableData(updatedTableData);
 
- toast.success(
-   isPasswordChanged
-     ? `Broker ${brokerToEdit.brokerId} password changed successfully!`
-     : `Broker ${brokerToEdit.brokerId} updated successfully!`
- );
+      toast.success(
+        isPasswordChanged
+          ? `Broker ${brokerToEdit.brokerId} password changed successfully!`
+          : `Broker ${brokerToEdit.brokerId} updated successfully!`
+      );
 
- setShowEditModal(false);
- setBrokerToEdit(null);
- await fetchTableData(users);
-} catch (err) {
- console.error('Update error:', err);
- toast.error(err.message || 'An error occurred while updating the broker.');
- setShowEditModal(false);
- setBrokerToEdit(null);
-}
-};
+      setShowEditModal(false);
+      setBrokerToEdit(null);
+      await fetchTableData(users);
+    } catch (err) {
+      console.error('Update error:', err);
+      toast.error(err.message || 'An error occurred while updating the broker.');
+      setShowEditModal(false);
+      setBrokerToEdit(null);
+    }
+  };
 
-const handleEditCancel = () => {
-setShowEditModal(false);
-setBrokerToEdit(null);
-};
+  const handleEditCancel = () => {
+    setShowEditModal(false);
+    setBrokerToEdit(null);
+  };
 
-const handleAddClick = () => {
-setShowAddModal(true);
-};
+  const handleAddClick = () => {
+    setShowAddModal(true);
+  };
 
-const handleAddConfirm = async (newBrokerData) => {
-const authToken = localStorage.getItem('authToken');
-if (!authToken) {
- toast.error('Authentication token is missing. Please log in again.');
- navigate('/');
- setShowAddModal(false);
- return;
-}
+  const handleAddConfirm = async (newBrokerData) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      toast.error('Authentication token is missing. Please log in again.');
+      navigate('/');
+      setShowAddModal(false);
+      return;
+    }
 
-try {
- const response = await fetch('http://localhost:5000/api/brokers', {
-   method: 'POST',
-   headers: {
-     'Content-Type': 'application/json',
-     Authorization: `Bearer ${authToken}`,
-   },
-   body: JSON.stringify({
-     brokerIp: newBrokerData.brokerIp,
-     portNumber: parseInt(newBrokerData.portNumber, 10),
-     username: newBrokerData.username || '',
-     password: newBrokerData.password || '',
-     label: newBrokerData.label,
-   }),
- });
+    try {
+      const response = await fetch('http://localhost:5000/api/brokers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          brokerIp: newBrokerData.brokerIp,
+          portNumber: parseInt(newBrokerData.portNumber, 10),
+          username: newBrokerData.username || '',
+          password: newBrokerData.password || '',
+          label: newBrokerData.label,
+        }),
+      });
 
- if (!response.ok) {
-   const errorMessage = await response.json().then((data) => data.message || `Failed to add broker (Status: ${response.status})`);
-   toast.error(errorMessage);
-   throw new Error(errorMessage);
- }
+      if (!response.ok) {
+        const errorMessage = await response.json().then((data) => data.message || `Failed to add broker (Status: ${response.status})`);
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
 
- const newBroker = await response.json();
- const mappedBroker = {
-   brokerId: newBroker._id,
-   brokerip: newBroker.brokerIp || 'N/A',
-   port: newBroker.portNumber ? newBroker.portNumber.toString() : 'N/A',
-   user: newBroker.username || 'N/A',
-   password: newBroker.password ? '*'.repeat(newBroker.password.length) : 'N/A',
-   rawPassword: newBroker.password || '',
-   label: newBroker.label || 'N/A',
-   connectionStatus: newBroker.connectionStatus || 'disconnected',
-   connectionErrors: [],
-   assignedUserId: newBroker.assignedUserId?._id || newBroker.assignedUserId || null,
-   assignedUserEmail: newBroker.assignedUserId?.email || null,
- };
+      const newBroker = await response.json();
+      const mappedBroker = {
+        brokerId: newBroker._id,
+        brokerip: newBroker.brokerIp || 'N/A',
+        port: newBroker.portNumber ? newBroker.portNumber.toString() : 'N/A',
+        user: newBroker.username || 'N/A',
+        password: newBroker.password ? '*'.repeat(newBroker.password.length) : 'N/A',
+        rawPassword: newBroker.password || '',
+        label: newBroker.label || 'N/A',
+        connectionStatus: newBroker.connectionStatus || 'disconnected',
+        connectionErrors: [],
+        assignedUserId: newBroker.assignedUserId?._id || newBroker.assignedUserId || null,
+        assignedUserEmail: newBroker.assignedUserId?.email || null,
+      };
 
- setTableData([...tableData, mappedBroker]);
- toast.success(`Broker ${newBroker.label || newBroker._id} added successfully!`);
- setShowAddModal(false);
-} catch (err) {
- console.error('Add broker error:', err);
- toast.error(err.message || 'An error occurred while adding the broker.');
- setShowAddModal(false);
-}
-};
+      setTableData([...tableData, mappedBroker]);
+      toast.success(`Broker ${newBroker.label || newBroker._id} added successfully!`);
+      setShowAddModal(false);
+    } catch (err) {
+      console.error('Add broker error:', err);
+      toast.error(err.message || 'An error occurred while adding the broker.');
+      setShowAddModal(false);
+    }
+  };
 
-const handleAddCancel = () => {
-setShowAddModal(false);
-};
+  const handleAddCancel = () => {
+    setShowAddModal(false);
+  };
 
-const handleNavigation = (path, brokerId) => {
-const userId = localStorage.getItem('userId');
-navigate(`/table${path}`, { state: { brokerId, userId } });
-};
+  const handleNavigation = (path, brokerId) => {
+    const userId = localStorage.getItem('userId');
+    navigate(`/table${path}`, { state: { brokerId, userId } });
+  };
 
-return (
-<div className="table-layout">
- <div className="table-sidebar">
-   <button
-     className={getActiveClass('')}
-     onClick={() => handleNavigation('', tableData[0]?.brokerId)}
-   >
-     Broker Table
-   </button>
-   <button
-     className={getActiveClass('/publish')}
-     onClick={() => handleNavigation('/publish', tableData[0]?.brokerId)}
-   >
-     Publish/Subscribe
-   </button>
-   <button
-      className={getActiveClass('/firmware')}
+  return (
+    <div className="table-layout">
+      <div className="table-sidebar">
+        <button
+          className={getActiveClass('')}
+          onClick={() => handleNavigation('', tableData[0]?.brokerId)}
+        >
+          Broker Table
+        </button>
+        <button
+          className={getActiveClass('/publish')}
+          onClick={() => handleNavigation('/publish', tableData[0]?.brokerId)}
+        >
+          Publish/Subscribe
+        </button>
+        <button
+          className={getActiveClass('/firmware')}
           onClick={() => handleNavigation('/firmware', tableData[0]?.brokerId)}
         >
           Firmware
         </button>
-   {/* <button
-     className={getActiveClass('/subscribe')}
-     onClick={() => handleNavigation('/subscribe', tableData[0]?.brokerId)}
-   >
-     Subscribe
-   </button> */}
-   <button className="dashboard-button" onClick={handleAddClick}>
-     Add Broker
-   </button>
-   {/* <button className="dashboard-button logout-button" onClick={handleLogout}>
-     Logout
-   </button> */}
-   </div>
- 
- <div className="table-main">
-   {location.pathname === '/table' ? (
-     <div className={`unique-table-scrollable ${activeBrokerId ? 'blurred' : ''}`}>
-       <table className="unique-table">
-         <thead>
-           <tr>
-             <th>Broker IP</th>
-             <th>Port</th>
-             <th>User</th>
-             <th>Password</th>
-             <th>Company Name</th>
-             <th>Status</th>
-             <th>Edit/Delete</th>
-             <th>Users</th>
-           </tr>
-         </thead>
-         <tbody>
-          
-           {currentData.map((row, index) => (
-             <tr
-               key={index}
-               className={row.brokerId === activeBrokerId ? 'highlighted-row' : ''}
-             >
-               <td>{row.brokerip}</td>
-               <td>{row.port}</td>
-               <td>{row.user}</td>
-               <td>{row.password}</td>
-               <td>{row.label}</td>
-               <td>
-                 <div className="status-container">
-                   <div className="status-wrapper">
-                     <div
-                       className={`status-icon-button ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}
-                       onClick={() => handleConnect(row)}
-                       title="Reconnect"
-                     >
-                       <FaPlug />
-                     </div>
-                     <span className={`status-text ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}>
-                       {row.connectionStatus === 'connected' 
-                         ? 'Connected' 
-                         : `Disconnected${row.connectionErrors.length > 0 ? ` (${row.connectionErrors.join(", ")})` : ''}`}
-                     </span>
-                   </div>
-                 </div>
-               </td>
-               <td>
-                 <div className="action-buttons">
-                   <button className="edit-button" onClick={() => handleEditClick(row)} title="Edit">
-                     <FaEdit />
-                   </button>
-                   <button className="delete-button" onClick={() => handleDeleteClick(row.brokerId)} title="Delete">
-                     <FaTrash />
-                   </button>
-                 </div>
-               </td>
-               <td>
-                 <AdminUserAssign
-                   brokerId={row.brokerId}
-                   assignedUserId={row.assignedUserId}
-                   assignedUserEmail={row.assignedUserEmail}
-                   users={users}
-                   handleAssignUser={handleAssignUser}
-                   onConfirmationStateChange={handleConfirmationStateChange}
-                 />
-               </td>
-             </tr>
-           ))}
-         </tbody>
-       </table>
+        <button className="dashboard-button" onClick={handleAddClick}>
+          Add Broker
+        </button>
+      </div>
+      <div className="table-main">
+        {location.pathname === '/table' ? (
+          <div className={`unique-table-scrollable ${activeBrokerId ? 'blurred' : ''}`}>
+            <table className="unique-table">
+              <thead>
+                <tr>
+                  <th>Broker IP</th>
+                  <th>Port</th>
+                  <th>User</th>
+                  <th>Password</th>
+                  <th>Company Name</th>
+                  <th>Status</th>
+                  <th>Edit/Delete</th>
+                  <th>Users</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentData.map((row, index) => (
+                  <tr
+                    key={index}
+                    className={row.brokerId === activeBrokerId ? 'highlighted-row' : ''}
+                  >
+                    <td>{row.brokerip}</td>
+                    <td>{row.port}</td>
+                    <td>{row.user}</td>
+                    <td>{row.password}</td>
+                    <td>{row.label}</td>
+                    <td>
+                      <div className="status-container">
+                        <div className="status-wrapper">
+                          <div
+                            className={`status-icon-button ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}
+                            onClick={() => handleConnect(row)}
+                            title="Reconnect"
+                          >
+                            <FaPlug />
+                          </div>
+                          <span className={`status-text ${row.connectionStatus === 'connected' ? 'connected' : 'disconnected'}`}>
+                            {row.connectionStatus === 'connected'
+                              ? 'Connected'
+                              : `Disconnected${row.connectionErrors.length > 0 ? ` (${row.connectionErrors.join(', ')})` : ''}`}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button className="edit-button" onClick={() => handleEditClick(row)} title="Edit">
+                          <FaEdit />
+                        </button>
+                        <button className="delete-button" onClick={() => handleDeleteClick(row.brokerId)} title="Delete">
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <AdminUserAssign
+                        brokerId={row.brokerId}
+                        assignedUserId={row.assignedUserId}
+                        assignedUserEmail={row.assignedUserEmail}
+                        users={users}
+                        handleAssignUser={handleAssignUser}
+                        onConfirmationStateChange={handleConfirmationStateChange}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-       <div className="pagination">
-         <button
-           onClick={handlePrevPage}
-           disabled={currentPage === 1}
-           className="pagination-button"
-         >
-           Previous
-         </button>
-         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-           <button
-             key={page}
-             onClick={() => handlePageChange(page)}
-             className={`pagination-button ${currentPage === page ? 'active' : ''}`}
-           >
-             {page}
-           </button>
-         ))}
-         <button
-           onClick={handleNextPage}
-           disabled={currentPage === totalPages}
-           className="pagination-button"
-         >
-           Next
-         </button>
-       </div>
-     </div>
-   ) : (
-     <Outlet context={{ brokerId: tableData[0]?.brokerId, userId: localStorage.getItem('userId'), setTableData }} />
-   )}
- </div>
+            <div className="pagination">
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className="pagination-button"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`pagination-button ${currentPage === page ? 'active' : ''}`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className="pagination-button"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        ) : (
+          <Outlet context={{ brokerId: tableData[0]?.brokerId, userId: localStorage.getItem('userId'), setTableData }} />
+        )}
+      </div>
 
- <DeleteModal
-   isOpen={showDeleteModal}
-   onConfirm={handleDeleteConfirm}
-   onCancel={handleDeleteCancel}
- />
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
 
- <EditModal
-   isOpen={showEditModal}
-   onConfirm={handleEditConfirm}
-   onCancel={handleEditCancel}
-   broker={brokerToEdit}
- />
+      <EditModal
+        isOpen={showEditModal}
+        onConfirm={handleEditConfirm}
+        onCancel={handleEditCancel}
+        broker={brokerToEdit}
+      />
 
- <AddBrokerModal
-   isOpen={showAddModal}
-   onConfirm={handleAddConfirm}
-   onCancel={handleAddCancel}
- />
+      <AddBrokerModal
+        isOpen={showAddModal}
+        onConfirm={handleAddConfirm}
+        onCancel={handleAddCancel}
+      />
 
- <LogoutModal
-   isOpen={showLogoutModal}
-   onConfirm={handleLogoutConfirm}
-   onCancel={handleLogoutCancel}
- />
-</div>
-);
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
+      />
+    </div>
+  );
 };
 
 export default RightSideTable;

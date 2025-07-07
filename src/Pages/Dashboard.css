@@ -2,8 +2,9 @@
 .dashboard-layout {
   display: grid;
   grid-template-columns: 20% 80%;
-  height: 100%; /* Consistent height for layout */
+  height: 94vh; /* Matches the 94vh requirement with navbar taking 6vh */
   background-color: #30363dc5;
+  overflow: hidden; /* Prevent layout overflow */
 }
 
 /* Sidebar */
@@ -17,7 +18,27 @@
   padding-right: 20px;
   background-color: #141d30ba;
   align-content: start;
-  height: 94.8%; /* Match dashboard-layout and dashboard-main */
+  height: 100%; /* Use 100% to fit within parent */
+  overflow-y: auto; /* Allow sidebar to scroll if content exceeds */
+  scrollbar-width: thin;
+}
+
+/* Sidebar scrollbar styling for WebKit browsers */
+.dashboard-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dashboard-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-sidebar::-webkit-scrollbar-thumb {
+  background: #00897B;
+  border-radius: 2px;
+}
+
+.dashboard-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #4DB6AC;
 }
 
 /* Sidebar buttons */
@@ -47,7 +68,7 @@
 .dashboard-main {
   padding: 20px;
   margin: 15px 0;
-  height: 100vh; /* Match dashboard-layout and dashboard-sidebar */
+  height: 100%; /* Use 100% to fit within parent */
   display: flex;
   flex-direction: column;
   background-color: #141d30ba;
@@ -59,7 +80,7 @@
   width: 100%;
   flex: 1;
   overflow-y: auto;
-  max-height: calc(100% - 100px);
+  max-height: calc(100% - 100px); /* Adjust for fixed buttons */
   padding-right: 10px;
   margin-right: 10px;
   margin-top: 10px;
@@ -240,7 +261,7 @@ h2 {
   }
 
   .dashboard-button {
-    padding: 8px 16px; /* Reduced for smaller screens */
+    padding: 8px 16px;
     font-size: 0.9rem;
   }
 
@@ -261,7 +282,7 @@ h2 {
   }
 
   .dashboard-action-button {
-    padding: 8px 20px; /* Reduced for smaller screens */
+    padding: 8px 20px;
     font-size: 0.9rem;
   }
 
@@ -271,7 +292,7 @@ h2 {
   }
 
   .dashboard-topic-name button {
-    padding: 6px 12px; /* Reduced for smaller screens */
+    padding: 6px 12px;
     font-size: 0.8rem;
   }
 }
@@ -288,7 +309,7 @@ h2 {
   }
 
   .dashboard-button {
-    padding: 10px 20px; /* Adjusted for medium screens */
+    padding: 10px 20px;
     font-size: 0.95rem;
   }
 
@@ -304,19 +325,19 @@ h2 {
   }
 
   .dashboard-action-button {
-    padding: 9px 25px; /* Adjusted for medium screens */
+    padding: 9px 25px;
     font-size: 0.95rem;
   }
 
   .dashboard-topic-name button {
-    padding: 7px 14px; /* Adjusted for medium screens */
+    padding: 7px 14px;
     font-size: 0.85rem;
   }
 }
 
 @media (min-width: 1440px) and (max-width: 1920px) {
   .dashboard-layout {
-    grid-template-columns: 18% 82%; /* Fixed for larger screens */
+    grid-template-columns: 18% 82%;
   }
 
   .dashboard-sidebar {
@@ -326,7 +347,7 @@ h2 {
   }
 
   .dashboard-button {
-    padding: 14px 28px; /* Increased for larger screens */
+    padding: 14px 28px;
     font-size: 1.1rem;
   }
 
@@ -347,7 +368,7 @@ h2 {
   }
 
   .dashboard-action-button {
-    padding: 12px 35px; /* Increased for larger screens */
+    padding: 12px 35px;
     font-size: 1.1rem;
   }
 
@@ -357,7 +378,7 @@ h2 {
   }
 
   .dashboard-topic-name button {
-    padding: 10px 20px; /* Increased for larger screens */
+    padding: 10px 20px;
     font-size: 0.9rem;
   }
 }

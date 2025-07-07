@@ -1,37 +1,34 @@
 /* Table layout container */
 .table-layout {
   display: flex;
-  width: 100%; /* Full viewport width */
-  height: 100%;
+  width: 100%;
+  min-height: 94vh;
   background-color: #252F3F;
-  /* overflow: hidden; */
-  box-sizing: border-box; /* Ensure padding doesn't affect width */
+  box-sizing: border-box;
 }
 
 /* Sidebar styles */
 .table-sidebar {
-  height: 100vh;
-  width: 200px;
+  height: 94vh;
   background: #1A2533;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 13px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-  box-sizing: border-box; /* Ensure padding doesn't affect width */
+  box-sizing: border-box;
 }
 
 /* Main content area */
 .table-main {
-  flex: 1; /* Take remaining space after sidebar */
+  flex: 1;
   padding: 20px;
-  box-sizing: border-box; /* Ensure padding doesn't affect width */
+  box-sizing: border-box;
 }
 
 /* Dashboard buttons */
 .dashboard-button {
   padding: 10px;
-  margin-left: 0px;
   width: 160px;
   background: #3B82F6;
   color: #FFFFFF;
@@ -53,33 +50,29 @@
   font-weight: 600;
 }
 
-/* Logout button */
-.logout-button {
-  background: #EF4444;
-}
-
-.logout-button:hover {
-  background: #DC2626;
-}
-
 /* Table container */
 .unique-table-scrollable {
   border-radius: 10px;
   background-color: #252F3F;
   height: 100%;
   margin-right: 30px;
+  /* Hide scrollbar for desktop and laptops */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.unique-table-scrollable::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
 }
 
 /* Table styles */
 .unique-table {
   width: 100%;
-  margin: 0px 15px 15px 15px;
+  margin: 0 15px 15px 15px;
   border-collapse: collapse;
   table-layout: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
 }
 
-/* Table headers and cells */
 .unique-table th,
 .unique-table td {
   padding: 7.4px 16px;
@@ -90,34 +83,22 @@
   white-space: normal;
   min-width: 120px;
   max-width: 250px;
-  height: 50px;
+  height: 50px; /* Increased to match sidebar context */
   font-size: 14px;
   box-sizing: border-box;
   color: #FFFFFF;
   line-height: 1;
 }
 
-/* Status column cell */
-.unique-table td:nth-child(6) {
-  text-align: center;
-}
-
-/* Users column cell */
-.unique-table td:nth-child(8) {
-  text-align: center;
-}
-
-/* Header specific styles */
 .unique-table th {
   background: linear-gradient(#2559a3dc 0%, #2a5c9b 100%);
   color: #FFFFFF;
   font-weight: 600;
   font-size: 16px;
-  height: 50px;
+  height: 50px; /* Increased to match sidebar context */
   line-height: 1;
 }
 
-/* Row background striping */
 .unique-table tbody tr:nth-child(odd) {
   background-color: #1A2533;
 }
@@ -140,7 +121,7 @@
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
-  height: 50px;
+  height: 50px; /* Increased to match td height */
   width: 220px;
 }
 
@@ -290,120 +271,33 @@
   cursor: not-allowed;
 }
 
-/* Responsive Design for 1440px */
-@media (max-width: 1440px) {
-  .table-sidebar {
-    width: 180px;
-    padding: 15px;
-  }
-
-  .dashboard-button {
-    width: 140px;
-    font-size: 13px;
-    padding: 8px;
-  }
-
-  .table-main {
-    padding: 15px;
-  }
-
-  .unique-table-scrollable {
-    margin-right: 20px;
-  }
-
-  .unique-table th,
-  .unique-table td {
-    padding: 6px 12px;
-    font-size: 13px;
-    min-width: 100px;
-    max-width: 220px;
-    height: 45px;
-  }
-
-  .unique-table th {
-    font-size: 15px;
-    height: 45px;
-  }
-
-  .status-wrapper {
-    width: 200px;
-    height: 45px;
-    gap: 6px;
-  }
-
-  .status-icon-button {
-    width: 32px;
-    height: 32px;
-  }
-
-  .status-icon-button svg {
-    font-size: 18px;
-  }
-
-  .status-text {
-    font-size: 12px;
-    max-width: 150px;
-  }
-
-  .action-buttons {
-    gap: 6px;
-  }
-
-  .edit-button,
-  .delete-button {
-    padding: 6px;
-  }
-
-  .edit-button svg,
-  .delete-button svg {
-    font-size: 15px;
-  }
-
-  .pagination-button {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
+/* Highlighted row */
+.highlighted-row {
+  background-color: rgba(59, 130, 246, 0.2);
 }
 
-/* Responsive Design for 1280px */
-@media (max-width: 1280px) {
+/* Blurred effect */
+.blurred {
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) { /* Large laptops/desktops */
   .table-sidebar {
-    width: 160px;
-    padding: 12px;
+    width: 250px;
   }
 
   .dashboard-button {
-    width: 120px;
-    font-size: 12px;
-    padding: 7px;
-  }
-
-  .table-main {
-    padding: 12px;
-  }
-
-  .unique-table-scrollable {
-    margin-right: 15px;
+    width: 200px;
+    font-size: 13px;
   }
 
   .unique-table th,
   .unique-table td {
-    padding: 5px 10px;
-    font-size: 12px;
-    min-width: 90px;
-    max-width: 200px;
-    height: 40px;
-  }
-
-  .unique-table th {
-    font-size: 14px;
-    height: 40px;
-  }
-
-  .status-wrapper {
-    width: 180px;
-    height: 40px;
-    gap: 5px;
+    font-size: 13px;
+    padding: 6px 12px;
+    height: 50px; /* Increased to match sidebar context */
   }
 
   .status-icon-button {
@@ -411,83 +305,94 @@
     height: 30px;
   }
 
-  .status-icon-button svg {
-    font-size: 17px;
-  }
-
   .status-text {
-    font-size: 11px;
-    max-width: 130px;
-  }
-
-  .action-buttons {
-    gap: 5px;
-  }
-
-  .edit-button,
-  .delete-button {
-    padding: 5px;
-  }
-
-  .edit-button svg,
-  .delete-button svg {
-    font-size: 14px;
-  }
-
-  .pagination-button {
-    padding: 5px 8px;
     font-size: 12px;
   }
 }
 
-/* Responsive Design for 1024px */
-@media (max-width: 1024px) {
+@media (max-width: 992px) { /* Tablets and small laptops */
   .table-sidebar {
-    width: 140px;
-    padding: 10px;
+    width: 200px;
   }
 
   .dashboard-button {
-    width: 100px;
-    font-size: 11px;
-    padding: 6px;
+    width: 180px;
+    font-size: 12px;
+    padding: 8px;
   }
 
   .table-main {
-    padding: 10px;
-  }
-
-  .unique-table-scrollable {
-    margin-right: 10px;
+    padding: 15px;
   }
 
   .unique-table th,
   .unique-table td {
-    padding: 4px 8px;
-    font-size: 11px;
-    min-width: 80px;
-    max-width: 180px;
-    height: 35px;
-  }
-
-  .unique-table th {
-    font-size: 13px;
-    height: 35px;
-  }
-
-  .status-wrapper {
-    width: 160px;
-    height: 35px;
-    gap: 4px;
+    font-size: 12px;
+    padding: 5px 10px;
+    height: 50px; /* Increased to match sidebar context */
   }
 
   .status-icon-button {
-    width: 28px;
-    height: 28px;
+    width: 25px;
+    height: 25px;
   }
 
-  .status-icon-button svg {
-    font-size: 16px;
+  .status-text {
+    font-size: 11px;
+    max-width: 150px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 6px;
+  }
+
+  .pagination-button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 768px) { /* Small tablets and large phones */
+  .table-layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .table-sidebar {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    box-shadow: none;
+  }
+
+  .dashboard-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .table-main {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .unique-table-scrollable {
+    margin-right: 0;
+    height: auto;
+    max-height: 60vh;
+    overflow-y: auto; /* Re-enable scrolling for smaller screens */
+  }
+
+  .unique-table th,
+  .unique-table td {
+    font-size: 11px;
+    padding: 3px 8px;
+    height: 50px; /* Increased to match sidebar context */
+  }
+
+  .status-icon-button {
+    width: 20px;
+    height: 20px;
   }
 
   .status-text {
@@ -495,110 +400,44 @@
     max-width: 120px;
   }
 
-  .action-buttons {
-    gap: 4px;
-  }
-
   .edit-button,
   .delete-button {
     padding: 4px;
   }
 
-  .edit-button svg,
-  .delete-button svg {
-    font-size: 13px;
-  }
-
   .pagination-button {
-    padding: 4px 6px;
-    font-size: 11px;
+    font-size: 10px;
+    padding: 4px 8px;
   }
 }
 
-/* Existing Mobile Media Query */
-@media (max-width: 768px) {
-  .table-layout {
-    flex-direction: column;
-    width: 100vw; /* Ensure full width on mobile */
-  }
-
-  .table-sidebar {
-    width: 100%;
-    height: auto; /* Allow sidebar to adjust height on mobile */
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 10px;
-  }
-
-  .table-main {
-    padding: 10px;
-    width: 100%; /* Ensure full width on mobile */
-  }
-
-  .dashboard-button {
-    padding: 8px 16px;
-    font-size: 12px;
-  }
-
-  .unique-table-scrollable {
-    margin: 0;
-  }
-
+@media (max-width: 576px) { /* Phones */
   .unique-table th,
   .unique-table td {
-    padding: 8px 10px;
-    font-size: 12px;
+    font-size: 10px;
+    padding: 3px 6px;
     min-width: 80px;
-    max-width: 200px;
-    height: 40px;
-  }
-
-  .unique-table th {
-    height: 40px;
-  }
-
-  .status-wrapper {
-    height: 40px;
-    width: 180px;
-    gap: 6px;
+    max-width: 150px;
+    height: 50px; /* Increased to match sidebar context */
   }
 
   .status-icon-button {
-    width: 32px;
-    height: 32px;
-  }
-
-  .status-icon-button svg {
-    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
 
   .status-text {
-    font-size: 12px;
-    max-width: 140px;
-    line-height: 1.2;
-    -webkit-line-clamp: 2;
-  }
-
-  .action-buttons {
-    gap: 4px;
+    font-size: 9px;
+    max-width: 100px;
   }
 
   .edit-button,
   .delete-button {
-    padding: 6px;
-  }
-
-  .edit-button svg,
-  .delete-button svg {
-    font-size: 14px;
-  }
-
-  .pagination {
-    gap: 5px;
+    padding: 3px;
   }
 
   .pagination-button {
-    padding: 6px 10px;
-    font-size: 12px;
+    font-size: 9px;
+    padding: 3px 6px;
   }
 }

@@ -220,7 +220,7 @@ return (
                         </label>
                         <select
                           required
-                          className="subscribe-broker-ip-select"
+                          className="subscribe-form-input"
                           id={`broker-${index}`}
                           name="brokerIp"
                           value={inputSet.brokerIp}
@@ -259,7 +259,7 @@ return (
                         </label>
                         <select
                           required
-                          className="subscribe-form-select"
+                          className="subscribe-form-input"
                           name="qosLevel"
                           id={`qosLevel-${index}`}
                           value={inputSet.qosLevel}
