@@ -10,6 +10,8 @@
 /* Sidebar styles */
 .table-sidebar {
   height: 94vh;
+  position: sticky;
+  top : 6vh;
   background: #1A2533;
   padding: 20px;
   display: flex;

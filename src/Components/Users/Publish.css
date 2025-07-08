@@ -3,9 +3,8 @@
   display: grid;
   grid-template-columns: 50% 50%;
   width: 100%;
-  min-height: 100%;
   box-sizing: border-box;
-  max-height: 89.6vh !important;
+  max-height: 88vh !important;
   overflow: hidden;
   gap: 10px;
 }
@@ -768,3 +767,4 @@
     padding: 10px;
   }
 }
+
