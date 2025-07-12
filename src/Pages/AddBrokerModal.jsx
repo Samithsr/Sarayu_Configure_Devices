@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../Pages/AddBrokerModal.css';
+import './AddBrokerModal.css';
 
 const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) => {
   const [formData, setFormData] = useState({
@@ -59,8 +59,8 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
     <div className="add-modal-overlay">
       <div className="add-modal-content">
         <h2 className="add-modal-title">{title}</h2>
-        <div className="add-broker-form">
-          <div className="add-form-group">
+        <div className="add-modal-form">
+          <div className="add-modal-form-group">
             <label htmlFor="brokerIp">Broker IP *:</label>
             <input
               type="text"
@@ -69,10 +69,11 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
               value={formData.brokerIp}
               onChange={handleInputChange}
               placeholder="e.g., 192.168.1.100"
+              className="add-modal-input"
             />
-            {errors.brokerIp && <p className="add-error-message">{errors.brokerIp}</p>}
+            {errors.brokerIp && <p className="add-modal-error">{errors.brokerIp}</p>}
           </div>
-          <div className="add-form-group">
+          <div className="add-modal-form-group">
             <label htmlFor="portNumber">Port *:</label>
             <input
               type="number"
@@ -82,10 +83,11 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
               onChange={handleInputChange}
               min="1"
               max="65535"
+              className="add-modal-input"
             />
-            {errors.portNumber && <p className="add-error-message">{errors.portNumber}</p>}
+            {errors.portNumber && <p className="add-modal-error">{errors.portNumber}</p>}
           </div>
-          <div className="add-form-group">
+          <div className="add-modal-form-group">
             <label htmlFor="username">Username:</label>
             <input
               type="text"
@@ -93,9 +95,10 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
               name="username"
               value={formData.username}
               onChange={handleInputChange}
+              className="add-modal-input"
             />
           </div>
-          <div className="add-form-group">
+          <div className="add-modal-form-group">
             <label htmlFor="password">Password:</label>
             <input
               type="password"
@@ -103,9 +106,10 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
               name="password"
               value={formData.password}
               onChange={handleInputChange}
+              className="add-modal-input"
             />
           </div>
-          <div className="add-form-group">
+          <div className="add-modal-form-group">
             <label htmlFor="label">Label *:</label>
             <input
               type="text"
@@ -113,15 +117,16 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
               name="label"
               value={formData.label}
               onChange={handleInputChange}
+              className="add-modal-input"
             />
-            {errors.label && <p className="add-error-message">{errors.label}</p>}
+            {errors.label && <p className="add-modal-error">{errors.label}</p>}
           </div>
         </div>
         <div className="add-modal-buttons">
-          <button className="add-modal-button add-cancel-button" onClick={onCancel}>
+          <button className="add-modal-button add-modal-cancel" onClick={onCancel}>
             Cancel
           </button>
-          <button className="add-modal-button add-confirm-button" onClick={handleSubmit}>
+          <button className="add-modal-button add-modal-confirm" onClick={handleSubmit}>
             Add
           </button>
         </div>

@@ -1,23 +1,23 @@
 import React from 'react';
-import './Home.css';
+import '../Pages/LogoutModel.css'
 
 const LogoutModal = ({ isOpen, onConfirm, onCancel }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2 className="modal-title">Confirm Logout</h2>
-        <p className="modal-text">Are you sure you want to log out?</p>
-        <div className="modal-buttons">
+    <div className="logout-modal-overlay">
+      <div className="logout-modal-content">
+        <h2 className="logout-modal-title">Confirm Logout</h2>
+        <p className="logout-modal-text">Are you sure you want to log out?</p>
+        <div className="logout-modal-buttons">
           <button
-            className="modal-button cancel-button"
+            className="logout-modal-button logout-modal-cancel"
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
-            className="modal-button confirm-button"
+            className="logout-modal-button logout-modal-confirm"
             onClick={onConfirm}
           >
             Logout
@@ -27,5 +27,6 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => {
     </div>
   );
 };
+
 
 export default LogoutModal;

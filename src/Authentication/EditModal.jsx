@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../Pages/Styles.css';
-
+import './EditModal.css';
 
 const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" }) => {
   const [formData, setFormData] = useState({
@@ -67,11 +66,11 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2 className="modal-title">{title}</h2>
-        <div className="broker-form">
-          <div className="form-group">
+    <div className="edit-modal-overlay">
+      <div className="edit-modal-content">
+        <h2 className="edit-modal-title">{title}</h2>
+        <div className="edit-modal-form">
+          <div className="edit-modal-form-group">
             <label htmlFor="brokerIp">Broker IP *:</label>
             <input
               type="text"
@@ -80,10 +79,11 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
               value={formData.brokerIp}
               onChange={handleInputChange}
               placeholder="e.g., 192.168.1.100"
+              className="edit-modal-input"
             />
-            {errors.brokerIp && <p className="error-message">{errors.brokerIp}</p>}
+            {errors.brokerIp && <p className="edit-modal-error">{errors.brokerIp}</p>}
           </div>
-          <div className="form-group">
+          <div className="edit-modal-form-group">
             <label htmlFor="portNumber">Port *:</label>
             <input
               type="number"
@@ -93,10 +93,11 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
               onChange={handleInputChange}
               min="1"
               max="65535"
+              className="edit-modal-input"
             />
-            {errors.portNumber && <p className="error-message">{errors.portNumber}</p>}
+            {errors.portNumber && <p className="edit-modal-error">{errors.portNumber}</p>}
           </div>
-          <div className="form-group">
+          <div className="edit-modal-form-group">
             <label htmlFor="username">Username:</label>
             <input
               type="text"
@@ -104,9 +105,10 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
               name="username"
               value={formData.username}
               onChange={handleInputChange}
+              className="edit-modal-input"
             />
           </div>
-          <div className="form-group">
+          <div className="edit-modal-form-group">
             <label htmlFor="password">Password:</label>
             <input
               type="password"
@@ -114,9 +116,10 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
               name="password"
               value={formData.password}
               onChange={handleInputChange}
+              className="edit-modal-input"
             />
           </div>
-          <div className="form-group">
+          <div className="edit-modal-form-group">
             <label htmlFor="label">Label *:</label>
             <input
               type="text"
@@ -124,16 +127,17 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
               name="label"
               value={formData.label}
               onChange={handleInputChange}
+              className="edit-modal-input"
             />
-            {errors.label && <p className="error-message">{errors.label}</p>}
+            {errors.label && <p className="edit-modal-error">{errors.label}</p>}
           </div>
         </div>
-        <div className="modal-buttons">
-          <button className="modal-button cancel-button" onClick={onCancel}>
+        <div className="edit-modal-buttons">
+          <button className="edit-modal-button edit-modal-cancel" onClick={onCancel}>
             Cancel
           </button>
           <button
-            className="modal-button confirm-button"
+            className="edit-modal-button edit-modal-confirm"
             onClick={handleSubmit}
           >
             {title === "Add Broker" ? "Add" : "Save"}

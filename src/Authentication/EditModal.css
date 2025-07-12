@@ -1,20 +1,19 @@
 /* Modal Overlay */
-.add-modal-overlay {
+.edit-modal-overlay {
   position: fixed;
-  top: 6vh; /* Offset by navbar height */
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.607); /* Removed backdrop-filter */
+  background: rgba(0, 0, 0, 0.607);
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Align to top to respect navbar offset */
+  align-items: center;
   z-index: 1000;
-  overflow-y: auto; /* Allow scrolling if modal content exceeds viewport */
 }
 
 /* Modal Content */
-.add-modal-content {
+.edit-modal-content {
   background-color: #2d3748;
   padding: 20px;
   border-radius: 12px;
@@ -22,12 +21,10 @@
   max-width: 400px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   animation: fadeSlideIn 0.4s ease-out;
-  margin-top: 20px; /* Spacing below navbar */
-  margin-bottom: 20px; /* Prevent sticking to bottom */
 }
 
 /* Modal Title */
-.add-modal-title {
+.edit-modal-title {
   font-size: 1.3rem;
   font-weight: 600;
   color: #ffffff;
@@ -38,26 +35,26 @@
 }
 
 /* Form Styles */
-.add-modal-form {
+.edit-modal-form {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.add-modal-form-group {
+.edit-modal-form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.add-modal-form-group label {
+.edit-modal-form-group label {
   font-size: 0.9rem;
   font-weight: 500;
   color: #d1d5db;
 }
 
 /* Input Styles */
-.add-modal-input {
+.edit-modal-input {
   width: 100%;
   background: #4a5568;
   border: 1px solid transparent;
@@ -68,22 +65,22 @@
   box-sizing: border-box;
 }
 
-.add-modal-input::-moz-placeholder {
+.edit-modal-input::-moz-placeholder {
   color: #a0aec0;
 }
 
-.add-modal-input::placeholder {
+.edit-modal-input::placeholder {
   color: #a0aec0;
 }
 
-.add-modal-input:focus {
+.edit-modal-input:focus {
   outline: none;
   border: 1px solid #ffffff;
 }
 
 /* Select Styles (for future use) */
-.add-modal-input[type="select"],
-.add-modal-input select {
+.edit-modal-input[type="select"],
+.edit-modal-input select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -94,41 +91,40 @@
   cursor: pointer;
 }
 
-.add-modal-input[type="select"]:hover,
-.add-modal-input select:hover {
+.edit-modal-input[type="select"]:hover,
+.edit-modal-input select:hover {
   background-color: #48556b;
 }
 
-.add-modal-input[type="select"] option,
-.add-modal-input select option {
+.edit-modal-input[type="select"] option,
+.edit-modal-input select option {
   background-color: #ffffff;
   color: #000000;
   font-size: 0.9rem;
   padding: 8px 12px;
 }
 
-.add-modal-input[type="select"] option[disabled],
-.add-modal-input select option[disabled] {
+.edit-modal-input[type="select"] option[disabled],
+.edit-modal-input select option[disabled] {
   color: #a0aec0;
 }
 
 /* Error Message */
-.add-modal-error {
+.edit-modal-error {
   font-size: 0.75rem;
   color: #dc2626;
   margin-top: 3px;
-  text-align: left;
 }
 
 /* Modal Buttons */
-.add-modal-buttons {
+.edit-modal-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 16px;
 }
 
-.add-modal-button {
+.edit-modal-button {
   padding: 8px 24px;
   border: none;
   border-radius: 10px;
@@ -138,31 +134,31 @@
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.add-modal-cancel {
+.edit-modal-cancel {
   background: #4a5568;
   color: #ffffff;
 }
 
-.add-modal-cancel:hover {
+.edit-modal-cancel:hover {
   background: #5a6b8a;
   transform: scale(1.03);
 }
 
-.add-modal-cancel:active {
+.edit-modal-cancel:active {
   transform: scale(0.95);
 }
 
-.add-modal-confirm {
+.edit-modal-confirm {
   background: #3182ce;
   color: #ffffff;
 }
 
-.add-modal-confirm:hover {
+.edit-modal-confirm:hover {
   background: #2b6cb0;
   transform: scale(1.03);
 }
 
-.add-modal-confirm:active {
+.edit-modal-confirm:active {
   transform: scale(0.95);
 }
 
@@ -180,42 +176,36 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .add-modal-overlay {
-    top: 6vh; /* Maintain navbar offset */
-  }
-
-  .add-modal-content {
+  .edit-modal-content {
     max-width: 95%;
     padding: 16px;
-    margin-top: 10px; /* Reduced margin for smaller screens */
-    margin-bottom: 10px;
   }
 
-  .add-modal-title {
+  .edit-modal-title {
     font-size: 1.1rem;
   }
 
-  .add-modal-form-group label {
+  .edit-modal-form-group label {
     font-size: 0.8rem;
   }
 
-  .add-modal-input {
+  .edit-modal-input {
     padding: 10px 12px;
     font-size: 0.8rem;
   }
 
-  .add-modal-input[type="select"],
-  .add-modal-input select {
+  .edit-modal-input[type="select"],
+  .edit-modal-input select {
     background-size: 12px;
     background-position: right 10px center;
   }
 
-  .add-modal-button {
+  .edit-modal-button {
     padding: 7px 16px;
     font-size: 0.8rem;
   }
 
-  .add-modal-error {
+  .edit-modal-error {
     font-size: 0.7rem;
   }
 }

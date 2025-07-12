@@ -13,8 +13,35 @@ const Firmware = () => {
   const [publishStatus, setPublishStatus] = useState("");
   const [publishing, setPublishing] = useState([]);
   const [brokerOptions, setBrokerOptions] = useState([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState(null);
   const navigate = useNavigate();
 
+  // Inline DeleteModal Component
+  const DeleteModal = ({ isOpen, onConfirm, onCancel, filename }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="firmware-delete-modal-overlay">
+        <div className="firmware-delete-modal-container">
+          <h2 className="firmware-delete-modal-title">Confirm Deletion</h2>
+          <p className="firmware-delete-modal-message">
+            Are you sure you want to delete the file "{filename}"?
+          </p>
+          <div className="firmware-delete-modal-actions">
+            <button className="firmware-delete-modal-btn firmware-cancel-btn" onClick={onCancel}>
+              Cancel
+            </button>
+            <button className="firmware-delete-modal-btn firmware-confirm-btn" onClick={onConfirm}>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Load brokers and initialize publishData from localStorage
   useEffect(() => {
     const getAllBrokers = async () => {
       try {
@@ -41,6 +68,7 @@ const Firmware = () => {
             { value: "demo2", label: "192.168.1.101" },
           ];
           setBrokerOptions(demoBrokers);
+          await fetchVersions();
           return;
         }
 
@@ -52,7 +80,7 @@ const Firmware = () => {
         }));
         console.log("Broker Options:", options);
         setBrokerOptions(options);
-        fetchVersions();
+        await fetchVersions();
       } catch (error) {
         console.error("Error fetching brokers:", error.message, error.response?.data);
         toast.error("Failed to fetch brokers: " + (error.response?.data?.message || error.message));
@@ -62,12 +90,19 @@ const Firmware = () => {
         }
         const demoBrokers = [];
         setBrokerOptions(demoBrokers);
-        fetchVersions();
+        await fetchVersions();
       }
     };
 
     getAllBrokers();
   }, [navigate]);
+
+  // Save publishData to localStorage whenever it changes
+  useEffect(() => {
+    if (publishData.length > 0) {
+      localStorage.setItem("publishData", JSON.stringify(publishData));
+    }
+  }, [publishData]);
 
   const fetchVersions = async () => {
     try {
@@ -75,16 +110,26 @@ const Firmware = () => {
       const data = await response.json();
       console.log("Fetched versions:", data);
       if (data.success) {
+        // Use data.result directly without reordering
         setApiData(data.result);
-        setPublishData(
-          data.result.map((url) => ({
+
+        // Load saved publishData from localStorage
+        const savedPublishData = JSON.parse(localStorage.getItem("publishData")) || [];
+
+        // Initialize publishData with default empty brokerIp, aligned with data.result
+        const newPublishData = data.result.map((url) => {
+          // Find matching saved data by URL
+          const savedItem = savedPublishData.find((item) => item.url === url);
+          return {
             url,
-            brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
-            topic: "",
-            mqttUsername: brokerOptions.length > 0 ? brokerOptions[0].username : "",
-            mqttPassword: brokerOptions.length > 0 ? brokerOptions[0].password : "",
-          }))
-        );
+            brokerIp: savedItem?.brokerIp || "", // Use saved brokerIp or empty string
+            topic: savedItem?.topic || "",
+            mqttUsername: savedItem?.mqttUsername || "",
+            mqttPassword: savedItem?.mqttPassword || "",
+          };
+        });
+
+        setPublishData(newPublishData);
         setPublishing(data.result.map(() => false));
       } else {
         setUploadStatus(data.message || "Failed to fetch versions");
@@ -140,6 +185,58 @@ const Firmware = () => {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleDeleteClick = (index) => {
+    setDeleteIndex(index);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    const url = apiData[deleteIndex];
+    const filename = url.split("/").pop();
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        toast.error("Please log in to delete files.");
+        navigate("/");
+        setIsDeleteModalOpen(false);
+        return;
+      }
+
+      const response = await axios.delete(`http://localhost:5000/api/delete/${filename}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        setUploadStatus(`File ${filename} deleted successfully`);
+        toast.success(`File ${filename} deleted successfully`);
+        await fetchVersions();
+      } else {
+        setUploadStatus(`Delete failed: ${response.data.message}`);
+        toast.error(`Delete failed: ${response.data.message}`);
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message;
+      console.error("Delete error:", errorMessage);
+      setUploadStatus(`Delete error: ${errorMessage}`);
+      toast.error(`Delete error: ${errorMessage}`);
+      if (error.response?.status === 401) {
+        localStorage.removeItem("authToken");
+        navigate("/");
+      }
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeleteIndex(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setDeleteIndex(null);
   };
 
   const handleBrokerChange = (index, value) => {
@@ -263,6 +360,7 @@ const Firmware = () => {
   };
 
   console.log("Api data: ", apiData);
+  console.log("Publish data: ", publishData);
 
   return (
     <div className="firmware">
@@ -314,6 +412,7 @@ const Firmware = () => {
               <th>Broker IP</th>
               <th>Topic</th>
               <th>Publish</th>
+              <th>Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -367,16 +466,31 @@ const Firmware = () => {
                       {publishing[index] ? "Sending..." : "Publish"}
                     </button>
                   </td>
+                  <td>
+                    <button
+                      className="url-section-button delete-button"
+                      onClick={() => handleDeleteClick(index)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5">No firmware versions available</td>
+                <td colSpan="6">No firmware versions available</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        filename={deleteIndex !== null ? apiData[deleteIndex]?.split("/").pop() : ""}
+      />
     </div>
   );
 };

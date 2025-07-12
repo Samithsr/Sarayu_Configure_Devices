@@ -1,22 +1,46 @@
 /* Navbar styling */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 25px;
-    height: 6vh;
-    position: sticky;
-    top: 0;
-    /* background-color: #056b85b7; */
-    /* background-color: #095a6ed8; */
-    background: linear-gradient(90deg, #1a3c6b 0%, #2a5c9b 100%);
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-    z-index: 99999;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 25px;
+  height: 6vh;
+  position: sticky;
+  top: 0;
+  background: linear-gradient(90deg, #1a3c6b 0%, #2a5c9b 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  z-index: 999999;
 }
 
 .navbar h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 500;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* Logout button */
+.logout-icon-button {
+  background: #0472a991; /* Matches cancel buttons in AddBrokerModal and EditModal */
+  border: none;
+  color: #ffffff; /* White icon */
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%; /* Circular shape */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease, transform 0.2s ease;
+  width: 40px; /* Fixed size for consistency */
+  height: 40px;
+}
+
+.logout-icon-button:hover {
+  background: #5a6b8a; /* Matches hover of cancel buttons */
+  color: #EF4444; /* Red accent for logout theme */
+  transform: scale(1.03); /* Matches button animations */
+}
+
+.logout-icon-button:active {
+  transform: scale(0.95); /* Matches button animations */
 }

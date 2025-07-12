@@ -7,7 +7,7 @@
   height: auto;
   padding: 5px 0;
   position: relative;
-  z-index: 3; /* Ensure it stays above blurred table */
+  z-index: 3; /* Ensure it stays above table */
 }
 
 /* User select dropdown */
@@ -20,8 +20,8 @@
   background-color: #252F3F;
   color: #FFFFFF;
   text-align: center;
-  transition: all 0.3s ease;
   cursor: pointer;
+  transition: border-color 0.2s ease; /* Simplified transition */
 }
 
 .user-assign-select:focus {
@@ -44,26 +44,28 @@
 /* User assign modal overlay */
 .user-assign-modal-overlay {
   position: fixed;
-  top: 0;
+  top: 6vh; /* Offset by navbar height */
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(47, 45, 45, 0.738);
+  background: rgba(0, 0, 0, 0.607); /* No backdrop-filter to prevent shaking */
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center; /* Center vertically */
   z-index: 1000;
+  overflow-y: auto; /* Allow scrolling if modal content exceeds viewport */
 }
 
 /* User assign modal content */
 .user-assign-modal-content {
-  background: #e4e7ec;
+  background: #2d3748; /* Matches AddBrokerModal, EditModal, LogoutModal */
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   animation: userAssignModalSlideIn 0.3s ease-out;
+  margin: 20px 0; /* Vertical margin for spacing */
 }
 
 /* User assign modal title container */
@@ -71,45 +73,41 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 /* User assign modal icon */
 .user-assign-modal-icon {
-  background: none;
-  color: #FFFFFF;
-  padding: 8px 0px;
-  margin-left: 20px;
+  background: #4a5568; /* Matches cancel buttons */
+  color: #ffffff;
+  padding: 8px;
   border-radius: 50%;
-  transition: all 0.3s ease;
   font-size: 20px;
-  background-color: #252F3F; /* Matches form input background */
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-/* User assign modal icon hover */
 .user-assign-modal-icon:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #3B82F6; /* Matches form button color */
+  background: #5a6b8a; /* Matches button hover */
+  color: #3B82F6; /* Matches confirm button */
+  transform: scale(1.03);
 }
 
 /* User assign modal title */
 .user-assign-modal-title {
-  font-size: 20px;
+  font-size: 1.3rem;
   font-weight: 600;
-  color: #1A2533;
+  color: #ffffff; /* Matches dark theme */
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 /* User assign modal text */
 .user-assign-modal-text {
-  color: black;
-  font-size: 15px;
-  /* padding: 20px 22px; */
-  margin: 20px 0px;
-  margin-left: 30px;
-  /* margin-right: 10px; */
-  /* margin-bottom: 25px; */
-  text-align: start;
+  font-size: 0.9rem;
+  color: #d1d5db; /* Matches LogoutModal text */
+  margin: 0 0 20px 0;
+  text-align: left;
 }
 
 /* User assign modal buttons container */
@@ -121,39 +119,49 @@
 
 /* User assign modal button base style */
 .user-assign-modal-button {
-  padding: 10px 18px;
+  padding: 8px 24px;
   border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, transform 0.2s ease; /* Simplified transition */
 }
 
 /* User assign modal confirm button */
 .user-assign-modal-button.user-assign-modal-confirm {
   background: #3B82F6;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .user-assign-modal-button.user-assign-modal-confirm:hover {
-  background: #2563EB;
+  background: #2b6cb0;
+  transform: scale(1.03);
+}
+
+.user-assign-modal-button.user-assign-modal-confirm:active {
+  transform: scale(0.95);
 }
 
 /* User assign modal cancel button */
 .user-assign-modal-button.user-assign-modal-cancel {
-  background: red;
-  color: #FFFFFF;
+  background: #4a5568; /* Matches LogoutModal cancel button */
+  color: #ffffff;
 }
 
 .user-assign-modal-button.user-assign-modal-cancel:hover {
-  background: #6B7280;
+  background: #5a6b8a;
+  transform: scale(1.03);
+}
+
+.user-assign-modal-button.user-assign-modal-cancel:active {
+  transform: scale(0.95);
 }
 
 /* Animation for modal slide-in */
 @keyframes userAssignModalSlideIn {
   from {
-    transform: translateY(-20px);
+    transform: translateY(-40px);
     opacity: 0;
   }
   to {
@@ -175,23 +183,26 @@
   }
 
   .user-assign-modal-content {
-    padding: 15px;
-    max-width: 300px;
+    padding: 16px;
+    max-width: 95%;
+    margin: 10px 0;
   }
 
   .user-assign-modal-title {
-    font-size: 18px;
+    font-size: 1.1rem;
   }
 
   .user-assign-modal-text {
-    font-size: 13px;
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-bottom: 15px;
+    font-size: 0.8rem;
   }
 
   .user-assign-modal-button {
-    padding: 8px 14px;
-    font-size: 12px;
+    padding: 7px 16px;
+    font-size: 0.8rem;
+  }
+
+  .user-assign-modal-icon {
+    font-size: 18px;
+    padding: 6px;
   }
 }

@@ -1,0 +1,130 @@
+/* Modal Overlay */
+.logout-modal-overlay {
+  position: fixed;
+  top: 6vh; /* Offset by navbar height */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.607); /* No backdrop-filter to prevent shaking */
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Center vertically */
+  z-index: 1000;
+  overflow-y: auto; /* Allow scrolling if modal content exceeds viewport */
+}
+
+/* Modal Content */
+.logout-modal-content {
+  background-color: #2d3748; /* Matches AddBrokerModal and EditModal */
+  padding: 20px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  animation: fadeSlideIn 0.4s ease-out;
+  margin: 20px 0; /* Vertical margin for spacing, centered in viewport */
+}
+
+/* Modal Title */
+.logout-modal-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 14px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Modal Text */
+.logout-modal-text {
+  font-size: 0.9rem;
+  color: #d1d5db; /* Matches label color in AddBrokerModal */
+  margin-bottom: 20px;
+}
+
+/* Modal Buttons */
+.logout-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Modal Button Base */
+.logout-modal-button {
+  padding: 8px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+/* Cancel Button */
+.logout-modal-cancel {
+  background: #4a5568; /* Matches AddBrokerModal cancel button */
+  color: #ffffff;
+}
+
+.logout-modal-cancel:hover {
+  background: #5a6b8a;
+  transform: scale(1.03);
+}
+
+.logout-modal-cancel:active {
+  transform: scale(0.95);
+}
+
+/* Confirm Button */
+.logout-modal-confirm {
+  background: #3182ce; /* Matches AddBrokerModal confirm button */
+  color: #ffffff;
+}
+
+.logout-modal-confirm:hover {
+  background: #2b6cb0;
+  transform: scale(1.03);
+}
+
+.logout-modal-confirm:active {
+  transform: scale(0.95);
+}
+
+/* Animation */
+@keyframes fadeSlideIn {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logout-modal-overlay {
+    top: 6vh; /* Maintain navbar offset */
+  }
+
+  .logout-modal-content {
+    max-width: 95%;
+    padding: 16px;
+    margin: 10px 0; /* Reduced margin for smaller screens */
+  }
+
+  .logout-modal-title {
+    font-size: 1.1rem;
+  }
+
+  .logout-modal-text {
+    font-size: 0.8rem;
+  }
+
+  .logout-modal-button {
+    padding: 7px 16px;
+    font-size: 0.8rem;
+  }
+}

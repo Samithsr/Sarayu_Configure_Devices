@@ -178,7 +178,7 @@ const Subscribe = ({ brokerOptions }) => {
           (set, index) =>
             `Set ${index + 1}: Broker - ${set.brokerIp}, Topic Filter - ${set.topicFilter}`
         )
-        .join("\n classy");
+        .join("\n");
       toast.success("Unsubscribed:\n" + summary);
     } catch (error) {
       console.error("Error unsubscribing:", error.message);
@@ -203,7 +203,8 @@ const Subscribe = ({ brokerOptions }) => {
     }
     setIsSubscribed(false);
   };
-return (
+
+  return (
     <div className="right-side-subscribe-page">
       <div className="subscribe-topics-container">
         <div className="subscribe-topics-content">
@@ -211,7 +212,7 @@ return (
             <div className="subscribe-form-wrapper">
               <h2 className="subscribe-topics-title">Subscribe Topics</h2>
               <form className="subscribe-topics-form" onSubmit={isSubscribed ? handleUnsubscribe : handleSubscribe}>
-                <div className="subscribe-inputs-container"> {/* Updated class name */}
+                <div className="subscribe-inputs-container">
                   {subscribeInputSets.map((inputSet, index) => (
                     <div key={index} className="subscribe-input-set">
                       <div className="subscribe-form-group">
@@ -301,7 +302,7 @@ return (
               </form>
             </div>
             <div className="messages-wrapper">
-              <h3 className="messages-title">Received Messages</h3> {/* Fixed typo */}
+              <h3 className="messages-title">Received Messages</h3>
               <div className="messages-scroll-container">
                 {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
                   <ul className="messages-list">
@@ -402,7 +403,7 @@ const Publish = () => {
         setInputSets((prev) =>
           prev.map((set) => ({
             ...set,
-            brokerIp: set.brokerIp || (options.length > 0 ? options[0].value : ""),
+            brokerIp: "", // Set to empty string to show "Select a Broker IP"
             mqttUsername: set.mqttUsername || (options.length > 0 ? options[0].username : ""),
             mqttPassword: set.mqttPassword || (options.length > 0 ? options[0].password : ""),
           }))
@@ -435,7 +436,7 @@ const Publish = () => {
     setInputSets([
       ...inputSets,
       {
-        brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
+        brokerIp: "",
         topic: "",
         qosLevel: "0",
         payload: "",
@@ -553,7 +554,7 @@ const Publish = () => {
     } else {
       setInputSets([
         {
-          brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
+          brokerIp: "",
           topic: "",
           qosLevel: "0",
           payload: "",
@@ -583,7 +584,7 @@ const Publish = () => {
                       </label>
                       <select
                         required
-                        className="publish-broker-ip-selects"
+                        className="publish-form-input"
                         id={`broker-${index}`}
                         name="brokerIp"
                         value={inputSet.brokerIp}
@@ -649,6 +650,14 @@ const Publish = () => {
                 ))}
               </div>
               <div className="publish-buttons-container">
+                {/* <button
+                  type="button"
+                  className="publish-submit-button"
+                  onClick={handleAddTopic}
+                  disabled={brokerOptions[0]?.value === ""}
+                >
+                  Add Topic
+                </button> */}
                 <button
                   type="button"
                   className="publish-submit-button"

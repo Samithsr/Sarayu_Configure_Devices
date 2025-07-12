@@ -4,7 +4,7 @@
   grid-template-columns: 50% 50%;
   width: 100%;
   box-sizing: border-box;
-  max-height: 88vh !important;
+  max-height: 87vh !important;
   overflow: hidden;
   gap: 10px;
 }
@@ -219,7 +219,7 @@
   width: 100%;
   background: #4a5568;
   border: 1px solid transparent;
-  padding: 8px 12px;
+  padding: 13px 16px;
   border-radius: 8px;
   color: #ffffff;
   font-size: 0.9rem;

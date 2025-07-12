@@ -4,8 +4,8 @@
   width: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #2d3748;
-  min-height: 88vh;
-  max-height: 88vh;
+  min-height: 87vh;
+  max-height: 87vh;
   overflow: hidden;
   padding: 20px;
 }
@@ -187,7 +187,7 @@
 }
 .firmware__table th:nth-child(2),
 .firmware__table td:nth-child(2) {
-  width: 45%;
+  width: 40%;
 }
 .firmware__table th:nth-child(3),
 .firmware__table td:nth-child(3) {
@@ -199,6 +199,10 @@
 }
 .firmware__table th:nth-child(5),
 .firmware__table td:nth-child(5) {
+  width: 10%;
+}
+.firmware__table th:nth-child(6),
+.firmware__table td:nth-child(6) {
   width: 10%;
 }
 .firmware__table tbody {
@@ -287,7 +291,7 @@
   border: 1px solid #ffffff;
 }
 
-/* Publish button */
+/* Publish and Delete buttons */
 .url-section-button {
   width: 100%;
   height: 40px;
@@ -313,6 +317,12 @@
   background-color: #3182ce;
   color: #ffffff;
   cursor: pointer;
+}
+.url-section-button.delete-button {
+  background-color: #dc3545;
+}
+.url-section-button.delete-button:hover:not(:disabled) {
+  background-color: #c82333;
 }
 
 /* Status messages (both upload and publish) */
@@ -344,6 +354,89 @@
   background-color: #dc3545;
 }
 
+/* Delete Modal Styles */
+.firmware-delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1500;
+}
+
+.firmware-delete-modal-container {
+  background-color: #2d3748;
+  padding: 24px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  animation: firmwareModalFadeIn 0.3s ease;
+  text-align: start;
+}
+
+.firmware-delete-modal-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.firmware-delete-modal-message {
+  font-size: 16px;
+  color: #d1d5db;
+  margin-bottom: 20px;
+}
+
+.firmware-delete-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.firmware-delete-modal-btn {
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.firmware-cancel-btn {
+  background-color: #3182ce;
+  color: #ffffff;
+}
+
+.firmware-cancel-btn:hover {
+  background-color: #2b6cb0;
+}
+
+.firmware-confirm-btn {
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+.firmware-confirm-btn:hover {
+  background-color: #c82333;
+}
+
+@keyframes firmwareModalFadeIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* Fade in and out animation for status messages */
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
@@ -368,7 +461,7 @@
   }
   .firmware__bottom {
     padding: 25px 50px;
-    margin-top: 25px; /* Adjusted for Ultra HD */
+    margin-top: 25px;
   }
   .firmware__table {
     margin-top: 35px;
@@ -382,6 +475,20 @@
   .url-section-button {
     font-size: 1rem;
     padding: 10px 15px;
+  }
+  .firmware-delete-modal-container {
+    max-width: 450px;
+    padding: 28px;
+  }
+  .firmware-delete-modal-title {
+    font-size: 24px;
+  }
+  .firmware-delete-modal-message {
+    font-size: 17px;
+  }
+  .firmware-delete-modal-btn {
+    padding: 10px 24px;
+    font-size: 15px;
   }
 }
 
@@ -399,7 +506,7 @@
   }
   .firmware__bottom {
     padding: 20px 45px;
-    margin-top: 20px; /* Adjusted for Full HD */
+    margin-top: 20px;
   }
   .firmware__table {
     margin-top: 30px;
@@ -413,6 +520,20 @@
   .url-section-button {
     font-size: 0.95rem;
     padding: 9px 14px;
+  }
+  .firmware-delete-modal-container {
+    max-width: 400px;
+    padding: 20px;
+  }
+  .firmware-delete-modal-title {
+    font-size: 20px;
+  }
+  .firmware-delete-modal-message {
+    font-size: 15px;
+  }
+  .firmware-delete-modal-btn {
+    padding: 7px 18px;
+    font-size: 13px;
   }
 }
 
@@ -430,7 +551,7 @@
   }
   .firmware__bottom {
     padding: 18px 40px;
-    margin-top: 18px; /* Adjusted for HD */
+    margin-top: 18px;
   }
   .firmware__table {
     margin-top: 28px;
@@ -444,6 +565,20 @@
   .url-section-button {
     font-size: 0.9rem;
     padding: 8px 12px;
+  }
+  .firmware-delete-modal-container {
+    max-width: 380px;
+    padding: 18px;
+  }
+  .firmware-delete-modal-title {
+    font-size: 19px;
+  }
+  .firmware-delete-modal-message {
+    font-size: 14px;
+  }
+  .firmware-delete-modal-btn {
+    padding: 6px 16px;
+    font-size: 12px;
   }
 }
 
@@ -461,7 +596,7 @@
   }
   .firmware__bottom {
     padding: 15px 35px;
-    margin-top: 15px; /* Adjusted for Small HD */
+    margin-top: 15px;
   }
   .firmware__table {
     margin-top: 25px;
@@ -475,6 +610,20 @@
   .url-section-button {
     font-size: 0.85rem;
     padding: 7px 10px;
+  }
+  .firmware-delete-modal-container {
+    max-width: 360px;
+    padding: 16px;
+  }
+  .firmware-delete-modal-title {
+    font-size: 18px;
+  }
+  .firmware-delete-modal-message {
+    font-size: 13px;
+  }
+  .firmware-delete-modal-btn {
+    padding: 5px 14px;
+    font-size: 11px;
   }
 }
 
@@ -492,7 +641,7 @@
   }
   .firmware__bottom {
     padding: 12px 30px;
-    margin-top: 12px; /* Adjusted for smaller laptops */
+    margin-top: 12px;
   }
   .firmware__table {
     margin-top: 20px;
@@ -506,6 +655,20 @@
   .url-section-button {
     font-size: 0.8rem;
     padding: 6px 8px;
+  }
+  .firmware-delete-modal-container {
+    max-width: 340px;
+    padding: 14px;
+  }
+  .firmware-delete-modal-title {
+    font-size: 17px;
+  }
+  .firmware-delete-modal-message {
+    font-size: 12px;
+  }
+  .firmware-delete-modal-btn {
+    padding: 5px 12px;
+    font-size: 10px;
   }
 }
 
@@ -544,7 +707,7 @@
   }
   .firmware__bottom {
     padding: 10px;
-    margin-top: 10px; /* Adjusted for mobile */
+    margin-top: 10px;
     overflow: auto;
   }
   .firmware__table {
@@ -583,5 +746,19 @@
   .firmware__published {
     font-size: 0.8rem;
     padding: 8px 16px;
+  }
+  .firmware-delete-modal-container {
+    max-width: 90%;
+    padding: 12px;
+  }
+  .firmware-delete-modal-title {
+    font-size: 16px;
+  }
+  .firmware-delete-modal-message {
+    font-size: 12px;
+  }
+  .firmware-delete-modal-btn {
+    padding: 5px 10px;
+    font-size: 10px;
   }
 }

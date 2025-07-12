@@ -1,4 +1,4 @@
-/* Form view wrapper */
+/* 
 .page-wrapper-left-side {
   display: flex;
   align-items: center;
@@ -10,12 +10,11 @@
   overflow: hidden;
 }
 
-/* Table view */
 .page-wrapper-left-side.table-view {
-  display: contents; /* Allows RightSideTable to take full viewport */
+  display: contents; 
 }
 
-/* Logout button */
+
 .logout-icon-button {
   background: none;
   border: none;
@@ -31,7 +30,7 @@
   color: #EF4444;
 }
 
-/* Form container */
+
 .home-container {
   min-width: 400px;
   min-height: 560px;
@@ -49,7 +48,6 @@
   filter: blur(5px);
 }
 
-/* Form styles */
 .broker-form .form-group {
   margin-bottom: 15px;
 }
@@ -98,7 +96,7 @@
   transform: translateY(-1px);
 }
 
-/* Modal styles */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -169,7 +167,7 @@
   background: #DC2626;
 }
 
-/* Messages */
+
 .status-message {
   position: absolute;
   bottom: 65px;
@@ -180,7 +178,7 @@
   color: #FFFFFF;
 }
 
-/* Animation */
+
 @keyframes slideIn {
   from {
     transform: translateY(-20px);
@@ -192,7 +190,7 @@
   }
 }
 
-/* Media Queries */
+
 @media (max-width: 768px) {
   .page-wrapper-left-side {
     display: flex;
@@ -214,8 +212,8 @@
   }
 }
 
-/* User info */
+
 .user-info h3 {
   font-size: 1.5em;
   color: #FFFFFF;
-}
+} */
