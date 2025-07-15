@@ -1,10 +1,11 @@
 // src/components/Navbar.js
 import React, { useEffect, useState } from 'react';
+import './Navbar.css';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LogoutModal from '../Pages/LogoutModel'; // adjust path if needed
-import './Navbar.css';
+import API_CONFIG from '../Components/Config/apiConfig';
 
 const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
@@ -28,8 +29,7 @@ const Navbar = () => {
     if (userRole === 'admin' && authToken) {
       try {
         // Call the backend to disconnect all brokers for the admin
-        const response = await fetch('http://localhost:5000/api/brokers/disconnect-all', {
-          method: 'POST',
+        const response = await API_CONFIG.post('/api/brokers/disconnect-all', {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,

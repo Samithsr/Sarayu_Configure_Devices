@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './ComConfiguration.css';
+import API_CONFIG from '../Config/apiConfig';
 
 const getDefaultFormData = () => ({
   tag1: '',
@@ -114,8 +115,8 @@ const ComConfiguration = () => {
     }));
 
     try {
-      const publishResponse = await fetch(
-        `http://localhost:5000/api/brokers/${brokerId}/publish`,
+      const publishResponse = await API_CONFIG.get(
+        `/api/brokers/${brokerId}/publish`,
         {
           method: 'POST',
           headers: {

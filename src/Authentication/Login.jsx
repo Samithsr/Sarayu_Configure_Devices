@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_CONFIG from '../Components/Config/apiConfig';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const Login = () => {
   const fetchAssignedBroker = async (userId, token) => {
     try {
       console.log('fetchAssignedBroker: Fetching for userId', userId);
-      const response = await axios.get('http://localhost:5000/api/brokers/assigned', {
+      const response = await API_CONFIG.get('/api/brokers/assigned', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -93,7 +94,7 @@ const Login = () => {
 
     try {
       console.log('handleSubmit: Sending login request', formData.email);
-      const response = await axios.post('http://localhost:5000/api/auth/signin', formData);
+      const response = await API_CONFIG.post('/api/auth/signin', formData);
       const { token, user } = response.data;
 
       if (token && user && user._id && user.email && user.roles) {

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import './Dashboard.css';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DisconnectModal from '../Components/DisconnectModel';
-import './Dashboard.css';
+import API_CONFIG from '../Components/Config/apiConfig';
 
 const Dashboard = () => {
   const [brokerStatus, setBrokerStatus] = useState(null);
@@ -68,10 +69,9 @@ const Dashboard = () => {
       const fetchBrokerStatus = async () => {
         try {
           console.log(`Fetching status for brokerId: ${brokerId}`);
-          const response = await fetch(
-            `http://localhost:5000/api/brokers/${brokerId}/status`,
+          const response = await API_CONFIG.get(
+            `/api/brokers/${brokerId}/status`,
             {
-              method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${authToken}`,
@@ -122,8 +122,7 @@ const Dashboard = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch('http://localhost:5000/api/brokers/assigned', {
-        method: 'GET',
+      const response = await API_CONFIG.get('/api/brokers/assigned', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -172,8 +171,8 @@ const Dashboard = () => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/brokers/${brokerId}/disconnect`,
+      const response = await API_CONFIG.post(
+        `/api/brokers/${brokerId}/disconnect`,
         {
           method: 'POST',
           headers: {

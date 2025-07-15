@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+import API_CONFIG from "../Config/apiConfig";
+
 const Firmware = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [apiData, setApiData] = useState([]);
@@ -53,7 +55,7 @@ const Firmware = () => {
           return;
         }
 
-        const res = await axios.get("http://localhost:5000/api/brokers", {
+        const res = await API_CONFIG.get("/api/brokers", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -106,7 +108,7 @@ const Firmware = () => {
 
   const fetchVersions = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/get-all-versions`);
+      const response = await API_CONFIG.get(`/api/get-all-versions`);
       const data = await response.json();
       console.log("Fetched versions:", data);
       if (data.success) {
@@ -164,8 +166,8 @@ const Firmware = () => {
 
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch("http://localhost:5000/api/upload", {
-        method: "POST",
+      const response = await API_CONFIG.post("/api/upload", {
+        
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -205,7 +207,7 @@ const Firmware = () => {
         return;
       }
 
-      const response = await axios.delete(`http://localhost:5000/api/delete/${filename}`, {
+      const response = await API_CONFIG.delete(`/api/delete/${filename}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -304,7 +306,7 @@ const Firmware = () => {
 
       console.log("Publishing request:", { brokerIp: brokerIpAddress, topic, url, mqttUsername });
       const response = await axios.post(
-        `http://localhost:5000/api/publish`,
+        `/api/publish`,
         {
           brokerIp: brokerIpAddress,
           topic,

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Publish.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import API_CONFIG from "../Config/apiConfig";
 
 const Subscribe = ({ brokerOptions }) => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const Subscribe = ({ brokerOptions }) => {
           navigate("/");
           return;
         }
-        const response = await fetch("http://localhost:5000/api/messages", {
+        const response = await API_CONFIG.get("/api/messages", {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -101,7 +102,7 @@ const Subscribe = ({ brokerOptions }) => {
         }
       }
 
-      const response = await fetch("http://localhost:5000/api/subscribe", {
+      const response = await API_CONFIG.get("/api/subscribe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,8 +151,8 @@ const Subscribe = ({ brokerOptions }) => {
         }
       }
 
-      const response = await fetch("http://localhost:5000/api/unsubscribe", {
-        method: "DELETE",
+      const response = await API_CONFIG.delete("/api/unsubscribe", {
+        
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
@@ -361,8 +362,7 @@ const Publish = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:5000/api/brokers", {
-          method: "GET",
+        const response = await API_CONFIG.get("/api/brokers", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
@@ -509,8 +509,7 @@ const Publish = () => {
         };
         console.log(`Publishing request payload for set ${index + 1}:`, payloadData);
 
-        const response = await fetch("http://localhost:5000/api/pub/publish", {
-          method: "POST",
+        const response = await API_CONFIG.post("/api/pub/publish", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,

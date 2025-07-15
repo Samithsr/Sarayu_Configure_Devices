@@ -10,6 +10,17 @@ const AdminUserAssign = ({ brokerId, assignedUserId, assignedUserEmail, users, h
     onConfirmationStateChange(brokerId, showModal);
   }, [showModal, brokerId, onConfirmationStateChange]);
 
+  useEffect(() => {
+    // Toggle no-scroll class on body to prevent background scrolling
+    if (showModal) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+    // Cleanup on unmount
+    return () => document.body.classList.remove('no-scroll');
+  }, [showModal]);
+
   const handleUserSelect = (e) => {
     const userId = e.target.value === '' ? null : e.target.value;
     if (userId === assignedUserId) {

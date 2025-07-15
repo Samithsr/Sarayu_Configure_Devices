@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './Location.css';
+import API_CONFIG from '../../Config/apiConfig';
 
 const Location = () => {
   const [formData, setFormData] = useState({
@@ -52,7 +53,7 @@ const Location = () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
+      const response = await API_CONFIG.get(`/api/brokers/${brokerId}/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

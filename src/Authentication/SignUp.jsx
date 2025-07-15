@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_CONFIG from '../Components/Config/apiConfig';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -63,7 +64,7 @@ const SignUp = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', {
+      const response = await API_CONFIG.post('/api/auth/signup', {
         email: formData.email,
         password: formData.password,
       });

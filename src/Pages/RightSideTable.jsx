@@ -8,6 +8,7 @@ import DeleteModal from '../Authentication/DeleteModel';
 import AddBrokerModal from '../Pages/AddBrokerModal';
 import AdminUserAssign from '../Components/Users/AdminUserAssign';
 import LogoutModal from '../Pages/LogoutModel';
+import API_CONFIG from '../Components/Config/apiConfig';
 
 const RightSideTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,8 +86,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/users', {
-        method: 'GET',
+      const response = await API_CONFIG.get('/api/auth/users', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -116,7 +116,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/users`, {
+      const response = await API_CONFIG.get(`/api/auth/users`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -149,8 +149,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/brokers', {
-        method: 'GET',
+      const response = await API_CONFIG.get('/api/brokers', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -217,8 +216,7 @@ const RightSideTable = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch("http://localhost:5000/api/brokers/assigned", {
-        method: "GET",
+      const response = await API_CONFIG.get("/api/brokers/assigned", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -250,8 +248,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const assignResponse = await fetch(`http://localhost:5000/api/brokers/${brokerId}/assign-user`, {
-        method: 'POST',
+      const assignResponse = await API_CONFIG.post(`/api/brokers/${brokerId}/assign-user`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -298,8 +295,7 @@ const RightSideTable = () => {
     toast.info(`Validating broker ${row.label || row.brokerId}...`);
 
     try {
-      const testResponse = await fetch('http://localhost:5000/api/test-broker', {
-        method: 'POST',
+      const testResponse = await API_CONFIG.post('/api/test-broker', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -338,8 +334,7 @@ const RightSideTable = () => {
 
       toast.success(`Broker ${row.label || row.brokerId} is available. Connecting...`);
 
-      const connectResponse = await fetch(`http://localhost:5000/api/brokers/${row.brokerId}/connect`, {
-        method: 'POST',
+      const connectResponse = await API_CONFIG.post(`/api/brokers/${row.brokerId}/connect`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -410,7 +405,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const logoutResponse = await fetch('http://localhost:5000/api/auth/logout', {
+      const logoutResponse = await API_CONFIG.post('/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -472,8 +467,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerIdToDelete}`, {
-        method: 'DELETE',
+      const response = await API_CONFIG.delete(`/api/brokers/${brokerIdToDelete}`, {
+        // method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -519,8 +514,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}`, {
-        method: 'PUT',
+      const response = await API_CONFIG.put(`/api/brokers/${brokerToEdit.brokerId}`, {
+        // method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -596,8 +591,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/brokers', {
-        method: 'POST',
+      const response = await API_CONFIG.post('/api/brokers', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,

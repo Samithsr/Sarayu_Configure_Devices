@@ -31,8 +31,8 @@
   align-items: center;
   justify-content: center;
   transition: background 0.3s ease, transform 0.2s ease;
-  width: 40px; /* Fixed size for consistency */
-  height: 40px;
+  width: 35px; /* Fixed size for consistency */
+  height: 35px;
 }
 
 .logout-icon-button:hover {

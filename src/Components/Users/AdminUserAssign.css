@@ -7,7 +7,7 @@
   height: auto;
   padding: 5px 0;
   position: relative;
-  z-index: 3; /* Ensure it stays above table */
+  z-index: 3;
 }
 
 /* User select dropdown */
@@ -21,54 +21,54 @@
   color: #FFFFFF;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s ease; /* Simplified transition */
+  transition: border-color 0.2s ease;
+  appearance: none; /* remove native style (may not affect all browsers) */
 }
 
-.user-assign-select:focus {
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  outline: none;
+/* Remove scrollbars in modern WebKit-based browsers (not for dropdown options) */
+.user-assign-select::-webkit-scrollbar {
+  display: none;
 }
 
-/* Style for dropdown options */
+/* Option styles */
 .user-assign-select option {
   color: #FFFFFF;
   background-color: #252F3F;
 }
 
-/* Style for the "Select a User" option */
+/* Placeholder option */
 .user-assign-select option[value=""] {
   color: #6B7280;
 }
 
-/* User assign modal overlay */
+/* Modal overlay */
 .user-assign-modal-overlay {
   position: fixed;
-  top: 6vh; /* Offset by navbar height */
+  top: 6vh;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.607); /* No backdrop-filter to prevent shaking */
+  background: rgba(0, 0, 0, 0.607);
   display: flex;
   justify-content: center;
-  align-items: center; /* Center vertically */
+  align-items: center;
   z-index: 1000;
-  overflow-y: auto; /* Allow scrolling if modal content exceeds viewport */
+  overflow-y: auto;
 }
 
-/* User assign modal content */
+/* Modal content */
 .user-assign-modal-content {
-  background: #2d3748; /* Matches AddBrokerModal, EditModal, LogoutModal */
+  background: #2d3748;
   padding: 20px;
   border-radius: 12px;
   width: 100%;
   max-width: 420px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   animation: userAssignModalSlideIn 0.3s ease-out;
-  margin: 20px 0; /* Vertical margin for spacing */
+  margin: 20px 0;
 }
 
-/* User assign modal title container */
+/* Modal title container */
 .user-assign-modal-title-container {
   display: flex;
   align-items: center;
@@ -76,9 +76,9 @@
   margin-bottom: 14px;
 }
 
-/* User assign modal icon */
+/* Icon */
 .user-assign-modal-icon {
-  background: #4a5568; /* Matches cancel buttons */
+  background: #4a5568;
   color: #ffffff;
   padding: 8px;
   border-radius: 50%;
@@ -87,37 +87,37 @@
 }
 
 .user-assign-modal-icon:hover {
-  background: #5a6b8a; /* Matches button hover */
-  color: #3B82F6; /* Matches confirm button */
+  background: #5a6b8a;
+  color: #3B82F6;
   transform: scale(1.03);
 }
 
-/* User assign modal title */
+/* Modal title */
 .user-assign-modal-title {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #ffffff; /* Matches dark theme */
+  color: #ffffff;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
-/* User assign modal text */
+/* Modal text */
 .user-assign-modal-text {
   font-size: 0.9rem;
-  color: #d1d5db; /* Matches LogoutModal text */
+  color: #d1d5db;
   margin: 0 0 20px 0;
   text-align: left;
 }
 
-/* User assign modal buttons container */
+/* Modal buttons container */
 .user-assign-modal-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 
-/* User assign modal button base style */
+/* Base button style */
 .user-assign-modal-button {
   padding: 8px 24px;
   border: none;
@@ -125,10 +125,10 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease; /* Simplified transition */
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-/* User assign modal confirm button */
+/* Confirm button */
 .user-assign-modal-button.user-assign-modal-confirm {
   background: #3B82F6;
   color: #ffffff;
@@ -143,9 +143,9 @@
   transform: scale(0.95);
 }
 
-/* User assign modal cancel button */
+/* Cancel button */
 .user-assign-modal-button.user-assign-modal-cancel {
-  background: #4a5568; /* Matches LogoutModal cancel button */
+  background: #4a5568;
   color: #ffffff;
 }
 
@@ -158,7 +158,7 @@
   transform: scale(0.95);
 }
 
-/* Animation for modal slide-in */
+/* Slide-in animation */
 @keyframes userAssignModalSlideIn {
   from {
     transform: translateY(-40px);
@@ -170,7 +170,7 @@
   }
 }
 
-/* Media Queries */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .users-container {
     padding: 3px 0;

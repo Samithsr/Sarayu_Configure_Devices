@@ -1,8 +1,7 @@
-// App.js
 import React, { useEffect } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import Login from './Authentication/Login';
-import Signup from './Authentication/Signup';
+import Signup from './Authentication/SignUp';
 import AddBrokerModal from './Pages/AddBrokerModal';
 import Navbar from './Pages/Navbar';
 import Dashboard from './Pages/Dashboard';
@@ -12,10 +11,10 @@ import ComConfiguration from './Components/Users/ComConfiguration';
 import Publish from './Components/Users/Publish';
 import Subscribe from './Components/Users/Subscribe';
 import Firmware from './Components/Users/Firmware';
-import Location from './Components/Users/Location/Location'
+import Location from './Components/Users/Location/Location';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 import './App.css';
 
 const App = () => {
@@ -27,15 +26,18 @@ const App = () => {
   };
 
   useEffect(() => {
-    const jwt = localStorage.getItem("authToken");
-    try {
-      const jwtUser = jwtDecode(jwt);
-      if (Date.now() >= jwtUser.exp * 1000) {
-        localStorage.removeItem("authToken");
-        window.location.reload();
+    const jwt = localStorage.getItem('authToken');
+    if (jwt && typeof jwt === 'string') { // Check if jwt exists and is a string
+      try {
+        const jwtUser = jwtDecode(jwt);
+        if (Date.now() >= jwtUser.exp * 1000) {
+          localStorage.removeItem('authToken');
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error('Error decoding JWT:', error);
+        localStorage.removeItem('authToken'); // Optionally clear invalid token
       }
-    } catch (error) {
-      console.error("Error decoding JWT:", error);
     }
   }, [location]);
 
@@ -51,16 +53,16 @@ const App = () => {
             <Route index element={<div />} />
             <Route path="publish" element={<Publish />} />
             <Route path="subscribe" element={<Subscribe />} />
-            <Route path="firmware" element={<Firmware />} /> {/* Moved Firmware here */}
+            <Route path="firmware" element={<Firmware />} />
           </Route>
           <Route path="/dashboard" element={<Dashboard />}>
             <Route index element={<ComConfiguration />} />
             <Route path="com-config" element={<ComConfiguration />} />
             <Route path="wifi-config" element={<WiFiConfig />} />
             <Route path="publish" element={<Publish />} />
-            <Route path="subscribe" element={<Location/>}  />
-            </Route>       
-            </Route>       
+            <Route path="subscribe" element={<Location />} />
+          </Route>
+        </Route>
       </Routes>
       <ToastContainer
         position="top-right"
