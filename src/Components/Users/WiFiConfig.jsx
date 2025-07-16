@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './WiFiConfig.css';
-import API_CONFIG from '../Config/apiConfig';
 
 const WiFiConfig = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +24,7 @@ const WiFiConfig = () => {
     const fetchLatestConfig = async () => {
       try {
         const authToken = localStorage.getItem('authToken');
-        const response = await API_CONFIG.get('/api/published-data/latest', {
+        const response = await fetch('http://3.110.131.251:5000/api/published-data/latest', {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,
@@ -112,8 +111,8 @@ const WiFiConfig = () => {
     };
 
     try {
-      const response = await API_CONFIG.post(`/api/brokers/${brokerId}/publish`, {
-       
+      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerId}/publish`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,

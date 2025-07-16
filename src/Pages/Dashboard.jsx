@@ -69,9 +69,10 @@ const Dashboard = () => {
       const fetchBrokerStatus = async () => {
         try {
           console.log(`Fetching status for brokerId: ${brokerId}`);
-          const response = await API_CONFIG.get(
-            `/api/brokers/${brokerId}/status`,
+          const response = await fetch(
+            `http://3.110.131.251:5000/api/brokers/${brokerId}/status`,
             {
+              method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${authToken}`,
@@ -122,7 +123,8 @@ const Dashboard = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await API_CONFIG.get('/api/brokers/assigned', {
+      const response = await fetch('http://3.110.131.251:5000/api/brokers/assigned', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -171,8 +173,8 @@ const Dashboard = () => {
     }
 
     try {
-      const response = await API_CONFIG.post(
-        `/api/brokers/${brokerId}/disconnect`,
+      const response = await fetch(
+        `http://3.110.131.251:5000/api/brokers/${brokerId}/disconnect`,
         {
           method: 'POST',
           headers: {

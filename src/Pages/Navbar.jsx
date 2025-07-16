@@ -29,7 +29,8 @@ const Navbar = () => {
     if (userRole === 'admin' && authToken) {
       try {
         // Call the backend to disconnect all brokers for the admin
-        const response = await API_CONFIG.post('/api/brokers/disconnect-all', {
+        const response = await fetch('http://3.110.131.251:5000/api/brokers/disconnect-all', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,

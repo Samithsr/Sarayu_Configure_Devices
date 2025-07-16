@@ -17,44 +17,76 @@ const Subscribe = ({ brokerOptions }) => {
       messages: [],
     },
   ]);
+  const [ws, setWs] = useState(null);
 
   useEffect(() => {
-    const fetchMessages = async () => {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      toast.error("Please log in to connect to WebSocket.");
+      navigate("/");
+      return;
+    }
+
+    // Initialize WebSocket connection
+    const websocket = new WebSocket("ws://3.110.131.251:8080/ws");
+    setWs(websocket);
+
+    websocket.onopen = () => {
+      console.log("WebSocket connected");
+      // Send authentication token to WebSocket server
+      websocket.send(JSON.stringify({ type: "auth", token: authToken }));
+    };
+
+    websocket.onmessage = (event) => {
       try {
-        const authToken = localStorage.getItem("authToken");
-        if (!authToken) {
-          console.error("No auth token for fetching messages");
-          toast.error("Please log in to fetch messages.");
-          navigate("/");
-          return;
-        }
-        const response = await API_CONFIG.get("/api/messages", {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-        const result = await response.json();
-        console.log("Fetched messages:", result.messages);
-        if (response.ok) {
+        const message = JSON.parse(event.data);
+        console.log("Received WebSocket message:", message);
+
+        if (message.type === "mqtt_message") {
+          const { topic, payload, qos } = message.data;
           setSubscribeInputSets((prev) =>
-            prev.map((set) => ({
-              ...set,
-              messages: result.messages,
-            }))
+            prev.map((set) => {
+              // Match message to topicFilter
+              if (set.topicFilter === topic) {
+                return {
+                  ...set,
+                  messages: [
+                    ...set.messages,
+                    { topic, payload, qos },
+                  ].slice(-100), // Limit to 100 messages per set
+                };
+              }
+              return set;
+            })
           );
-        } else {
-          console.error("Failed to fetch messages:", result.message);
-          toast.error("Failed to fetch messages: " + result.message);
         }
       } catch (error) {
-        console.error("Error fetching messages:", error.message);
-        toast.error("Error fetching messages: " + error.message);
+        console.error("Error processing WebSocket message:", error.message);
+        toast.error("Error processing message: " + error.message);
       }
     };
 
-    fetchMessages();
-    const intervalId = setInterval(fetchMessages, 1000 * 60);
-    return () => clearInterval(intervalId);
+    websocket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      toast.error("WebSocket connection error.");
+    };
+
+    websocket.onclose = () => {
+      console.log("WebSocket disconnected");
+      setWs(null);
+      toast.warn("WebSocket connection closed. Attempting to reconnect...");
+      // Attempt to reconnect after 5 seconds
+      setTimeout(() => {
+        const newWs = new WebSocket("ws://3.110.131.251:8080/ws");
+        setWs(newWs);
+      }, 5000);
+    };
+
+    return () => {
+      if (websocket) {
+        websocket.close();
+      }
+    };
   }, [navigate]);
 
   const handleChange = (index, e) => {
@@ -102,20 +134,18 @@ const Subscribe = ({ brokerOptions }) => {
         }
       }
 
-      const response = await API_CONFIG.get("/api/subscribe", {
-        method: "POST",
+      const response = await API_CONFIG.post("http://3.110.131.251:5000/api/subscribe", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ inputSets: subscribeInputSets }),
+        data: JSON.stringify({ inputSets: subscribeInputSets }),
       });
 
-      const result = await response.json();
-      console.log("Subscribe Response:", result);
+      console.log("Subscribe Response:", response.data);
 
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to subscribe");
+      if (response.status !== 200) {
+        throw new Error(response.data.message || "Failed to subscribe");
       }
 
       setIsSubscribed(true);
@@ -126,6 +156,11 @@ const Subscribe = ({ brokerOptions }) => {
         )
         .join("\n");
       toast.success("Subscribed:\n" + summary);
+
+      // Notify WebSocket server of subscriptions
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "subscribe", inputSets: subscribeInputSets }));
+      }
     } catch (error) {
       console.error("Error subscribing:", error.message);
       toast.error(error.message);
@@ -151,20 +186,18 @@ const Subscribe = ({ brokerOptions }) => {
         }
       }
 
-      const response = await API_CONFIG.delete("/api/unsubscribe", {
-        
+      const response = await API_CONFIG.delete("http://3.110.131.251:5000/api/unsubscribe", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ inputSets: subscribeInputSets }),
+        data: JSON.stringify({ inputSets: subscribeInputSets }),
       });
 
-      const result = await response.json();
-      console.log("Unsubscribe Response:", result);
+      console.log("Unsubscribe Response:", response.data);
 
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to unsubscribe");
+      if (response.status !== 200) {
+        throw new Error(response.data.message || "Failed to unsubscribe");
       }
 
       setIsSubscribed(false);
@@ -181,6 +214,11 @@ const Subscribe = ({ brokerOptions }) => {
         )
         .join("\n");
       toast.success("Unsubscribed:\n" + summary);
+
+      // Notify WebSocket server of unsubscribe
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "unsubscribe", inputSets: subscribeInputSets }));
+      }
     } catch (error) {
       console.error("Error unsubscribing:", error.message);
       toast.error(error.message);
@@ -362,7 +400,7 @@ const Publish = () => {
           return;
         }
 
-        const response = await API_CONFIG.get("/api/brokers", {
+        const response = await API_CONFIG.get("http://3.110.131.251:5000/api/brokers", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
@@ -509,12 +547,12 @@ const Publish = () => {
         };
         console.log(`Publishing request payload for set ${index + 1}:`, payloadData);
 
-        const response = await API_CONFIG.post("/api/pub/publish", {
+        const response = await API_CONFIG.post("http://3.110.131.251:5000/api/pub/publish", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-          body: JSON.stringify(payloadData),
+          data: JSON.stringify(payloadData),
         });
 
         const result = await response.json();
@@ -649,14 +687,14 @@ const Publish = () => {
                 ))}
               </div>
               <div className="publish-buttons-container">
-                {/* <button
+                <button
                   type="button"
                   className="publish-submit-button"
                   onClick={handleAddTopic}
                   disabled={brokerOptions[0]?.value === ""}
                 >
                   Add Topic
-                </button> */}
+                </button>
                 <button
                   type="button"
                   className="publish-submit-button"

@@ -8,7 +8,6 @@ import DeleteModal from '../Authentication/DeleteModel';
 import AddBrokerModal from '../Pages/AddBrokerModal';
 import AdminUserAssign from '../Components/Users/AdminUserAssign';
 import LogoutModal from '../Pages/LogoutModel';
-import API_CONFIG from '../Components/Config/apiConfig';
 
 const RightSideTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +19,7 @@ const RightSideTable = () => {
   const [brokerIdToDelete, setBrokerIdToDelete] = useState(null);
   const [users, setUsers] = useState([]);
   const [tableData, setTableData] = useState([]);
-  const [activeBrokerId, setActiveBrokerId] = useState(null);
+  const [activeBrokerId, setActiveBrokerId] = useState(null); // Restored for AdminUserAssign
   const rowsPerPage = 10;
   const location = useLocation();
   const navigate = useNavigate();
@@ -37,7 +36,7 @@ const RightSideTable = () => {
   };
 
   const handleConfirmationStateChange = (brokerId, isConfirming) => {
-    setActiveBrokerId(isConfirming ? brokerId : null);
+    setActiveBrokerId(isConfirming ? brokerId : null); // Restored for AdminUserAssign
   };
 
   useEffect(() => {
@@ -86,7 +85,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await API_CONFIG.get('/api/auth/users', {
+      const response = await fetch('http://3.110.131.251:5000/api/auth/users', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -116,7 +116,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await API_CONFIG.get(`/api/auth/users`, {
+      const response = await fetch(`http://3.110.131.251:5000/api/auth/users`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +149,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await API_CONFIG.get('/api/brokers', {
+      const response = await fetch('http://3.110.131.251:5000/api/brokers', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -216,7 +217,8 @@ const RightSideTable = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await API_CONFIG.get("/api/brokers/assigned", {
+      const response = await fetch("http://3.110.131.251:5000/api/brokers/assigned", {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -248,7 +250,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const assignResponse = await API_CONFIG.post(`/api/brokers/${brokerId}/assign-user`, {
+      const assignResponse = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerId}/assign-user`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -295,7 +298,8 @@ const RightSideTable = () => {
     toast.info(`Validating broker ${row.label || row.brokerId}...`);
 
     try {
-      const testResponse = await API_CONFIG.post('/api/test-broker', {
+      const testResponse = await fetch('http://3.110.131.251:5000/api/test-broker', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -334,7 +338,8 @@ const RightSideTable = () => {
 
       toast.success(`Broker ${row.label || row.brokerId} is available. Connecting...`);
 
-      const connectResponse = await API_CONFIG.post(`/api/brokers/${row.brokerId}/connect`, {
+      const connectResponse = await fetch(`http://3.110.131.251:5000/api/brokers/${row.brokerId}/connect`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -405,7 +410,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const logoutResponse = await API_CONFIG.post('/api/auth/logout', {
+      const logoutResponse = await fetch('http://3.110.131.251:5000/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -467,8 +472,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await API_CONFIG.delete(`/api/brokers/${brokerIdToDelete}`, {
-        // method: 'DELETE',
+      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerIdToDelete}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -514,8 +519,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await API_CONFIG.put(`/api/brokers/${brokerToEdit.brokerId}`, {
-        // method: 'PUT',
+      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerToEdit.brokerId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -591,7 +596,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await API_CONFIG.post('/api/brokers', {
+      const response = await fetch('http://3.110.131.251:5000/api/brokers', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
@@ -672,7 +678,7 @@ const RightSideTable = () => {
       </div>
       <div className="table-main">
         {location.pathname === '/table' ? (
-          <div className={`unique-table-scrollable ${activeBrokerId ? 'blurred' : ''}`}>
+          <div className="unique-table-scrollable">
             <table className="unique-table">
               <thead>
                 <tr>
@@ -688,10 +694,7 @@ const RightSideTable = () => {
               </thead>
               <tbody>
                 {currentData.map((row, index) => (
-                  <tr
-                    key={index}
-                    className={row.brokerId === activeBrokerId ? 'highlighted-row' : ''}
-                  >
+                  <tr key={index}>
                     <td>{row.brokerip}</td>
                     <td>{row.port}</td>
                     <td>{row.user}</td>
@@ -732,7 +735,7 @@ const RightSideTable = () => {
                         assignedUserEmail={row.assignedUserEmail}
                         users={users}
                         handleAssignUser={handleAssignUser}
-                        onConfirmationStateChange={handleConfirmationStateChange}
+                        onConfirmationStateChange={handleConfirmationStateChange} // Restored prop
                       />
                     </td>
                   </tr>
@@ -800,3 +803,4 @@ const RightSideTable = () => {
 };
 
 export default RightSideTable;
+

@@ -12,8 +12,9 @@
 
 /* User select dropdown */
 .user-assign-select {
-  width: 90%;
-  padding: 8px 10px;
+  width: 100%;
+  max-width: 150px;
+  padding: 8px;
   border: 1px solid #4B5563;
   border-radius: 6px;
   font-size: 14px;
@@ -21,19 +22,24 @@
   color: #FFFFFF;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s ease;
-  appearance: none; /* remove native style (may not affect all browsers) */
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-/* Remove scrollbars in modern WebKit-based browsers (not for dropdown options) */
+.user-assign-select:disabled {
+  background-color: #4B5563;
+  color: #A0AEC0;
+  cursor: not-allowed;
+}
+
+/* Remove scrollbars for dropdown */
 .user-assign-select::-webkit-scrollbar {
   display: none;
 }
 
 /* Option styles */
 .user-assign-select option {
-  color: #FFFFFF;
   background-color: #252F3F;
+  color: #FFFFFF;
 }
 
 /* Placeholder option */
@@ -48,7 +54,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.607);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -58,7 +64,7 @@
 
 /* Modal content */
 .user-assign-modal-content {
-  background: #2d3748;
+  background: #2D3748;
   padding: 20px;
   border-radius: 12px;
   width: 100%;
@@ -78,8 +84,8 @@
 
 /* Icon */
 .user-assign-modal-icon {
-  background: #4a5568;
-  color: #ffffff;
+  background: #4A5568;
+  color: #FFFFFF;
   padding: 8px;
   border-radius: 50%;
   font-size: 20px;
@@ -87,7 +93,7 @@
 }
 
 .user-assign-modal-icon:hover {
-  background: #5a6b8a;
+  background: #5A6B8A;
   color: #3B82F6;
   transform: scale(1.03);
 }
@@ -96,7 +102,7 @@
 .user-assign-modal-title {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #FFFFFF;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -105,7 +111,7 @@
 /* Modal text */
 .user-assign-modal-text {
   font-size: 0.9rem;
-  color: #d1d5db;
+  color: #D1D5DB;
   margin: 0 0 20px 0;
   text-align: left;
 }
@@ -131,11 +137,11 @@
 /* Confirm button */
 .user-assign-modal-button.user-assign-modal-confirm {
   background: #3B82F6;
-  color: #ffffff;
+  color: #FFFFFF;
 }
 
 .user-assign-modal-button.user-assign-modal-confirm:hover {
-  background: #2b6cb0;
+  background: #2B6CB0;
   transform: scale(1.03);
 }
 
@@ -145,12 +151,12 @@
 
 /* Cancel button */
 .user-assign-modal-button.user-assign-modal-cancel {
-  background: #4a5568;
-  color: #ffffff;
+  background: #4A5568;
+  color: #FFFFFF;
 }
 
 .user-assign-modal-button.user-assign-modal-cancel:hover {
-  background: #5a6b8a;
+  background: #5A6B8A;
   transform: scale(1.03);
 }
 
@@ -177,15 +183,15 @@
   }
 
   .user-assign-select {
-    padding: 6px 8px;
+    padding: 6px;
     font-size: 12px;
-    width: 85%;
+    max-width: 120px;
   }
 
   .user-assign-modal-content {
     padding: 16px;
     max-width: 95%;
-    margin: 10px 0;
+    margin: 10px;
   }
 
   .user-assign-modal-title {
@@ -204,5 +210,29 @@
   .user-assign-modal-icon {
     font-size: 18px;
     padding: 6px;
+  }
+}
+
+@media (max-width: 576px) {
+  .user-assign-select {
+    font-size: 11px;
+    max-width: 100px;
+  }
+
+  .user-assign-modal-content {
+    padding: 12px;
+  }
+
+  .user-assign-modal-title {
+    font-size: 1rem;
+  }
+
+  .user-assign-modal-text {
+    font-size: 0.75rem;
+  }
+
+  .user-assign-modal-button {
+    padding: 6px 12px;
+    font-size: 0.75rem;
   }
 }
