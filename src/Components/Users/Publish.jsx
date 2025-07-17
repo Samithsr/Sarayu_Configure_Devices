@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Publish.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import API_CONFIG from "../Config/apiConfig";
+import io from "socket.io-client";
 
 const Subscribe = ({ brokerOptions }) => {
   const navigate = useNavigate();
@@ -17,75 +17,92 @@ const Subscribe = ({ brokerOptions }) => {
       messages: [],
     },
   ]);
-  const [ws, setWs] = useState(null);
 
   useEffect(() => {
+    // Initialize Socket.IO client
     const authToken = localStorage.getItem("authToken");
-    if (!authToken) {
-      toast.error("Please log in to connect to WebSocket.");
-      navigate("/");
-      return;
-    }
+    const socket = io("http://3.110.131.251:5000", {
+      query: { token: authToken },
+      transports: ["websocket"],
+    });
 
-    // Initialize WebSocket connection
-    const websocket = new WebSocket("ws://3.110.131.251:8080/ws");
-    setWs(websocket);
+    socket.on("connect", () => {
+      console.log("Socket.IO connected");
+    });
 
-    websocket.onopen = () => {
-      console.log("WebSocket connected");
-      // Send authentication token to WebSocket server
-      websocket.send(JSON.stringify({ type: "auth", token: authToken }));
-    };
-
-    websocket.onmessage = (event) => {
+    // Fetch initial messages
+    const fetchMessages = async () => {
       try {
-        const message = JSON.parse(event.data);
-        console.log("Received WebSocket message:", message);
-
-        if (message.type === "mqtt_message") {
-          const { topic, payload, qos } = message.data;
+        if (!authToken) {
+          console.error("No auth token for fetching messages");
+          toast.error("Please log in to fetch messages.");
+          navigate("/");
+          return;
+        }
+        const response = await fetch("http://3.110.131.251:5000/api/messages", {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        const result = await response.json();
+        console.log("Fetched messages:", result.messages);
+        if (response.ok) {
           setSubscribeInputSets((prev) =>
-            prev.map((set) => {
-              // Match message to topicFilter
-              if (set.topicFilter === topic) {
-                return {
-                  ...set,
-                  messages: [
-                    ...set.messages,
-                    { topic, payload, qos },
-                  ].slice(-100), // Limit to 100 messages per set
-                };
-              }
-              return set;
-            })
+            prev.map((set) => ({
+              ...set,
+              messages: result.messages,
+            }))
           );
+        } else {
+          console.error("Failed to fetch messages:", result.message);
+          toast.error("Failed to fetch messages: " + result.message);
         }
       } catch (error) {
-        console.error("Error processing WebSocket message:", error.message);
-        toast.error("Error processing message: " + error.message);
+        console.error("Error fetching messages:", error.message);
+        toast.error("Error fetching messages: " + error.message);
       }
     };
 
-    websocket.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      toast.error("WebSocket connection error.");
-    };
+    fetchMessages();
 
-    websocket.onclose = () => {
-      console.log("WebSocket disconnected");
-      setWs(null);
-      toast.warn("WebSocket connection closed. Attempting to reconnect...");
-      // Attempt to reconnect after 5 seconds
-      setTimeout(() => {
-        const newWs = new WebSocket("ws://3.110.131.251:8080/ws");
-        setWs(newWs);
-      }, 5000);
-    };
+    // Listen for new messages via Socket.IO
+    socket.on("mqtt_message", (data) => {
+      try {
+        console.log("Received new message via Socket.IO:", data);
+        setSubscribeInputSets((prev) =>
+          prev.map((set) => ({
+            ...set,
+            messages: [...(set.messages || []), data],
+          }))
+        );
+      } catch (error) {
+        console.error("Error processing Socket.IO message:", error.message);
+      }
+    });
 
+    // Handle Socket.IO errors
+    socket.on("connect_error", (error) => {
+      console.error("Socket.IO connection error:", error.message);
+      toast.error("Socket.IO connection error");
+      if (error.message.includes("Unauthorized")) {
+        localStorage.clear();
+        toast.error("Session expired. Please log in again.");
+        navigate("/");
+      }
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("Socket.IO disconnected:", reason);
+      if (reason === "io server disconnect") {
+        localStorage.clear();
+        toast.error("Session expired. Please log in again.");
+        navigate("/");
+      }
+    });
+
+    // Cleanup Socket.IO connection on component unmount
     return () => {
-      if (websocket) {
-        websocket.close();
-      }
+      socket.disconnect();
     };
   }, [navigate]);
 
@@ -134,18 +151,20 @@ const Subscribe = ({ brokerOptions }) => {
         }
       }
 
-      const response = await API_CONFIG.post("http://3.110.131.251:5000/api/subscribe", {
+      const response = await fetch("http://3.110.131.251:5000/api/subscribe", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        data: JSON.stringify({ inputSets: subscribeInputSets }),
+        body: JSON.stringify({ inputSets: subscribeInputSets }),
       });
 
-      console.log("Subscribe Response:", response.data);
+      const result = await response.json();
+      console.log("Subscribe Response:", result);
 
-      if (response.status !== 200) {
-        throw new Error(response.data.message || "Failed to subscribe");
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to subscribe");
       }
 
       setIsSubscribed(true);
@@ -156,11 +175,6 @@ const Subscribe = ({ brokerOptions }) => {
         )
         .join("\n");
       toast.success("Subscribed:\n" + summary);
-
-      // Notify WebSocket server of subscriptions
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "subscribe", inputSets: subscribeInputSets }));
-      }
     } catch (error) {
       console.error("Error subscribing:", error.message);
       toast.error(error.message);
@@ -182,22 +196,24 @@ const Subscribe = ({ brokerOptions }) => {
           throw new Error(`Set ${index + 1}: Please select a broker IP`);
         }
         if (!set.topicFilter) {
-          throw new Error(`Set ${index + 1}: Please enter a topic filter`);
+          throw new Error(`Set ${index + 1}: Please enter a topic filterhuis`);
         }
       }
 
-      const response = await API_CONFIG.delete("http://3.110.131.251:5000/api/unsubscribe", {
+      const response = await fetch("http://3.110.131.251:5000/api/unsubscribe", {
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        data: JSON.stringify({ inputSets: subscribeInputSets }),
+        body: JSON.stringify({ inputSets: subscribeInputSets }),
       });
 
-      console.log("Unsubscribe Response:", response.data);
+      const result = await response.json();
+      console.log("Unsubscribe Response:", result);
 
-      if (response.status !== 200) {
-        throw new Error(response.data.message || "Failed to unsubscribe");
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to unsubscribe");
       }
 
       setIsSubscribed(false);
@@ -214,11 +230,6 @@ const Subscribe = ({ brokerOptions }) => {
         )
         .join("\n");
       toast.success("Unsubscribed:\n" + summary);
-
-      // Notify WebSocket server of unsubscribe
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "unsubscribe", inputSets: subscribeInputSets }));
-      }
     } catch (error) {
       console.error("Error unsubscribing:", error.message);
       toast.error(error.message);
@@ -400,7 +411,8 @@ const Publish = () => {
           return;
         }
 
-        const response = await API_CONFIG.get("http://3.110.131.251:5000/api/brokers", {
+        const response = await fetch("http://3.110.131.251:5000/api/brokers", {
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
@@ -465,7 +477,7 @@ const Publish = () => {
       ...newInputSets[index],
       [e.target.name]: e.target.value,
       mqttUsername: e.target.name === "brokerIp" && selectedBroker ? selectedBroker.username : newInputSets[index].mqttUsername,
-      mqttPassword: e.target.name === "brokerIp" && selectedBroker ? selectedBroker.password : newInputSets[index].mqttPassword,
+      mqttmultimodal: e.target.name === "brokerIp" && selectedBroker ? selectedBroker.password : newInputSets[index].mqttPassword,
     };
     setInputSets(newInputSets);
   };
@@ -547,12 +559,13 @@ const Publish = () => {
         };
         console.log(`Publishing request payload for set ${index + 1}:`, payloadData);
 
-        const response = await API_CONFIG.post("http://3.110.131.251:5000/api/pub/publish", {
+        const response = await fetch("http://3.110.131.251:5000/api/pub/publish", {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-          data: JSON.stringify(payloadData),
+          body: JSON.stringify(payloadData),
         });
 
         const result = await response.json();
@@ -687,14 +700,14 @@ const Publish = () => {
                 ))}
               </div>
               <div className="publish-buttons-container">
-                <button
+                {/* <button
                   type="button"
                   className="publish-submit-button"
                   onClick={handleAddTopic}
                   disabled={brokerOptions[0]?.value === ""}
                 >
                   Add Topic
-                </button>
+                </button> */}
                 <button
                   type="button"
                   className="publish-submit-button"
