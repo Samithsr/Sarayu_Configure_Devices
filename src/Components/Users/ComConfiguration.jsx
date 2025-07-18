@@ -244,9 +244,9 @@ const ComConfiguration = () => {
           onChange={(e) => setTopicName(e.target.value)}
         />
         <button onClick={handlePublish} disabled={userRole === 'admin'}>
-          Set
+          Publish
         </button>
-        <button>Read</button>
+        {/* <button>Read</button> */}
       </div>
     </div>
   );
