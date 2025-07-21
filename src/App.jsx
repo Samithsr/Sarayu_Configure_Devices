@@ -50,8 +50,7 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/addBrokerModal" element={<AddBrokerModal />} />
           <Route path="/table" element={<RightSideTable />}>
-            <Route index element={<div />} />
-            <Route path="publish" element={<Publish />} />
+            <Route index path="publish" element={<Publish />} />
             <Route path="subscribe" element={<Subscribe />} />
             <Route path="firmware" element={<Firmware />} />
           </Route>

@@ -24,7 +24,7 @@ const WiFiConfig = () => {
     const fetchLatestConfig = async () => {
       try {
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch('http://3.110.131.251:5000/api/published-data/latest', {
+        const response = await fetch('http://localhost:5000/api/published-data/latest', {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,
@@ -111,7 +111,7 @@ const WiFiConfig = () => {
     };
 
     try {
-      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerId}/publish`, {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

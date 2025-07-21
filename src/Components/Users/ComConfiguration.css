@@ -144,7 +144,7 @@
   font-size: 14px;
   border: none;
   /* border-radius: 6px; */
-  background-color: #eaedf2; /* Slightly darker for contrast */
+  background-color: white; /* Slightly darker for contrast */
   color: black;
   width: 200px;
 }
@@ -172,7 +172,7 @@
 
 .dashboard-topic-name button:disabled {
   background: #4B56F3;
-  color: #A0AEC0;
+  color: black;
   cursor: not-allowed;
 }
 

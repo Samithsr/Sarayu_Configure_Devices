@@ -85,7 +85,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://3.110.131.251:5000/api/auth/users', {
+      const response = await fetch('http://localhost:5000/api/auth/users', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -108,6 +108,37 @@ const RightSideTable = () => {
     }
   };
 
+  const checkBrokerStatus = async (brokerIp) => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      console.error('[checkBrokerStatus] Authentication token is missing');
+      return false;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/check-broker-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ brokerIp }),
+      });
+
+      if (!response.ok) {
+        console.error(`[checkBrokerStatus] HTTP error! status: ${response.status}`);
+        return false;
+      }
+
+      const data = await response.json();
+      console.log(`[checkBrokerStatus] Status for ${brokerIp}:`, data);
+      return data.connected;
+    } catch (err) {
+      console.error(`[checkBrokerStatus] Error checking broker status for ${brokerIp}:`, err);
+      return false;
+    }
+  };
+
   const fetchUserEmailById = async (userId) => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
@@ -116,7 +147,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://3.110.131.251:5000/api/auth/users`, {
+      const response = await fetch(`http://localhost:5000/api/auth/users`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +180,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://3.110.131.251:5000/api/brokers', {
+      const response = await fetch('http://localhost:5000/api/brokers', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -191,6 +222,10 @@ const RightSideTable = () => {
             }
           }
 
+          // Check real-time broker connectivity status
+          const isConnected = await checkBrokerStatus(item.brokerIp);
+          const realTimeStatus = isConnected ? 'connected' : 'disconnected';
+
           return {
             brokerId: item._id,
             brokerip: item.brokerIp || 'N/A',
@@ -199,7 +234,7 @@ const RightSideTable = () => {
             password: item.password || 'N/A',
             rawPassword: item.password || '',
             label: item.label || 'N/A',
-            connectionStatus: item.connectionStatus || 'disconnected',
+            connectionStatus: realTimeStatus, // Use real-time status instead of stored status
             connectionErrors: [],
             assignedUserId,
             assignedUserEmail,
@@ -217,7 +252,7 @@ const RightSideTable = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch("http://3.110.131.251:5000/api/brokers/assigned", {
+      const response = await fetch("http://localhost:5000/api/brokers/assigned", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -250,7 +285,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const assignResponse = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerId}/assign-user`, {
+      const assignResponse = await fetch(`http://localhost:5000/api/brokers/${brokerId}/assign-user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -298,7 +333,7 @@ const RightSideTable = () => {
     toast.info(`Validating broker ${row.label || row.brokerId}...`);
 
     try {
-      const testResponse = await fetch('http://3.110.131.251:5000/api/test-broker', {
+      const testResponse = await fetch('http://localhost:5000/api/test-broker', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -338,7 +373,7 @@ const RightSideTable = () => {
 
       toast.success(`Broker ${row.label || row.brokerId} is available. Connecting...`);
 
-      const connectResponse = await fetch(`http://3.110.131.251:5000/api/brokers/${row.brokerId}/connect`, {
+      const connectResponse = await fetch(`http://localhost:5000/api/brokers/${row.brokerId}/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -410,7 +445,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const logoutResponse = await fetch('http://3.110.131.251:5000/api/auth/logout', {
+      const logoutResponse = await fetch('http://localhost:5000/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -472,7 +507,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerIdToDelete}`, {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerIdToDelete}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -519,7 +554,8 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerToEdit.brokerId}`, {
+      // First update the broker in the database
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -543,6 +579,83 @@ const RightSideTable = () => {
       const updatedBroker = await response.json();
       const isPasswordChanged = updatedData.password !== brokerToEdit.rawPassword;
 
+      // Test the MQTT connection with the new settings
+      let connectionStatus = 'disconnected';
+      let connectionErrors = [];
+      
+      try {
+        const testResponse = await fetch('http://localhost:5000/api/test-broker', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            brokerIp: updatedData.brokerIp,
+            portNumber: parseInt(updatedData.portNumber, 10),
+            username: updatedData.username || '',
+            password: updatedData.password || '',
+          }),
+        });
+
+        if (testResponse.ok) {
+          connectionStatus = 'connected';
+          toast.success(
+            isPasswordChanged
+              ? `Broker ${brokerToEdit.brokerId} password changed and connected successfully!`
+              : `Broker ${brokerToEdit.brokerId} updated and connected successfully!`
+          );
+        } else {
+          const errorData = await testResponse.json();
+          connectionStatus = 'disconnected';
+          
+          // Parse specific error messages
+          if (errorData.validationErrors && errorData.validationErrors.length > 0) {
+            connectionErrors = errorData.validationErrors;
+          } else if (errorData.error) {
+            // Check for specific error types
+            if (errorData.error.includes('bad user name or password') || 
+                errorData.error.includes('not authorized') || 
+                errorData.error.includes('Not authorized')) {
+              connectionErrors = ['Not authorized'];
+              toast.error('Connection failed: Not authorized - Please check username and password');
+            } else if (errorData.error.includes('Connection Ack timeout') || 
+                       errorData.error.includes('connack timeout') ||
+                       errorData.error.includes('ENOTFOUND') ||
+                       errorData.error.includes('ECONNREFUSED') ||
+                       errorData.error.includes('connection refused')) {
+              connectionErrors = ['Connection ACK error'];
+              toast.error('Connection failed: Connection ACK error - Please check broker IP and port');
+            } else {
+              connectionErrors = [errorData.error];
+              toast.error(`Connection failed: ${errorData.error}`);
+            }
+          } else {
+            connectionErrors = ['Connection failed'];
+            toast.error('Connection failed: Unknown error');
+          }
+
+          // If there was a connection assigned, disconnect it
+          try {
+            await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}/disconnect`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`,
+              },
+            });
+          } catch (disconnectError) {
+            console.error('Error disconnecting broker after failed connection test:', disconnectError);
+          }
+        }
+      } catch (testError) {
+        console.error('Error testing broker connection:', testError);
+        connectionStatus = 'disconnected';
+        connectionErrors = ['Connection test failed'];
+        toast.error('Failed to test broker connection after update');
+      }
+
+      // Update the table data with the new broker info and connection status
       const updatedTableData = tableData.map((item) =>
         item.brokerId === brokerToEdit.brokerId
           ? {
@@ -553,22 +666,15 @@ const RightSideTable = () => {
               password: updatedBroker.password || 'N/A',
               rawPassword: updatedBroker.password || '',
               label: updatedBroker.label || 'N/A',
-              connectionStatus: updatedBroker.connectionStatus || 'disconnected',
-              connectionErrors: [],
+              connectionStatus: connectionStatus,
+              connectionErrors: connectionErrors,
             }
           : item
       );
       setTableData(updatedTableData);
 
-      toast.success(
-        isPasswordChanged
-          ? `Broker ${brokerToEdit.brokerId} password changed successfully!`
-          : `Broker ${brokerToEdit.brokerId} updated successfully!`
-      );
-
       setShowEditModal(false);
       setBrokerToEdit(null);
-      await fetchTableData(users);
     } catch (err) {
       console.error('Update error:', err);
       toast.error(err.message || 'An error occurred while updating the broker.');
@@ -596,7 +702,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://3.110.131.251:5000/api/brokers', {
+      const response = await fetch('http://localhost:5000/api/brokers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -803,4 +909,3 @@ const RightSideTable = () => {
 };
 
 export default RightSideTable;
-

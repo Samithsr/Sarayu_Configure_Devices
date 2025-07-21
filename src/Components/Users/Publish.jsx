@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Publish.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import io from "socket.io-client";
+import io from "socket.io-client"; // Import Socket.IO client
 
 const Subscribe = ({ brokerOptions }) => {
   const navigate = useNavigate();
@@ -17,29 +17,74 @@ const Subscribe = ({ brokerOptions }) => {
       messages: [],
     },
   ]);
+  const [socket, setSocket] = useState(null);
 
+  // Initialize Socket.IO connection
   useEffect(() => {
-    // Initialize Socket.IO client
     const authToken = localStorage.getItem("authToken");
-    const socket = io("http://3.110.131.251:5000", {
+    if (!authToken) {
+      toast.error("Please log in to connect.");
+      navigate("/");
+      return;
+    }
+
+    // Connect to Socket.IO server with auth token
+    const newSocket = io("http://localhost:5000", {
       query: { token: authToken },
-      transports: ["websocket"],
     });
 
-    socket.on("connect", () => {
-      console.log("Socket.IO connected");
+    setSocket(newSocket);
+
+    // Handle Socket.IO connection errors
+    newSocket.on("error", (error) => {
+      console.error("Socket.IO error:", error.message);
+      toast.error(error.message || "Socket.IO connection error");
+      if (error.message === "Unauthorized") {
+        localStorage.clear();
+        navigate("/");
+      }
     });
 
-    // Fetch initial messages
+    // Listen for MQTT messages
+    newSocket.on("mqtt_message", (message) => {
+      console.log("Received MQTT message via Socket.IO:", message);
+      setSubscribeInputSets((prev) =>
+        prev.map((set) => {
+          // Check if the message's topic matches the set's topicFilter
+          // Using a simple match; consider using mqtt-pattern for complex topic patterns
+          if (
+            message.topic === set.topicFilter ||
+            message.topic.startsWith(set.topicFilter.replace("#", ""))
+          ) {
+            return {
+              ...set,
+              messages: [...set.messages, message],
+            };
+          }
+          return set;
+        })
+      );
+    });
+
+    // Clean up Socket.IO connection on unmount
+    return () => {
+      newSocket.disconnect();
+      console.log("Socket.IO disconnected");
+    };
+  }, [navigate]);
+
+  // Initial fetch of messages (optional, for loading existing messages)
+  useEffect(() => {
     const fetchMessages = async () => {
       try {
+        const authToken = localStorage.getItem("authToken");
         if (!authToken) {
           console.error("No auth token for fetching messages");
           toast.error("Please log in to fetch messages.");
           navigate("/");
           return;
         }
-        const response = await fetch("http://3.110.131.251:5000/api/messages", {
+        const response = await fetch("http://localhost:5000/api/messages", {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -50,7 +95,11 @@ const Subscribe = ({ brokerOptions }) => {
           setSubscribeInputSets((prev) =>
             prev.map((set) => ({
               ...set,
-              messages: result.messages,
+              messages: result.messages.filter(
+                (msg) =>
+                  msg.topic === set.topicFilter ||
+                  msg.topic.startsWith(set.topicFilter.replace("#", ""))
+              ),
             }))
           );
         } else {
@@ -64,46 +113,6 @@ const Subscribe = ({ brokerOptions }) => {
     };
 
     fetchMessages();
-
-    // Listen for new messages via Socket.IO
-    socket.on("mqtt_message", (data) => {
-      try {
-        console.log("Received new message via Socket.IO:", data);
-        setSubscribeInputSets((prev) =>
-          prev.map((set) => ({
-            ...set,
-            messages: [...(set.messages || []), data],
-          }))
-        );
-      } catch (error) {
-        console.error("Error processing Socket.IO message:", error.message);
-      }
-    });
-
-    // Handle Socket.IO errors
-    socket.on("connect_error", (error) => {
-      console.error("Socket.IO connection error:", error.message);
-      toast.error("Socket.IO connection error");
-      if (error.message.includes("Unauthorized")) {
-        localStorage.clear();
-        toast.error("Session expired. Please log in again.");
-        navigate("/");
-      }
-    });
-
-    socket.on("disconnect", (reason) => {
-      console.log("Socket.IO disconnected:", reason);
-      if (reason === "io server disconnect") {
-        localStorage.clear();
-        toast.error("Session expired. Please log in again.");
-        navigate("/");
-      }
-    });
-
-    // Cleanup Socket.IO connection on component unmount
-    return () => {
-      socket.disconnect();
-    };
   }, [navigate]);
 
   const handleChange = (index, e) => {
@@ -112,8 +121,14 @@ const Subscribe = ({ brokerOptions }) => {
     newInputSets[index] = {
       ...newInputSets[index],
       [e.target.name]: e.target.value,
-      mqttUsername: e.target.name === "brokerIp" && selectedBroker ? selectedBroker.username : newInputSets[index].mqttUsername,
-      mqttPassword: e.target.name === "brokerIp" && selectedBroker ? selectedBroker.password : newInputSets[index].mqttPassword,
+      mqttUsername:
+        e.target.name === "brokerIp" && selectedBroker
+          ? selectedBroker.username
+          : newInputSets[index].mqttUsername,
+      mqttPassword:
+        e.target.name === "brokerIp" && selectedBroker
+          ? selectedBroker.password
+          : newInputSets[index].mqttPassword,
     };
     setSubscribeInputSets(newInputSets);
   };
@@ -144,14 +159,14 @@ const Subscribe = ({ brokerOptions }) => {
 
       for (const [index, set] of subscribeInputSets.entries()) {
         if (!set.brokerIp) {
-          throw new Error(`Set ${index + 1}: Please select a broker IP`);
+          throw new Error(`Set ${index +1}: Please select a broker IP`);
         }
         if (!set.topicFilter) {
-          throw new Error(`Set ${index + 1}: Please enter a topic filter`);
+          throw new Error(`Set ${index +1}: Please enter a topic filter`);
         }
       }
 
-      const response = await fetch("http://3.110.131.251:5000/api/subscribe", {
+      const response = await fetch("http://localhost:5000/api/subscribe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -196,11 +211,11 @@ const Subscribe = ({ brokerOptions }) => {
           throw new Error(`Set ${index + 1}: Please select a broker IP`);
         }
         if (!set.topicFilter) {
-          throw new Error(`Set ${index + 1}: Please enter a topic filterhuis`);
+          throw new Error(`Set ${index + 1}: Please enter a topic filter`);
         }
       }
 
-      const response = await fetch("http://3.110.131.251:5000/api/unsubscribe", {
+      const response = await fetch("http://localhost:5000/api/unsubscribe", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -261,12 +276,22 @@ const Subscribe = ({ brokerOptions }) => {
           <div className="subscribe-content-wrapper">
             <div className="subscribe-form-wrapper">
               <h2 className="subscribe-topics-title">Subscribe Topics</h2>
-              <form className="subscribe-topics-form" onSubmit={isSubscribed ? handleUnsubscribe : handleSubscribe}>
-                <div className="subscribe-inputs-container">
+              <form
+                className="subscribe-topics-form"
+                onSubmit={isSubscribed ? handleUnsubscribe : handleSubscribe}
+              >
+                <div
+                  className={`subscribe-inputs-container ${
+                    subscribeInputSets.length > 1 ? "scrollable" : ""
+                  }`}
+                >
                   {subscribeInputSets.map((inputSet, index) => (
                     <div key={index} className="subscribe-input-set">
                       <div className="subscribe-form-group">
-                        <label className="exists-Broker-ip-header" htmlFor={`broker-${index}`}>
+                        <label
+                          className="exists-Broker-ip-header"
+                          htmlFor={`broker-${index}`}
+                        >
                           Broker IP
                         </label>
                         <select
@@ -282,14 +307,21 @@ const Subscribe = ({ brokerOptions }) => {
                             Select Broker IP
                           </option>
                           {brokerOptions.map((item) => (
-                            <option key={item.value} value={item.value} disabled={item.value === ""}>
+                            <option
+                              key={item.value}
+                              value={item.value}
+                              disabled={item.value === ""}
+                            >
                               {item.label}
                             </option>
                           ))}
                         </select>
                       </div>
                       <div className="subscribe-form-group">
-                        <label htmlFor={`topicFilter-${index}`} className="subscribe-form-label">
+                        <label
+                          htmlFor={`topicFilter-${index}`}
+                          className="subscribe-form-label"
+                        >
                           Topic Filter {index + 1}
                         </label>
                         <input
@@ -305,7 +337,10 @@ const Subscribe = ({ brokerOptions }) => {
                         />
                       </div>
                       <div className="subscribe-form-group">
-                        <label htmlFor={`qosLevel-${index}`} className="subscribe-form-label">
+                        <label
+                          htmlFor={`qosLevel-${index}`}
+                          className="subscribe-form-label"
+                        >
                           QoS Level
                         </label>
                         <select
@@ -327,16 +362,10 @@ const Subscribe = ({ brokerOptions }) => {
                 </div>
                 <div className="subscribe-buttons-container">
                   <button
-                    type="button"
-                    className="subscribe-add-task-button"
-                    onClick={handleAddTopic}
-                    disabled={brokerOptions[0]?.value === "" || isSubscribed}
-                  >
-                    Add Topic
-                  </button>
-                  <button
                     type="submit"
-                    className={`subscribe-submit-button ${isSubscribed ? "unsubscribe" : ""}`}
+                    className={`subscribe-submit-button ${
+                      isSubscribed ? "unsubscribe" : ""
+                    }`}
                     disabled={brokerOptions[0]?.value === ""}
                   >
                     {isSubscribed ? "Unsubscribe" : "Subscribe Topics"}
@@ -384,6 +413,7 @@ const Subscribe = ({ brokerOptions }) => {
   );
 };
 
+// The Publish component remains unchanged, included for completeness
 const Publish = () => {
   const [inputSets, setInputSets] = useState([
     {
@@ -411,7 +441,7 @@ const Publish = () => {
           return;
         }
 
-        const response = await fetch("http://3.110.131.251:5000/api/brokers", {
+        const response = await fetch("http://localhost:5000/api/brokers", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -420,7 +450,9 @@ const Publish = () => {
         });
 
         if (!response.ok) {
-          const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
+          const errorMessage = await response
+            .json()
+            .then((data) => data.message || `HTTP error! status: ${response.status}`);
           if (response.status === 401) {
             console.error("Unauthorized, clearing token and redirecting to login");
             localStorage.clear();
@@ -453,7 +485,7 @@ const Publish = () => {
         setInputSets((prev) =>
           prev.map((set) => ({
             ...set,
-            brokerIp: "", // Set to empty string to show "Select a Broker IP"
+            brokerIp: "",
             mqttUsername: set.mqttUsername || (options.length > 0 ? options[0].username : ""),
             mqttPassword: set.mqttPassword || (options.length > 0 ? options[0].password : ""),
           }))
@@ -476,8 +508,14 @@ const Publish = () => {
     newInputSets[index] = {
       ...newInputSets[index],
       [e.target.name]: e.target.value,
-      mqttUsername: e.target.name === "brokerIp" && selectedBroker ? selectedBroker.username : newInputSets[index].mqttUsername,
-      mqttmultimodal: e.target.name === "brokerIp" && selectedBroker ? selectedBroker.password : newInputSets[index].mqttPassword,
+      mqttUsername:
+        e.target.name === "brokerIp" && selectedBroker
+          ? selectedBroker.username
+          : newInputSets[index].mqttUsername,
+      mqttPassword:
+        e.target.name === "brokerIp" && selectedBroker
+          ? selectedBroker.password
+          : newInputSets[index].mqttPassword,
     };
     setInputSets(newInputSets);
   };
@@ -525,6 +563,8 @@ const Publish = () => {
         continue;
       }
 
+     
+
       newPublishing[index] = true;
       newPublishStatuses[index] = "";
     }
@@ -559,7 +599,7 @@ const Publish = () => {
         };
         console.log(`Publishing request payload for set ${index + 1}:`, payloadData);
 
-        const response = await fetch("http://3.110.131.251:5000/api/pub/publish", {
+        const response = await fetch("http://localhost:5000/api/pub/publish", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -575,7 +615,7 @@ const Publish = () => {
           throw new Error(`Set ${index + 1}: ${result.message || "Failed to publish"}`);
         }
 
-        newPublishStatuses[index] = `Published to topic "${topic}" on broker ${brokerIp}`;
+        // newPublishStatuses[index] = `Published to topic "${topic}" on broker ${brokerIp}`;
         toast.success(`Set ${index + 1}: Published to topic "${topic}" on broker ${brokerIp}`);
       }
 
@@ -682,8 +722,29 @@ const Publish = () => {
                         <option value="2">2 - Exactly Once</option>
                       </select>
                     </div>
+                    <div className="publish-buttons-container">
+                      <button
+                        type="button"
+                        className="publish-submit-button"
+                        onClick={handlePublish}
+                        disabled={publishing.some((status) => status) || inputSets.some((set) => !set.brokerIp)}
+                      >
+                        {publishing.some((status) => status) ? "Publishing..." : "Publish"}
+                      </button>
+                      <button
+                        type="button"
+                        className="publish-submit-button"
+                        onClick={handleClear}
+                      >
+                        Clear
+                      </button>
+                    </div>
                     <div className="publish-form-group">
-                      <label htmlFor={`payload-${index}`} className="publish-form-label">
+                      <label
+                        style={{ fontSize: "20px", fontWeight: "600", color: "white" }}
+                        htmlFor={`payload-${index}`}
+                        className="publish-form-label"
+                      >
                         Payload
                       </label>
                       <textarea
@@ -698,31 +759,6 @@ const Publish = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-              <div className="publish-buttons-container">
-                {/* <button
-                  type="button"
-                  className="publish-submit-button"
-                  onClick={handleAddTopic}
-                  disabled={brokerOptions[0]?.value === ""}
-                >
-                  Add Topic
-                </button> */}
-                <button
-                  type="button"
-                  className="publish-submit-button"
-                  onClick={handlePublish}
-                  disabled={publishing.some((status) => status) || inputSets.some((set) => !set.brokerIp)}
-                >
-                  {publishing.some((status) => status) ? "Publishing..." : "Publish"}
-                </button>
-                <button
-                  type="button"
-                  className="publish-submit-button"
-                  onClick={handleClear}
-                >
-                  Clear
-                </button>
               </div>
             </form>
           </div>
