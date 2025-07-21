@@ -85,7 +85,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/users', {
+      const response = await fetch('http://3.110.131.251:5000/api/auth/users', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/check-broker-status', {
+      const response = await fetch('http://3.110.131.251:5000/api/check-broker-status', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/users`, {
+      const response = await fetch(`http://3.110.131.251:5000/api/auth/users`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/brokers', {
+      const response = await fetch('http://3.110.131.251:5000/api/brokers', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -252,7 +252,7 @@ const RightSideTable = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch("http://localhost:5000/api/brokers/assigned", {
+      const response = await fetch("http://3.110.131.251:5000/api/brokers/assigned", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -285,7 +285,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const assignResponse = await fetch(`http://localhost:5000/api/brokers/${brokerId}/assign-user`, {
+      const assignResponse = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerId}/assign-user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -333,7 +333,7 @@ const RightSideTable = () => {
     toast.info(`Validating broker ${row.label || row.brokerId}...`);
 
     try {
-      const testResponse = await fetch('http://localhost:5000/api/test-broker', {
+      const testResponse = await fetch('http://3.110.131.251:5000/api/test-broker', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -373,7 +373,7 @@ const RightSideTable = () => {
 
       toast.success(`Broker ${row.label || row.brokerId} is available. Connecting...`);
 
-      const connectResponse = await fetch(`http://localhost:5000/api/brokers/${row.brokerId}/connect`, {
+      const connectResponse = await fetch(`http://3.110.131.251:5000/api/brokers/${row.brokerId}/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -445,7 +445,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const logoutResponse = await fetch('http://localhost:5000/api/auth/logout', {
+      const logoutResponse = await fetch('http://3.110.131.251:5000/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -507,7 +507,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerIdToDelete}`, {
+      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerIdToDelete}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -555,7 +555,7 @@ const RightSideTable = () => {
 
     try {
       // First update the broker in the database
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}`, {
+      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerToEdit.brokerId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -584,7 +584,7 @@ const RightSideTable = () => {
       let connectionErrors = [];
       
       try {
-        const testResponse = await fetch('http://localhost:5000/api/test-broker', {
+        const testResponse = await fetch('http://3.110.131.251:5000/api/test-broker', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -637,7 +637,7 @@ const RightSideTable = () => {
 
           // If there was a connection assigned, disconnect it
           try {
-            await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}/disconnect`, {
+            await fetch(`http://3.110.131.251:5000/api/brokers/${brokerToEdit.brokerId}/disconnect`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -702,7 +702,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/brokers', {
+      const response = await fetch('http://3.110.131.251:5000/api/brokers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
