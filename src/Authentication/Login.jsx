@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import API_CONFIG from '../Components/Config/apiConfig';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -146,13 +145,13 @@ const Login = () => {
   return (
     <div className="main-container">
       <div className="container">
-        <div className="heading">Sign In</div>
-        {error && <p className="error-message" style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+        <h1 className="heading">Sign In</h1>
+        {error && <p className="error-message">{error}</p>}
         <form className="form" onSubmit={handleSubmit}>
           <label htmlFor="email">Email</label>
           <input
             required
-            className="input"
+            className="input form-control"
             type="email"
             name="email"
             id="email"
@@ -160,10 +159,10 @@ const Login = () => {
             value={formData.email}
             onChange={handleChange}
           />
-          <label htmlFor="password" style={{ marginTop: '15px' }}>Password</label>
+          <label htmlFor="password" className="mt-3">Password</label>
           <input
             required
-            className="input"
+            className="input form-control"
             type="password"
             name="password"
             id="password"
@@ -174,12 +173,14 @@ const Login = () => {
           <span className="forgot-password">
             {/* <a href="#">Forgot Password?</a> */}
           </span>
-          <input className="login-button" type="submit" value="Sign In" />
+          <button className="login-button btn" type="submit">
+            Sign In
+          </button>
         </form>
 
         <div className="social-account-container">
           <span className="title">Or Sign in with</span>
-          <div className="social-accounts">
+          <div className="social-accounts d-flex">
             <button className="social-button google">
               <svg className="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"></svg>
             </button>
@@ -203,3 +204,4 @@ const Login = () => {
 };
 
 export default Login;
+

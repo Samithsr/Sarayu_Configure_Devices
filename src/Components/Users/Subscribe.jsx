@@ -27,7 +27,7 @@ export default Subscribe
 //   useEffect(() => {
 //     const fetchMessages = async () => {
 //       try {
-//         const response = await fetch('http://localhost:5000/api/messages');
+//         const response = await fetch('http://3.110.131.251:5000/api/messages');
 //         const result = await response.json();
 //         if (response.ok) {
 //           console.log('Fetched messages:', result.messages);

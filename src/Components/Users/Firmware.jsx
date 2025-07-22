@@ -53,7 +53,7 @@ const Firmware = () => {
           return;
         }
 
-        const res = await axios.get("http://localhost:5000/api/brokers", {
+        const res = await axios.get("http://3.110.131.251:5000/api/brokers", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -106,7 +106,7 @@ const Firmware = () => {
 
   const fetchVersions = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/get-all-versions`);
+      const response = await fetch(`http://3.110.131.251:5000/api/get-all-versions`);
       const data = await response.json();
       console.log("Fetched versions:", data);
       if (data.success) {
@@ -164,7 +164,7 @@ const Firmware = () => {
 
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch("http://localhost:5000/api/upload", {
+      const response = await fetch("http://3.110.131.251:5000/api/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -205,7 +205,7 @@ const Firmware = () => {
         return;
       }
 
-      const response = await axios.delete(`http://localhost:5000/api/delete/${filename}`, {
+      const response = await axios.delete(`http://3.110.131.251:5000/api/delete/${filename}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -214,7 +214,7 @@ const Firmware = () => {
       if (response.data.success) {
         setUploadStatus(`File ${filename} deleted successfully`);
         toast.success(`File ${filename} deleted successfully`);
-        await fetchVersions();
+        await fetchVersions(); 
       } else {
         setUploadStatus(`Delete failed: ${response.data.message}`);
         toast.error(`Delete failed: ${response.data.message}`);
@@ -298,13 +298,13 @@ const Firmware = () => {
       const selectedBroker = brokerOptions.find((b) => b.value === brokerIp);
       const brokerIpAddress = selectedBroker ? selectedBroker.label : brokerIp;
 
-      if (!url.startsWith("http://") || !url.includes("http://localhost:5000/api/updates/") || !url.endsWith(".bin")) {
+      if (!url.startsWith("http://") || !url.includes("http://3.110.131.251:5000/api/updates/") || !url.endsWith(".bin")) {
         throw new Error("Invalid firmware URL format");
       }
 
       console.log("Publishing request:", { brokerIp: brokerIpAddress, topic, url, mqttUsername });
       const response = await axios.post(
-        `http://localhost:5000/api/publish`,
+        `http://3.110.131.251:5000/api/publish`,
         {
           brokerIp: brokerIpAddress,
           topic,

@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import API_CONFIG from '../Components/Config/apiConfig';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({

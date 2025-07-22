@@ -1,773 +1,170 @@
-
-.grid-container {
-  display: grid;
-  grid-template-columns: 50% 50%;
-  width: 100%;
-  box-sizing: border-box;
-  max-height: 88vh !important;
-  overflow: hidden;
-  gap: 10px;
+/* Minimal custom styles to complement Bootstrap */
+body {
+  background-color: #1a202c;
+  color: #e2e8f0;
 }
 
-/* Left Side (Publish) */
-.left-side-publish-page {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  width: 100%;
-  /* height: 60vh; */
-  /* background-color: red; */
-}
-
-/* Right Side (Subscribe) */
-.right-side-subscribe-page {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 100%;
-  height: 94vh;
-}
-
-/* Publish Container */
-.publish-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  padding: 5px;
-  box-sizing: border-box;
-}
-
-/* Publish Content */
-.publish-content {
+.card {
   background-color: #2d3748;
-  min-height: 500px;
-  padding: 10px;
-  padding-top: 15px;
+  border: none;
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 700px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
-/* Publish Status */
-.publish-status {
+.card-header {
   background-color: #4a5568;
   color: #ffffff;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin: 0 0 10px 0;
-  width: 50%;
-  text-align: left;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-bottom: none;
+  padding: 1rem;
 }
 
-/* Broker IP Header */
-.exists-Broker-ip-header {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #d1d5db;
-  text-align: left;
-  width: 100%;
-}
-
-/* Publish Broker IP Select */
-.publish-broker-ip-selects {
-  width: 100%;
-  height: 40%;
-  background: #4a5568;
-  color: #ffffff;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  box-sizing: border-box;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px;
-  cursor: pointer;
-}
-
-.publish-broker-ip-selects:focus {
-  outline: none;
-  border: 1px solid #ffffff;
-}
-
-.publish-broker-ip-selects:hover {
-  background: #48556b;
-}
-
-.publish-broker-ip-selects option {
-  background-color: #ffffff;
-  color: #000000;
-  font-size: 0.9rem;
-  padding: 8px 12px;
-}
-
-.publish-broker-ip-selects option[disabled] {
-  color: #a0aec0;
-}
-
-/* Subscribe Broker IP Select */
-.subscribe-broker-ip-select {
-  width: 100%;
-  height: 40%;
-  background: #4a5568;
-  color: #ffffff;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  box-sizing: border-box;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px;
-  cursor: pointer;
-}
-
-.subscribe-broker-ip-select:focus {
-  outline: none;
-  border: 1px solid #ffffff;
-}
-
-.subscribe-broker-ip-select:hover {
-  background: #48556b;
-}
-
-.subscribe-broker-ip-select option {
-  background-color: #ffffff;
-  color: #000000;
-  font-size: 0.9rem;
-  padding: 8px 12px;
-}
-
-.subscribe-broker-ip-select option[disabled] {
-  color: #a0aec0;
-}
-
-/* Publish Title */
-.publish-title {
+.card-title {
   font-size: 1.3rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin: 0;
-  text-align: center;
-  font-weight: bold;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 2px;
-  padding: 5px;
-  border-radius: 5px;
+  margin: 0;
+  color: #ffffff; /* Updated to white */
 }
 
-/* Form Styles */
-.publish-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/* Container for Input Sets - No Scrolling */
-.publish-inputs-scroll-container {
-  flex-grow: 1;
-}
-
-/* Each Set of Inputs */
-.publish-input-set {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid #4a5568;
-}
-
-.publish-input-set:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-/* Form Group (Label + Input/Textarea Wrapper) */
-.publish-form-group {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-start;
-}
-
-/* Label Styles */
-.publish-form-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #d1d5db;
-  text-align: left;
-  width: 100%;
-}
-
-/* Input Styles (for Topic and QoS Level) */
-.publish-form-input {
-  width: 100%;
-  background: #4a5568;
+.form-control {
+  background-color: #4a5568;
+  color: #ffffff;
   border: 1px solid transparent;
-  padding: 12px 16px;
   border-radius: 8px;
+}
+
+.form-control:focus {
+  background-color: #4a5568;
   color: #ffffff;
-  font-size: 1rem;
-  box-sizing: border-box;
+  border-color: #ffffff;
+  box-shadow: none;
 }
 
-.publish-form-input::-moz-placeholder {
-  color: #a0aec0;
-}
-
-.publish-form-input::placeholder {
-  color: #a0aec0;
-}
-
-.publish-form-input:focus {
-  outline: none;
-  border: 1px solid #ffffff;
-}
-
-/* Textarea Styles (for Payload) */
-.publish-form-textarea {
-  width: 200%;
-  background: #4a5568;
-  border: 1px solid transparent;
-  padding: 10px 12px;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 0.9rem;
-  box-sizing: border-box;
-  resize: vertical;
-  min-height: 200px;
-}
-
-.publish-form-textarea::-moz-placeholder {
-  color: #a0aec0;
-}
-
-.publish-form-textarea::placeholder {
-  color: #a0aec0;
-}
-
-.publish-form-textarea:focus {
-  outline: none;
-  border: 1px solid #ffffff;
-}
-
-/* Buttons Container */
-.publish-buttons-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 45px;
-  padding-right: 3px;
-}
-
-/* Publish and Clear Buttons */
-.publish-submit-button {
-  padding: 8px 24px;
-  background: #4a5568;
-  color: #ffffff;
-  font-weight: bold;
-  border: none;
+.btn {
+  font-weight: 600;
   border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  font-size: 0.9rem;
+  padding: 0.5rem 1.5rem;
 }
 
-.publish-submit-button:hover {
-  background: #5a6b8a;
-  transform: scale(1.03);
+.btn-primary {
+  background-color: #3182ce;
+  border: none;
 }
 
-.publish-submit-button:active {
+.btn-primary:hover {
+  background-color: #2b6cb0;
+}
+
+.btn-secondary {
+  background-color: #4a5568;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6b8a;
+}
+
+.btn:active {
   transform: scale(0.95);
 }
 
-/* Subscribe Topics Container */
-.subscribe-topics-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  padding: 5px;
-  box-sizing: border-box;
+/* Ensure textarea height */
+textarea.form-control {
+  min-height: 150px;
+  max-height: 300px;
+  resize: vertical;
 }
 
-/* Subscribe Topics Content */
-.subscribe-topics-content {
-  background-color: #2d3748;
-  padding: 15px 10px;
-  border-radius: 10px;
-  padding-right: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 700px;
-  display: flex;
-  height: 103.1vh;
-  flex-direction: column;
-  gap: 14px;
-  overflow: hidden;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  textarea.form-control {
+    min-height: 100px;
+    max-height: 200px;
+  }
 }
 
-/* Subscribe Topics Title - Fixed at Top */
-.subscribe-topics-title {
-  font-size: 1.3rem;
-  font-weight: 500;
-  color: #ffffff;
-  margin: 0;
-  text-align: center;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  padding: 5px;
-  margin-bottom: 17px;
-  border-radius: 5px;
-}
-
-/* Content Wrapper (Stack Vertically) */
-.subscribe-content-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 100%;
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-/* Form Wrapper (Full Width) */
-.subscribe-form-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  max-height: 50%;
-}
-
-/* Messages Wrapper (Full Width, Below Form) */
-.messages-wrapper {
-  display: flex;
-  flex-direction: column;
-  /* gap: 10px; */
-  width: 100%;
-  flex: 1;
-  max-height: 33.6%;
-  overflow: hidden;
-}
-
-/* Messages Title - Fixed at Top of Messages Section */
-.messages-title {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #ffffff;
-  margin: 0;
-  text-align: start;
-  padding-top: 20px;
-  padding: 11px 0;
-  flex-shrink: 0;
-}
-
-/* Messages Container - Scrollable, No Scrollbar */
-.messages-scroll-container {
-  background: #3e4a5f;
-  border-radius: 8px;
-  padding: 5px;
-  flex-grow: 1;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Hide Scrollbar for WebKit Browsers (Chrome, Safari) */
-.messages-scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-/* No Messages Text */
-.no-messages {
-  color: #a0aec0;
-  font-size: 1rem;
-  text-align: center;
-  padding: 18px;
-  position: sticky;
-  top: 0;
-  background: #3e4a5f;
-  z-index: 1;
-}
-
-/* Messages List */
-.messages-list {
-  list-style: none;
+/* Additional styles to match the image layout and colors */
+.grid-container {
   padding: 0;
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
-/* Message Item */
-.message-item {
-  background: #4a5568;
-  border-radius: 8px;
-  padding: 10px;
-  color: #ffffff;
-  font-size: 0.95rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.left-side-publish-page, .right-side-subscribe-page {
+  padding: 15px;
 }
 
-/* Message Content */
-.message-content {
-  margin-bottom: 6px;
-}
-
-.message-content strong {
-  color: #d1d5db;
-  margin-right: 8px;
-}
-
-/* Form Styles */
-.subscribe-topics-form {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.publish-content, .subscribe-topics-content {
   height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-/* Container for Input Sets - Fixed by Default */
-.subscribe-inputs-container {
-  flex-grow: 1;
-  overflow-y: hidden; /* Disable scrolling by default */
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  padding: 0 0 60px 0; /* Adjusted padding to ensure buttons are not overlapped */
-  min-height: 100px; /* Ensure container is visible even with one input set */
-  max-height: calc(100% - 80px); /* Account for title and buttons */
 }
 
-/* Hide Scrollbar for WebKit Browsers (Chrome, Safari) */
-.subscribe-inputs-container::-webkit-scrollbar {
+.publish-inputs-container, .subscribe-inputs-container {
+  background-color: #2d3748;
+  padding: 1rem;
+}
+
+.subscribe-buttons-container, .publish-buttons-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: #2d3748;
+}
+
+.messages-wrapper {
+  background-color: #2d3748;
+  padding: 1rem;
+}
+
+.messages-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.messages-scroll-container {
+  max-height: 300px;
   overflow-y: auto;
 }
 
-/* Hide Scrollbar for WebKit Browsers (Chrome, Safari) */
-.subscribe-inputs-container.scrollable::-webkit-scrollbar {
-  display: none;
-}
-/* Each Set of Inputs - Ensure Only This Scrolls */
-.subscribe-input-set {
-  width: 100%;
-  margin: 0;
-  padding: 5px 0;
-  border-bottom: 1px solid #4a5568;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
+.message-item {
+  background-color: #4a5568;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 5px;
 }
 
-.subscribe-input-set:last-child {
-  border-bottom: none;
-}
-
-/* Form Group */
-.subscribe-form-group {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
-}
-
-/* Label Styles */
-.subscribe-form-label {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #d1d5db;
-  text-align: left;
-  width: 100%;
-}
-
-/* Input Styles */
-.subscribe-form-input {
-  width: 100%;
-  background: #4a5568;
+/* Style Received Messages to match Payload container */
+.messages-scroll-container .form-control {
+  background-color: #4a5568;
+  color: #e2e8f0;
   border: 1px solid transparent;
-  padding: 12px 16px;
   border-radius: 8px;
-  color: #ffffff;
-  font-size: 1rem;
-  box-sizing: border-box;
+  min-height: 150px;
+  max-height: 300px;
+  resize: vertical;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-.subscribe-form-input::-moz-placeholder {
+.messages-scroll-container .form-control:focus {
+  background-color: #4a5568;
+  color: #e2e8f0;
+  border-color: #ffffff;
+  box-shadow: none;
+}
+
+.no-messages {
   color: #a0aec0;
-}
-
-.subscribe-form-input::placeholder {
-  color: #a0aec0;
-}
-
-.subscribe-form-input:focus {
-  outline: none;
-  border: 1px solid #ffffff;
-}
-
-/* Select Styles */
-.subscribe-form-select {
-  width: 100%;
-  background: #3e4a5f;
-  border: 1px solid transparent;
-  padding: 12px 16px;
+  padding: 0.75rem;
+  background-color: #4a5568;
   border-radius: 8px;
-  color: #ffffff;
-  font-size: 1rem;
-  box-sizing: border-box;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a0aec0' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  cursor: pointer;
-}
-
-.subscribe-form-select:hover {
-  background: #48566b;
-}
-
-.subscribe-form-select:focus {
-  outline: none;
-  border: 1px solid #ffffff;
-}
-
-/* Buttons Container - Fixed at Bottom */
-.subscribe-buttons-container {
+  min-height: 150px;
+  max-height: 300px;
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 2px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  /* background: #2d3748; */
-  z-index: 1;
-  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Add Task Button */
-.subscribe-add-task-button {
-  padding: 10px 24px;
-  background: #4a5568;
-  color: #ffffff;
-  font-weight: 600;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.subscribe-add-task-button:hover {
-  background: #5a6b8a;
-  transform: scale(1.03);
-}
-
-.subscribe-add-task-button:active {
-  transform: scale(0.95);
-}
-
-/* Subscribe and Clear Buttons */
-.subscribe-submit-button {
-  padding: 10px 24px;
-  background: #3182ce;
-  color: #ffffff;
-  font-weight: 600;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.subscribe-submit-button:hover {
-  background: #2b6cb0;
-  transform: scale(1.03);
-}
-
-.subscribe-submit-button:active {
-  transform: scale(0.95);
-}
-
-/* Responsive Design for Subscribe and Grid */
-@media (max-width: 768px) {
-  .grid-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-    min-height: auto;
-    gap: 5px;
-  }
-
-  .left-side-publish-page,
-  .right-side-subscribe-page {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .publish-container {
-    padding: 3px;
-  }
-
-  .publish-content {
-    padding: 8px;
-    max-width: none;
-  }
-
-  .publish-title {
-    font-size: 1.1rem;
-  }
-
-  .publish-status {
-    width: 100%;
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-
-  .publish-form-group {
-    width: 100%;
-  }
-
-  .publish-form-label {
-    font-size: 0.8rem;
-  }
-
-  .publish-form-input,
-  .publish-form-textarea,
-  .publish-broker-ip-selects {
-    width: 100%;
-    padding: 6px 10px;
-    font-size: 0.8rem;
-  }
-
-  .publish-broker-ip-selects {
-    background-size: 12px;
-    background-position: right 10px center;
-  }
-
-  .publish-buttons-container {
-    flex-direction: row;
-    gap: 6px;
-    justify-content: center;
-  }
-
-  .publish-input-set {
-    gap: 12px;
-    padding: 12px 0;
-  }
-
-  .exists-Broker-ip-header {
-    font-size: 0.8rem;
-  }
-
-  .publish-form-textarea {
-    min-height: 60px;
-  }
-
-  .subscribe-content-wrapper {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .subscribe-form-wrapper,
-  .messages-wrapper {
-    width: 100%;
-    flex: 1;
-    max-height: none;
-  }
-
-  .subscribe-topics-container {
-    padding: 3px;
-  }
-
-  .subscribe-topics-content {
-    padding: 8px;
-    max-width: none;
-    height: auto;
-    overflow: auto;
-  }
-
-  .subscribe-topics-title {
-    font-size: 1.3rem;
-  }
-
-  .subscribe-input-set {
-    width: 100%;
-    gap: 10px;
-    padding: 12px 0;
-  }
-
-  .subscribe-form-group {
-    width: 100%;
-  }
-
-  .subscribe-form-label {
-    font-size: 0.9rem;
-  }
-
-  .subscribe-form-input,
-  .subscribe-form-select,
-  .subscribe-broker-ip-select {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 0.9rem;
-  }
-
-  .subscribe-broker-ip-select {
-    background-size: 12px;
-    background-position: right 10px center;
-  }
-
-  .subscribe-inputs-container {
-    flex-grow: 1;
-    padding-bottom: 60px;
-    max-height: none;
-    min-height: 100px;
-  }
-
-  .subscribe-buttons-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    padding: 10px 0;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
-
-  .subscribe-add-task-button,
-  .subscribe-submit-button {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-  }
-
-  .no-messages {
-    padding: 10px;
-  }
+.message-content {
+  margin-bottom: 0.25rem;
 }

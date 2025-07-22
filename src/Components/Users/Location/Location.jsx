@@ -53,7 +53,7 @@ const Location = () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
+      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerId}/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

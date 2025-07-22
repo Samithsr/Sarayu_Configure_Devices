@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./Publish.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import io from "socket.io-client"; // Import Socket.IO client
+import io from "socket.io-client";
+import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 
 const Subscribe = ({ brokerOptions }) => {
   const navigate = useNavigate();
@@ -19,7 +21,6 @@ const Subscribe = ({ brokerOptions }) => {
   ]);
   const [socket, setSocket] = useState(null);
 
-  // Initialize Socket.IO connection
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) {
@@ -28,14 +29,12 @@ const Subscribe = ({ brokerOptions }) => {
       return;
     }
 
-    // Connect to Socket.IO server with auth token
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io("http://3.110.131.251:5000", {
       query: { token: authToken },
     });
 
     setSocket(newSocket);
 
-    // Handle Socket.IO connection errors
     newSocket.on("error", (error) => {
       console.error("Socket.IO error:", error.message);
       toast.error(error.message || "Socket.IO connection error");
@@ -45,13 +44,10 @@ const Subscribe = ({ brokerOptions }) => {
       }
     });
 
-    // Listen for MQTT messages
     newSocket.on("mqtt_message", (message) => {
       console.log("Received MQTT message via Socket.IO:", message);
       setSubscribeInputSets((prev) =>
         prev.map((set) => {
-          // Check if the message's topic matches the set's topicFilter
-          // Using a simple match; consider using mqtt-pattern for complex topic patterns
           if (
             message.topic === set.topicFilter ||
             message.topic.startsWith(set.topicFilter.replace("#", ""))
@@ -66,14 +62,12 @@ const Subscribe = ({ brokerOptions }) => {
       );
     });
 
-    // Clean up Socket.IO connection on unmount
     return () => {
       newSocket.disconnect();
       console.log("Socket.IO disconnected");
     };
   }, [navigate]);
 
-  // Initial fetch of messages (optional, for loading existing messages)
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -84,7 +78,7 @@ const Subscribe = ({ brokerOptions }) => {
           navigate("/");
           return;
         }
-        const response = await fetch("http://localhost:5000/api/messages", {
+        const response = await fetch("http://3.110.131.251:5000/api/messages", {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -159,14 +153,14 @@ const Subscribe = ({ brokerOptions }) => {
 
       for (const [index, set] of subscribeInputSets.entries()) {
         if (!set.brokerIp) {
-          throw new Error(`Set ${index +1}: Please select a broker IP`);
+          throw new Error(`Set ${index + 1}: Please select a broker IP`);
         }
         if (!set.topicFilter) {
-          throw new Error(`Set ${index +1}: Please enter a topic filter`);
+          throw new Error(`Set ${index + 1}: Please enter a topic filter`);
         }
       }
 
-      const response = await fetch("http://localhost:5000/api/subscribe", {
+      const response = await fetch("http://3.110.131.251:5000/api/subscribe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -215,7 +209,7 @@ const Subscribe = ({ brokerOptions }) => {
         }
       }
 
-      const response = await fetch("http://localhost:5000/api/unsubscribe", {
+      const response = await fetch("http://3.110.131.251:5000/api/unsubscribe", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -235,7 +229,7 @@ const Subscribe = ({ brokerOptions }) => {
       setSubscribeInputSets((prev) =>
         prev.map((set) => ({
           ...set,
-          messages: [], // Clear messages on unsubscribe
+          messages: [],
         }))
       );
       const summary = subscribeInputSets
@@ -270,34 +264,25 @@ const Subscribe = ({ brokerOptions }) => {
   };
 
   return (
-    <div className="right-side-subscribe-page">
-      <div className="subscribe-topics-container">
-        <div className="subscribe-topics-content">
+    <Col md={6} className="right-side-subscribe-page">
+      <Card className="subscribe-topics-content">
+        <Card.Header className="card-header" style={{ backgroundColor: "#4a5568", display: "flex", justifyContent: "center" }}>
+          <h2 style={{color: "white"}} className="card-title">Subscribe Topics</h2>
+        </Card.Header>
+        <Card.Body className="p-0">
           <div className="subscribe-content-wrapper">
             <div className="subscribe-form-wrapper">
-              <h2 className="subscribe-topics-title">Subscribe Topics</h2>
-              <form
+              <Form
                 className="subscribe-topics-form"
                 onSubmit={isSubscribed ? handleUnsubscribe : handleSubscribe}
               >
-                <div
-                  className={`subscribe-inputs-container ${
-                    subscribeInputSets.length > 1 ? "scrollable" : ""
-                  }`}
-                >
+                <div className="subscribe-inputs-container p-3">
                   {subscribeInputSets.map((inputSet, index) => (
-                    <div key={index} className="subscribe-input-set">
-                      <div className="subscribe-form-group">
-                        <label
-                          className="exists-Broker-ip-header"
-                          htmlFor={`broker-${index}`}
-                        >
-                          Broker IP
-                        </label>
-                        <select
-                          required
-                          className="subscribe-form-input"
-                          id={`broker-${index}`}
+                    <div key={index} className="subscribe-input-set mb-3">
+                      <Form.Group className="mb-3">
+                        <Form.Label>Broker IP</Form.Label>
+                        <Form.Control
+                          as="select"
                           name="brokerIp"
                           value={inputSet.brokerIp}
                           onChange={(e) => handleChange(index, e)}
@@ -307,47 +292,28 @@ const Subscribe = ({ brokerOptions }) => {
                             Select Broker IP
                           </option>
                           {brokerOptions.map((item) => (
-                            <option
-                              key={item.value}
-                              value={item.value}
-                              disabled={item.value === ""}
-                            >
+                            <option key={item.value} value={item.value} disabled={item.value === ""}>
                               {item.label}
                             </option>
                           ))}
-                        </select>
-                      </div>
-                      <div className="subscribe-form-group">
-                        <label
-                          htmlFor={`topicFilter-${index}`}
-                          className="subscribe-form-label"
-                        >
-                          Topic Filter {index + 1}
-                        </label>
-                        <input
-                          required
-                          className="subscribe-form-input"
+                        </Form.Control>
+                      </Form.Group>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Topic Filter {index + 1}</Form.Label>
+                        <Form.Control
                           type="text"
                           name="topicFilter"
-                          id={`topicFilter-${index}`}
                           placeholder="Enter Topic Filter"
                           value={inputSet.topicFilter}
                           onChange={(e) => handleChange(index, e)}
                           disabled={isSubscribed}
                         />
-                      </div>
-                      <div className="subscribe-form-group">
-                        <label
-                          htmlFor={`qosLevel-${index}`}
-                          className="subscribe-form-label"
-                        >
-                          QoS Level
-                        </label>
-                        <select
-                          required
-                          className="subscribe-form-input"
+                      </Form.Group>
+                      <Form.Group className="mb-3">
+                        <Form.Label>QoS Level</Form.Label>
+                        <Form.Control
+                          as="select"
                           name="qosLevel"
-                          id={`qosLevel-${index}`}
                           value={inputSet.qosLevel}
                           onChange={(e) => handleChange(index, e)}
                           disabled={isSubscribed}
@@ -355,33 +321,28 @@ const Subscribe = ({ brokerOptions }) => {
                           <option value="0">0 - At Most Once</option>
                           <option value="1">1 - At Least Once</option>
                           <option value="2">2 - Exactly Once</option>
-                        </select>
-                      </div>
+                        </Form.Control>
+                      </Form.Group>
                     </div>
                   ))}
                 </div>
-                <div className="subscribe-buttons-container">
-                  <button
+                <div className="subscribe-buttons-container px-4 d-flex justify-content-end">
+                  <Button
                     type="submit"
-                    className={`subscribe-submit-button ${
-                      isSubscribed ? "unsubscribe" : ""
-                    }`}
+                    variant={isSubscribed ? "secondary" : "primary"}
                     disabled={brokerOptions[0]?.value === ""}
+                    className="mx-2"
                   >
                     {isSubscribed ? "Unsubscribe" : "Subscribe Topics"}
-                  </button>
-                  <button
-                    type="button"
-                    className="subscribe-submit-button"
-                    onClick={handleClear}
-                  >
+                  </Button>
+                  <Button type="button" variant="secondary" onClick={handleClear}>
                     Clear
-                  </button>
+                  </Button>
                 </div>
-              </form>
+              </Form>
             </div>
-            <div className="messages-wrapper">
-              <h3 className="messages-title">Received Messages</h3>
+            <div className="messages-wrapper" style={{padding: "14px"}}>
+              <h3 style={{ color: "white" }} className="messages-title">Received Messages</h3>
               <div className="messages-scroll-container">
                 {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
                   <ul className="messages-list">
@@ -407,13 +368,12 @@ const Subscribe = ({ brokerOptions }) => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </Card.Body>
+      </Card>
+    </Col>
   );
 };
 
-// The Publish component remains unchanged, included for completeness
 const Publish = () => {
   const [inputSets, setInputSets] = useState([
     {
@@ -441,7 +401,7 @@ const Publish = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:5000/api/brokers", {
+        const response = await fetch("http://3.110.131.251:5000/api/brokers", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -563,8 +523,6 @@ const Publish = () => {
         continue;
       }
 
-     
-
       newPublishing[index] = true;
       newPublishStatuses[index] = "";
     }
@@ -599,7 +557,7 @@ const Publish = () => {
         };
         console.log(`Publishing request payload for set ${index + 1}:`, payloadData);
 
-        const response = await fetch("http://localhost:5000/api/pub/publish", {
+        const response = await fetch("http://3.110.131.251:5000/api/pub/publish", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -615,7 +573,6 @@ const Publish = () => {
           throw new Error(`Set ${index + 1}: ${result.message || "Failed to publish"}`);
         }
 
-        // newPublishStatuses[index] = `Published to topic "${topic}" on broker ${brokerIp}`;
         toast.success(`Set ${index + 1}: Published to topic "${topic}" on broker ${brokerIp}`);
       }
 
@@ -658,115 +615,144 @@ const Publish = () => {
   };
 
   return (
-    <div className="grid-container">
-      <div className="left-side-publish-page">
-        <div className="publish-container">
-          <div className="publish-content">
-            <h2 className="publish-title">Publish Page</h2>
-            <form className="publish-form">
-              <div className="publish-inputs-scroll-container">
-                {inputSets.map((inputSet, index) => (
-                  <div key={index} className="publish-input-set">
-                    {publishStatuses[index] && <p className="publish-status">{publishStatuses[index]}</p>}
-                    <div className="publish-form-group">
-                      <label className="exists-Broker-ip-header" htmlFor={`broker-${index}`}>
-                        Broker IP
-                      </label>
-                      <select
-                        required
-                        className="publish-form-input"
-                        id={`broker-${index}`}
-                        name="brokerIp"
-                        value={inputSet.brokerIp}
-                        onChange={(e) => handleChange(index, e)}
-                      >
-                        <option value="" disabled>
-                          Select Broker IP
+    <Col md={6} className="left-side-publish-page">
+      <Card className="publish-content">
+        <Card.Header className="card-header" style={{ backgroundColor: "#4a5568", display: "flex", justifyContent: "center" }}>
+          <h2 style={{color: "white"}} className="card-title style">Publish Page</h2>
+        </Card.Header>
+        <Card.Body className="p-0">
+          <Form className="publish-form">
+            <div className="publish-inputs-container p-3">
+              {inputSets.map((inputSet, index) => (
+                <div key={index} className="publish-input-set mb-3">
+                  {publishStatuses[index] && (
+                    <div className="alert alert-warning" role="alert">
+                      {publishStatuses[index]}
+                    </div>
+                  )}
+                  <Form.Group className="mb-3">
+                    <Form.Label>Broker IP</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="brokerIp"
+                      value={inputSet.brokerIp}
+                      onChange={(e) => handleChange(index, e)}
+                    >
+                      <option value="" disabled>
+                         Select Broker IP
+                      </option>
+                      {brokerOptions.map((item) => (
+                        <option key={item.value} value={item.value} disabled={item.value === ""}>
+                          {item.label}
                         </option>
-                        {brokerOptions.map((item) => (
-                          <option key={item.value} value={item.value} disabled={item.value === ""}>
-                            {item.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="publish-form-group">
-                      <label htmlFor={`topic-${index}`} className="publish-form-label">
-                        Topic {index + 1}
-                      </label>
-                      <input
-                        required
-                        className="publish-form-input"
-                        type="text"
-                        name="topic"
-                        id={`topic-${index}`}
-                        placeholder="Enter Topic"
-                        value={inputSet.topic}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
-                    <div className="publish-form-group">
-                      <label htmlFor={`qosLevel-${index}`} className="publish-form-label">
-                        QoS Level
-                      </label>
-                      <select
-                        required
-                        className="publish-form-input"
-                        name="qosLevel"
-                        id={`qosLevel-${index}`}
-                        value={inputSet.qosLevel}
-                        onChange={(e) => handleChange(index, e)}
-                      >
-                        <option value="0">0 - At Most Once</option>
-                        <option value="1">1 - At Least Once</option>
-                        <option value="2">2 - Exactly Once</option>
-                      </select>
-                    </div>
-                    <div className="publish-buttons-container">
-                      <button
-                        type="button"
-                        className="publish-submit-button"
-                        onClick={handlePublish}
-                        disabled={publishing.some((status) => status) || inputSets.some((set) => !set.brokerIp)}
-                      >
-                        {publishing.some((status) => status) ? "Publishing..." : "Publish"}
-                      </button>
-                      <button
-                        type="button"
-                        className="publish-submit-button"
-                        onClick={handleClear}
-                      >
-                        Clear
-                      </button>
-                    </div>
-                    <div className="publish-form-group">
-                      <label
-                        style={{ fontSize: "20px", fontWeight: "600", color: "white" }}
-                        htmlFor={`payload-${index}`}
-                        className="publish-form-label"
-                      >
-                        Payload
-                      </label>
-                      <textarea
-                        required
-                        className="publish-form-textarea"
-                        name="payload"
-                        id={`payload-${index}`}
-                        placeholder="Enter Payload (e.g., JSON data)"
-                        value={inputSet.payload}
-                        onChange={(e) => handleChange(index, e)}
-                      />
-                    </div>
+                      ))}
+                    </Form.Control>
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Topic {index + 1}</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="topic"
+                      placeholder="Enter Topic"
+                      value={inputSet.topic}
+                      onChange={(e) => handleChange(index, e)}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>QoS Level</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="qosLevel"
+                      value={inputSet.qosLevel}
+                      onChange={(e) => handleChange(index, e)}
+                    >
+                      <option value="0">0 - At Most Once</option>
+                      <option value="1">1 - At Least Once</option>
+                      <option value="2">2 - Exactly Once</option>
+                    </Form.Control>
+                  </Form.Group>
+                  <div className="publish-buttons-container p-2 d-flex justify-content-end">
+                    <Button
+                      type="button"
+                      variant="primary"
+                      onClick={handlePublish}
+                      disabled={publishing.some((status) => status)}
+                      className="mx-2"
+                    >
+                      {publishing.some((status) => status) ? "Publishing..." : "Publish"}
+                    </Button>
+                    <Button type="button" variant="secondary" onClick={handleClear}>
+                      Clear
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <Subscribe brokerOptions={brokerOptions} />
-    </div>
+                  <Form.Group className="mb-3" style={{ marginTop: "30px" }}>
+                    <Form.Label style={{ color: "white" }}>Payload</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      name="payload"
+                      className="py-5"
+                      placeholder="Enter Payload (e.g., JSON data)"
+                      value={inputSet.payload}
+                      onChange={(e) => handleChange(index, e)}
+                      style={{ backgroundColor: "#4a5568", color: "#ffffff", border: "none" }}
+                    />
+                  </Form.Group>
+                </div>
+              ))}
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
+    </Col>
   );
 };
 
-export default Publish;
+export default function App() {
+  const [brokerOptions, setBrokerOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchBrokers = async () => {
+      try {
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) {
+          console.error("No auth token found");
+          return;
+        }
+
+        const response = await fetch("http://3.110.131.251:5000/api/brokers", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch brokers");
+        }
+
+        const brokers = await response.json();
+        const options = brokers.map((broker) => ({
+          value: broker.brokerIp,
+          label: broker.brokerIp,
+          username: broker.username || "",
+          password: broker.password || "",
+        }));
+        setBrokerOptions(options);
+      } catch (error) {
+        console.error("Error fetching brokers:", error.message);
+      }
+    };
+
+    fetchBrokers();
+  }, []);
+
+  return (
+    <Container fluid className="grid-container p-0">
+      <Row>
+        <Publish />
+        <Subscribe brokerOptions={brokerOptions} />
+      </Row>
+    </Container>
+  );
+}
