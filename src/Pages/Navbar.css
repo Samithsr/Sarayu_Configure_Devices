@@ -38,7 +38,7 @@
 }
 
 .logout-icon-button:active {
-  transform: translateY(-50%) scale(0.95);
+  /* transform: translateY(-50%) scale(0.95); */
 }
 
 .logout-icon-button svg {

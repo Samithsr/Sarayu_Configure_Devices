@@ -1,62 +1,56 @@
-
-
-
-
-
 /* Modal Overlay */
 .add-modal-overlay {
   position: fixed;
-  top: 6vh; /* Offset by navbar height */
+  top: 6vh; /* Offset for navbar */
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.607); /* Removed backdrop-filter */
+  background: rgba(0, 0, 0, 0.7); /* Consistent with EditModal */
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Align to top to respect navbar offset */
+  align-items: flex-start;
   z-index: 1000;
-  overflow-y: auto; /* Allow scrolling if modal content exceeds viewport */
+  overflow-y: auto;
 }
 
 /* Modal Content */
 .add-modal-content {
   background-color: #2d3748;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 16px; /* Reduced padding */
+  border-radius: 10px; /* Smaller radius */
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  animation: fadeSlideIn 0.4s ease-out;
-  margin-top: 20px; /* Spacing below navbar */
-  margin-bottom: 20px; /* Prevent sticking to bottom */
+  max-width: 360px; /* Slightly smaller max-width */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: fadeSlideIn 0.3s ease-out;
+  margin: 16px; /* Reduced margin */
 }
 
 /* Modal Title */
 .add-modal-title {
-  font-size: 1.3rem;
+  font-size: 1.2rem; /* Slightly smaller */
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 14px;
+  margin-bottom: 12px; /* Reduced spacing */
   text-align: left;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
 }
 
 /* Form Styles */
 .add-modal-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px; /* Reduced gap */
 }
 
 .add-modal-form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px; /* Smaller gap */
 }
 
 .add-modal-form-group label {
-  font-size: 0.9rem;
+  font-size: 0.85rem; /* Smaller label */
   font-weight: 500;
   color: #d1d5db;
 }
@@ -66,11 +60,12 @@
   width: 100%;
   background: #4a5568;
   border: 1px solid transparent;
-  padding: 12px 16px;
-  border-radius: 8px;
+  padding: 10px 12px; /* Reduced padding */
+  border-radius: 6px; /* Smaller radius */
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.85rem; /* Smaller font */
   box-sizing: border-box;
+  line-height: 1.3; /* Adjusted for compactness */
 }
 
 .add-modal-input::-moz-placeholder {
@@ -86,7 +81,7 @@
   border: 1px solid #ffffff;
 }
 
-/* Select Styles (for future use) */
+/* Select Styles */
 .add-modal-input[type="select"],
 .add-modal-input select {
   appearance: none;
@@ -94,9 +89,10 @@
   -moz-appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px;
+  background-position: right 10px center;
+  background-size: 12px; /* Smaller arrow */
   cursor: pointer;
+  padding-right: 24px; /* Space for arrow */
 }
 
 .add-modal-input[type="select"]:hover,
@@ -108,8 +104,8 @@
 .add-modal-input select option {
   background-color: #ffffff;
   color: #000000;
-  font-size: 0.9rem;
-  padding: 8px 12px;
+  font-size: 0.85rem;
+  padding: 6px 10px;
 }
 
 .add-modal-input[type="select"] option[disabled],
@@ -119,9 +115,9 @@
 
 /* Error Message */
 .add-modal-error {
-  font-size: 0.75rem;
+  font-size: 0.7rem; /* Smaller error text */
   color: #dc2626;
-  margin-top: 3px;
+  margin-top: 2px; /* Tighter spacing */
   text-align: left;
 }
 
@@ -129,15 +125,15 @@
 .add-modal-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
+  gap: 8px; /* Smaller gap */
+  margin-top: 12px; /* Reduced margin */
 }
 
 .add-modal-button {
-  padding: 8px 24px;
+  padding: 6px 20px; /* Smaller buttons */
   border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
+  border-radius: 8px; /* Smaller radius */
+  font-size: 0.85rem; /* Smaller font */
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
@@ -174,7 +170,7 @@
 /* Animation */
 @keyframes fadeSlideIn {
   from {
-    transform: translateY(-40px);
+    transform: translateY(-30px); /* Reduced animation distance */
     opacity: 0;
   }
   to {
@@ -183,49 +179,66 @@
   }
 }
 
-/* Responsive Design */
+/* Responsive Design for Small Screens */
 @media (max-width: 768px) {
   .add-modal-overlay {
     top: 6vh; /* Maintain navbar offset */
+    padding: 8px; /* Smaller padding for touch */
   }
 
   .add-modal-content {
-    max-width: 95%;
-    padding: 16px;
-    margin-top: 10px; /* Reduced margin for smaller screens */
-    margin-bottom: 10px;
+    max-width: 85%; /* Smaller width */
+    padding: 12px; /* Further reduced padding */
+    margin: 8px; /* Smaller margin */
+    border-radius: 8px; /* Smaller radius */
+    min-height: auto; /* Allow modal to shrink */
   }
 
   .add-modal-title {
-    font-size: 1.1rem;
+    font-size: 1rem; /* Smaller title */
+    letter-spacing: 1.2px; /* Adjusted spacing */
+    margin-bottom: 10px; /* Reduced spacing */
+  }
+
+  .add-modal-form {
+    gap: 8px; /* Smaller gap */
+  }
+
+  .add-modal-form-group {
+    gap: 3px; /* Tighter gap */
   }
 
   .add-modal-form-group label {
-    font-size: 0.8rem;
+    font-size: 0.75rem; /* Smaller labels */
   }
 
   .add-modal-input {
-    padding: 10px 12px;
-    font-size: 0.8rem;
+    padding: 6px 8px; /* Even smaller padding for inputs */
+    font-size: 0.75rem; /* Smaller font size */
+    border-radius: 5px; /* Smaller radius */
+    line-height: 1.2; /* Tighter text alignment */
   }
 
   .add-modal-input[type="select"],
   .add-modal-input select {
-    background-size: 12px;
-    background-position: right 10px center;
-  }
-
-  .add-modal-button {
-    padding: 7px 16px;
-    font-size: 0.8rem;
+    background-size: 9px; /* Smaller dropdown arrow */
+    background-position: right 6px center; /* Adjusted position */
+    padding-right: 20px; /* Reduced space in dropdown */
   }
 
   .add-modal-error {
-    font-size: 0.7rem;
+    font-size: 0.6rem; /* Smaller error text */
+    margin-top: 1px; /* Minimal spacing */
+  }
+
+  .add-modal-buttons {
+    gap: 6px; /* Smaller gap */
+    margin-top: 10px; /* Reduced margin */
+  }
+
+  .add-modal-button {
+    padding: 5px 14px; /* Smaller buttons */
+    font-size: 0.75rem; /* Smaller font */
+    border-radius: 6px; /* Smaller radius */
   }
 }
-
-
-
-
-
