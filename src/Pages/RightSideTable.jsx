@@ -170,85 +170,86 @@ const RightSideTable = () => {
   };
 
   const fetchTableData = async (usersList) => {
-    const authToken = localStorage.getItem('authToken');
-    const userId = localStorage.getItem('userId');
+  const authToken = localStorage.getItem('authToken');
+  const userId = localStorage.getItem('userId');
 
-    if (!authToken || !userId) {
-      toast.error('Authentication token or user ID is missing. Please log in again.');
-      navigate('/');
-      return;
+  if (!authToken || !userId) {
+    toast.error('Authentication token or user ID is missing. Please log in again.');
+    navigate('/');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:5000/api/brokers', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.clear();
+        toast.error('Session expired. Please log in again.');
+        navigate('/');
+        return;
+      }
+      const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
+      throw new Error(errorMessage);
     }
 
-    try {
-      const response = await fetch('http://localhost:5000/api/brokers', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+    const data = await response.json();
+    console.log('[fetchTableData] Fetched brokers:', data);
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.clear();
-          toast.error('Session expired. Please log in again.');
-          navigate('/');
-          return;
-        }
-        const errorMessage = await response.json().then((data) => data.message || `HTTP error! status: ${response.status}`);
-        throw new Error(errorMessage);
-      }
+    const mappedData = await Promise.all(
+      data.map(async (item) => {
+        let assignedUserId = null;
+        let assignedUserEmail = null;
 
-      const data = await response.json();
-      console.log('[fetchTableData] Fetched brokers:', data);
-
-      const mappedData = await Promise.all(
-        data.map(async (item) => {
-          let assignedUserId = null;
-          let assignedUserEmail = null;
-
-          if (item.assignedUserId) {
-            if (typeof item.assignedUserId === 'object' && item.assignedUserId.email) {
-              assignedUserId = item.assignedUserId._id || null;
-              assignedUserEmail = item.assignedUserId.email || null;
+        if (item.assignedUserId) {
+          if (typeof item.assignedUserId === 'object' && item.assignedUserId.email) {
+            assignedUserId = item.assignedUserId._id || null;
+            assignedUserEmail = item.assignedUserId.email || null;
+          } else {
+            assignedUserId = item.assignedUserId;
+            const user = usersList.find((u) => u._id === assignedUserId);
+            if (user) {
+              assignedUserEmail = user.email;
             } else {
-              assignedUserId = item.assignedUserId;
-              const user = usersList.find((u) => u._id === assignedUserId);
-              if (user) {
-                assignedUserEmail = user.email;
-              } else {
-                assignedUserEmail = await fetchUserEmailById(assignedUserId);
-              }
+              assignedUserEmail = await fetchUserEmailById(assignedUserId);
             }
           }
+        }
 
-          const isConnected = await checkBrokerStatus(item.brokerIp);
-          const realTimeStatus = isConnected ? 'connected' : 'disconnected';
+        // Use database connectionStatus instead of revalidating
+        const connectionStatus = item.connectionStatus || 'disconnected';
+        const connectionErrors = item.lastValidationError ? [item.lastValidationError] : [];
 
-          return {
-            brokerId: item._id,
-            brokerip: item.brokerIp || 'N/A',
-            port: item.portNumber ? item.portNumber.toString() : 'N/A',
-            user: item.username || 'N/A',
-            password: item.password || 'N/A',
-            rawPassword: item.password || '',
-            label: item.label || 'N/A',
-            topic: item.topic || 'N/A',
-            connectionStatus: realTimeStatus,
-            connectionErrors: [],
-            assignedUserId,
-            assignedUserEmail,
-          };
-        })
-      );
+        return {
+          brokerId: item._id,
+          brokerip: item.brokerIp || 'N/A',
+          port: item.portNumber ? item.portNumber.toString() : 'N/A',
+          user: item.username || 'N/A',
+          password: item.password || 'N/A',
+          rawPassword: item.password || '',
+          label: item.label || 'N/A',
+          topic: item.topic || 'N/A',
+          connectionStatus,
+          connectionErrors,
+          assignedUserId,
+          assignedUserEmail,
+        };
+      })
+    );
 
-      console.log('[fetchTableData] Mapped table data:', mappedData);
-      setTableData(mappedData);
-    } catch (err) {
-      console.error('Error fetching table data:', err);
-      toast.error(err.message || 'An error occurred while fetching table data.');
-    }
-  };
+    console.log('[fetchTableData] Mapped table data:', mappedData);
+    setTableData(mappedData);
+  } catch (err) {
+    console.error('Error fetching table data:', err);
+    toast.error(err.message || 'An error occurred while fetching table data.');
+  }
+};
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
@@ -619,12 +620,12 @@ const handleEditConfirm = async (updatedData) => {
     let connectionStatus = updatedBroker.connectionStatus || 'disconnected';
     let connectionErrors = updatedBroker.lastValidationError ? [updatedBroker.lastValidationError] : [];
 
-    // If critical fields changed, revalidate connection
-    if (hasCriticalChanges) {
+    // If critical fields changed, ensure connection status is accurate
+    if (hasCriticalChanges && connectionStatus === 'connected') {
       const isConnected = await checkBrokerStatus(updatedBroker.brokerIp);
       console.log(`[handleEditConfirm] checkBrokerStatus result: ${isConnected}`);
 
-      if (isConnected && connectionStatus !== 'connected') {
+      if (isConnected) {
         const connectResponse = await fetch(`http://localhost:5000/api/brokers/${brokerToEdit.brokerId}/connect`, {
           method: 'POST',
           headers: {
@@ -639,11 +640,11 @@ const handleEditConfirm = async (updatedData) => {
           console.log(`[handleEditConfirm] Reconnection attempt result: ${connectionStatus}`);
         } else {
           const connectErrorData = await connectResponse.json();
-          connectionErrors = connectErrorData.validationErrors || ['Connection failed'];
           connectionStatus = 'disconnected';
+          connectionErrors = connectErrorData.validationErrors || ['Connection failed'];
           console.log(`[handleEditConfirm] Reconnection failed: ${connectionErrors.join(", ")}`);
         }
-      } else if (!isConnected) {
+      } else {
         connectionStatus = 'disconnected';
         connectionErrors = updatedBroker.lastValidationError ? [updatedBroker.lastValidationError] : ['Connection failed'];
       }
