@@ -41,7 +41,6 @@ const Firmware = () => {
     );
   };
 
-  // Load brokers and initialize publishData from localStorage
   useEffect(() => {
     const getAllBrokers = async () => {
       try {
@@ -53,7 +52,7 @@ const Firmware = () => {
           return;
         }
 
-        const res = await axios.get("http://3.110.131.251:5000/api/brokers", {
+        const res = await axios.get("http://localhost:5000/api/brokers", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -64,23 +63,40 @@ const Firmware = () => {
           console.warn("No brokers returned from the API.");
           toast.warn("No brokers available. Please add brokers in the admin page.");
           const demoBrokers = [
-            { value: "demo1", label: "192.168.1.100" },
-            { value: "demo2", label: "192.168.1.101" },
+            {
+              value: "demo1",
+              label: "Demo Company 1",
+              brokerIp: "192.168.1.100",
+              topic: "demo/topic1",
+              username: "",
+              password: "",
+            },
+            {
+              value: "demo2",
+              label: "Demo Company 2",
+              brokerIp: "192.168.1.101",
+              topic: "demo/topic2",
+              username: "",
+              password: "",
+            },
           ];
           setBrokerOptions(demoBrokers);
-          await fetchVersions();
+          await fetchVersions(demoBrokers[0]?.brokerIp || "192.168.1.100");
           return;
         }
 
         const options = brokers.map((broker) => ({
           value: broker._id,
-          label: broker.brokerIp,
+          label: broker.label || broker.brokerIp,
+          brokerIp: broker.brokerIp,
+          topic: broker.topic || "",
           username: broker.username || "",
           password: broker.password || "",
         }));
         console.log("Broker Options:", options);
         setBrokerOptions(options);
-        await fetchVersions();
+        // Fetch versions for the first broker's IP
+        await fetchVersions(options[0]?.brokerIp || "192.168.1.100");
       } catch (error) {
         console.error("Error fetching brokers:", error.message, error.response?.data);
         toast.error("Failed to fetch brokers: " + (error.response?.data?.message || error.message));
@@ -90,7 +106,7 @@ const Firmware = () => {
         }
         const demoBrokers = [];
         setBrokerOptions(demoBrokers);
-        await fetchVersions();
+        await fetchVersions("192.168.1.100");
       }
     };
 
@@ -104,28 +120,26 @@ const Firmware = () => {
     }
   }, [publishData]);
 
-  const fetchVersions = async () => {
+  const fetchVersions = async (brokerIp) => {
     try {
-      const response = await fetch(`http://3.110.131.251:5000/api/get-all-versions`);
+      const response = await fetch(`http://localhost:5000/api/get-all-versions?ip=${brokerIp}`);
       const data = await response.json();
       console.log("Fetched versions:", data);
       if (data.success) {
-        // Use data.result directly without reordering
         setApiData(data.result);
 
-        // Load saved publishData from localStorage
         const savedPublishData = JSON.parse(localStorage.getItem("publishData")) || [];
-
-        // Initialize publishData with default empty brokerIp, aligned with data.result
         const newPublishData = data.result.map((url) => {
-          // Find matching saved data by URL
           const savedItem = savedPublishData.find((item) => item.url === url);
+          const selectedBroker = brokerOptions.find((b) => b.brokerIp === brokerIp) || brokerOptions[0];
           return {
             url,
-            brokerIp: savedItem?.brokerIp || "", // Use saved brokerIp or empty string
-            topic: savedItem?.topic || "",
-            mqttUsername: savedItem?.mqttUsername || "",
-            mqttPassword: savedItem?.mqttPassword || "",
+            brokerId: savedItem?.brokerId || selectedBroker?.value || "",
+            brokerIp: savedItem?.brokerIp || brokerIp,
+            topic: savedItem?.topic || selectedBroker?.topic || "",
+            mqttUsername: savedItem?.mqttUsername || selectedBroker?.username || "",
+            mqttPassword: savedItem?.mqttPassword || selectedBroker?.password || "",
+            label: savedItem?.label || selectedBroker?.label || "",
           };
         });
 
@@ -164,7 +178,7 @@ const Firmware = () => {
 
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch("http://3.110.131.251:5000/api/upload", {
+      const response = await fetch("http://localhost:5000/api/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -175,7 +189,8 @@ const Firmware = () => {
       if (data.success) {
         setUploadStatus(`File uploaded successfully: ${selectedFile.name}`);
         setSelectedFile(null);
-        await fetchVersions();
+        const selectedBroker = brokerOptions.find((b) => b.value === publishData[0]?.brokerId) || brokerOptions[0];
+        await fetchVersions(selectedBroker?.brokerIp || "192.168.1.100");
       } else {
         setUploadStatus(`Upload failed: ${data.message}`);
       }
@@ -205,7 +220,7 @@ const Firmware = () => {
         return;
       }
 
-      const response = await axios.delete(`http://3.110.131.251:5000/api/delete/${filename}`, {
+      const response = await axios.delete(`http://localhost:5000/api/delete/${filename}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -214,7 +229,8 @@ const Firmware = () => {
       if (response.data.success) {
         setUploadStatus(`File ${filename} deleted successfully`);
         toast.success(`File ${filename} deleted successfully`);
-        await fetchVersions(); 
+        const selectedBroker = brokerOptions.find((b) => b.value === publishData[deleteIndex]?.brokerId) || brokerOptions[0];
+        await fetchVersions(selectedBroker?.brokerIp || "192.168.1.100");
       } else {
         setUploadStatus(`Delete failed: ${response.data.message}`);
         toast.error(`Delete failed: ${response.data.message}`);
@@ -246,13 +262,21 @@ const Firmware = () => {
         i === index
           ? {
               ...item,
-              brokerIp: value,
+              brokerId: value,
+              brokerIp: selectedBroker ? selectedBroker.brokerIp : "",
+              topic: selectedBroker ? selectedBroker.topic : "",
               mqttUsername: selectedBroker ? selectedBroker.username : "",
               mqttPassword: selectedBroker ? selectedBroker.password : "",
+              label: selectedBroker ? selectedBroker.label : "",
+              url: selectedBroker ? `http://${selectedBroker.brokerIp}:5000/api/updates/${item.url.split("/").pop()}` : item.url,
             }
           : item
       )
     );
+    // Refresh versions for the selected broker's IP
+    if (selectedBroker) {
+      fetchVersions(selectedBroker.brokerIp);
+    }
   };
 
   const handleTopicChange = (index, value) => {
@@ -262,10 +286,10 @@ const Firmware = () => {
   };
 
   const handlePublish = async (index) => {
-    const { url, brokerIp, topic, mqttUsername, mqttPassword } = publishData[index];
+    const { url, brokerIp, topic, mqttUsername, mqttPassword, label } = publishData[index];
     if (!brokerIp) {
-      setPublishStatus("Please select a broker IP");
-      toast.error("Please select a broker IP");
+      setPublishStatus("Please select a company name");
+      toast.error("Please select a company name");
       return;
     }
     if (!topic) {
@@ -276,6 +300,11 @@ const Firmware = () => {
     if (!mqttUsername || !mqttPassword) {
       setPublishStatus("MQTT credentials are missing");
       toast.error("MQTT credentials are missing");
+      return;
+    }
+    if (!url) {
+      setPublishStatus("Firmware URL is missing");
+      toast.error("Firmware URL is missing");
       return;
     }
 
@@ -295,18 +324,11 @@ const Firmware = () => {
         return;
       }
 
-      const selectedBroker = brokerOptions.find((b) => b.value === brokerIp);
-      const brokerIpAddress = selectedBroker ? selectedBroker.label : brokerIp;
-
-      if (!url.startsWith("http://") || !url.includes("http://3.110.131.251:5000/api/updates/") || !url.endsWith(".bin")) {
-        throw new Error("Invalid firmware URL format");
-      }
-
-      console.log("Publishing request:", { brokerIp: brokerIpAddress, topic, url, mqttUsername });
+      console.log("Publishing request:", { brokerIp, topic, url, mqttUsername });
       const response = await axios.post(
-        `http://3.110.131.251:5000/api/publish`,
+        `http://localhost:5000/api/publish`,
         {
-          brokerIp: brokerIpAddress,
+          brokerIp,
           topic,
           message: url,
           mqttUsername,
@@ -327,8 +349,8 @@ const Firmware = () => {
       const data = response.data;
       if (data.success) {
         const filename = url.split("/").pop();
-        setPublishStatus(`Published URL "${url}" to topic "${topic}" on broker ${brokerIpAddress}`);
-        toast.success(`Published "${filename}" to topic "${topic}" on broker ${brokerIpAddress}`);
+        setPublishStatus(`Published URL "${url}" to topic "${topic}" for company ${label}`);
+        toast.success(`Published "${filename}" to topic "${topic}" for company ${label}`);
       } else {
         setPublishStatus(`Publish failed: ${data.message || "Unknown error"}`);
         toast.error(`Publish failed: ${data.message || "Unknown error"}`);
@@ -381,8 +403,7 @@ const Firmware = () => {
             <label htmlFor="firmware-file" className="firmware__button">
               Choose File
             </label>
-            {/* <p className="firmware__info">File must be .bin</p> */}
-
+            <p className="firmware__info">File must be .bin</p>
             {selectedFile && (
               <div className="firmware__file-loader">
                 <div className="firmware__file-loader-bar"></div>
@@ -409,7 +430,7 @@ const Firmware = () => {
             <tr>
               <th>ID</th>
               <th>Firmware File</th>
-              <th>Broker IP</th>
+              <th>Company Name</th>
               <th>Topic</th>
               <th>Publish</th>
               <th>Delete</th>
@@ -429,11 +450,11 @@ const Firmware = () => {
                     <select
                       className="publish-broker-ip-select"
                       id={`broker-${index}`}
-                      value={publishData[index]?.brokerIp || ""}
+                      value={publishData[index]?.brokerId || ""}
                       onChange={(e) => handleBrokerChange(index, e.target.value)}
                     >
                       <option value="" disabled>
-                        Select Broker IP
+                        Select Company Name
                       </option>
                       {brokerOptions.map((item) => (
                         <option key={item.value} value={item.value}>
@@ -456,7 +477,7 @@ const Firmware = () => {
                       className="url-section-button"
                       onClick={() => handlePublish(index)}
                       disabled={
-                        !publishData[index]?.brokerIp ||
+                        !publishData[index]?.brokerId ||
                         !publishData[index]?.topic ||
                         !publishData[index]?.mqttUsername ||
                         !publishData[index]?.mqttPassword ||
