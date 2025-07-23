@@ -10,23 +10,25 @@ const AdminUserAssign = ({
   handleAssignUser,
   onConfirmationStateChange,
 }) => {
-  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  // Initialize selectedUserId with assignedUserId or empty string
+  // Initialize selectedUserId with assignedUserId
   useEffect(() => {
     setSelectedUserId(assignedUserId || '');
   }, [assignedUserId]);
 
+  // Notify parent about modal state changes
   useEffect(() => {
-    // Notify parent (RightSideTable) about confirmation state
     onConfirmationStateChange(brokerId, showModal);
   }, [showModal, brokerId, onConfirmationStateChange]);
 
   const handleUserSelect = (e) => {
-    const userId = e.target.value === '' ? null : e.target.value;
+    const userId = e.target.value || null; // Use null for unassigning
+    console.log(`[AdminUserAssign] Selected userId: ${userId} for broker ${brokerId}`);
 
     if (userId === assignedUserId) {
+      console.log(`[AdminUserAssign] No change in user selection for broker ${brokerId}`);
       setShowModal(false);
       setSelectedUserId(userId);
       return;
@@ -37,12 +39,13 @@ const AdminUserAssign = ({
   };
 
   const handleModalConfirm = () => {
+    console.log(`[AdminUserAssign] Confirming assignment: userId=${selectedUserId} to broker ${brokerId}`);
     handleAssignUser(brokerId, selectedUserId);
     setShowModal(false);
-    setSelectedUserId(null);
   };
 
   const handleModalCancel = () => {
+    console.log(`[AdminUserAssign] Canceling assignment for broker ${brokerId}`);
     setShowModal(false);
     setSelectedUserId(assignedUserId || '');
   };
@@ -51,14 +54,12 @@ const AdminUserAssign = ({
     <div className="users-container">
       <select
         className="user-assign-select"
-        value={assignedUserId || ''} // Use assignedUserId directly for controlled component
+        value={selectedUserId || ''} // Use selectedUserId for controlled component
         onChange={handleUserSelect}
         aria-label="Assign a user to broker"
-        disabled={users.length === 0} // Disable if no users are available
+        disabled={users.length === 0}
       >
-        <option value="" disabled>
-          Select a User
-        </option>
+        <option value="">Unassigned</option> {/* Allow unassigning */}
         {users.map((user) => (
           <option key={user._id} value={user._id}>
             {user.email}
@@ -75,9 +76,9 @@ const AdminUserAssign = ({
             </div>
             <p className="user-assign-modal-text">
               {selectedUserId
-                ? `Are you sure you want to assign ${users.find(
-                    (user) => user._id === selectedUserId
-                  )?.email || 'Unknown User'} to this broker?`
+                ? `Are you sure you want to assign ${
+                    users.find((user) => user._id === selectedUserId)?.email || 'Unknown User'
+                  } to this broker?`
                 : 'Are you sure you want to unassign the current user from this broker?'}
             </p>
             <div className="user-assign-modal-buttons">

@@ -8,6 +8,7 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
     username: '',
     password: '',
     label: '',
+    topic: '',
   });
   const [errors, setErrors] = useState({});
 
@@ -19,6 +20,7 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
         username: broker.user || '',
         password: broker.rawPassword || '',
         label: broker.label || '',
+        topic: broker.topic || '',
       });
     } else {
       setFormData({
@@ -27,6 +29,7 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
         username: '',
         password: '',
         label: '',
+        topic: '',
       });
     }
     setErrors({});
@@ -46,6 +49,9 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
     }
     if (!formData.label) {
       newErrors.label = 'Label is required.';
+    }
+    if (!formData.topic) {
+      newErrors.topic = 'Topic Name is required.';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -130,6 +136,18 @@ const EditModal = ({ isOpen, onConfirm, onCancel, broker, title = "Edit Broker" 
               className="edit-modal-input"
             />
             {errors.label && <p className="edit-modal-error">{errors.label}</p>}
+          </div>
+          <div className="edit-modal-form-group">
+            <label htmlFor="topic">Topic Name *:</label>
+            <input
+              type="text"
+              id="topic"
+              name="topic"
+              value={formData.topic}
+              onChange={handleInputChange}
+              className="edit-modal-input"
+            />
+            {errors.topic && <p className="edit-modal-error">{errors.topic}</p>}
           </div>
         </div>
         <div className="edit-modal-buttons">

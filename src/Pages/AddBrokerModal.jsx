@@ -8,6 +8,7 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
     username: '',
     password: '',
     label: '',
+    topic: '',
   });
   const [errors, setErrors] = useState({});
 
@@ -18,6 +19,7 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
       username: '',
       password: '',
       label: '',
+      topic: '',
     });
     setErrors({});
   }, [isOpen]);
@@ -36,6 +38,9 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
     }
     if (!formData.label) {
       newErrors.label = 'Label is required.';
+    }
+    if (!formData.topic) {
+      newErrors.topic = 'Topic Name is required.';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -120,6 +125,18 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
               className="add-modal-input"
             />
             {errors.label && <p className="add-modal-error">{errors.label}</p>}
+          </div>
+          <div className="add-modal-form-group">
+            <label htmlFor="topic">Topic Name *:</label>
+            <input
+              type="text"
+              id="topic"
+              name="topic"
+              value={formData.topic}
+              onChange={handleInputChange}
+              className="add-modal-input"
+            />
+            {errors.topic && <p className="add-modal-error">{errors.topic}</p>}
           </div>
         </div>
         <div className="add-modal-buttons">
