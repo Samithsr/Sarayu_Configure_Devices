@@ -1,11 +1,11 @@
 /* Modal Overlay */
 .edit-modal-overlay {
   position: fixed;
-  top: 15vh; /* Offset for navbar */
+  top: 6vh; /* Offset for navbar */
   left: 0;
   right: 0;
   bottom: 0;
-  /* background: rgba(0, 0, 0, 0.7); */
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -20,7 +20,7 @@
   border-radius: 10px; /* Smaller radius */
   width: 100%;
   max-width: 360px; /* Slightly smaller max-width */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.932);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   animation: fadeSlideIn 0.3s ease-out;
   margin: 16px; /* Reduced margin */
 }
