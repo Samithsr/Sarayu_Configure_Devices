@@ -74,7 +74,7 @@ const Firmware = () => {
             {
               value: "demo2",
               label: "Demo Company 2",
-              brokerIp: "192.168.1.101",
+              brokerIp: "192.168.1.100",
               topic: "demo/topic2",
               username: "",
               password: "",
@@ -95,7 +95,6 @@ const Firmware = () => {
         }));
         console.log("Broker Options:", options);
         setBrokerOptions(options);
-        // Fetch versions for the first broker's IP
         await fetchVersions(options[0]?.brokerIp || "192.168.1.100");
       } catch (error) {
         console.error("Error fetching brokers:", error.message, error.response?.data);
@@ -113,7 +112,6 @@ const Firmware = () => {
     getAllBrokers();
   }, [navigate]);
 
-  // Save publishData to localStorage whenever it changes
   useEffect(() => {
     if (publishData.length > 0) {
       localStorage.setItem("publishData", JSON.stringify(publishData));
@@ -122,7 +120,12 @@ const Firmware = () => {
 
   const fetchVersions = async (brokerIp) => {
     try {
+      console.log(`Fetching versions for IP: ${brokerIp}`);
       const response = await fetch(`http://localhost:5000/api/get-all-versions?ip=${brokerIp}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+      }
       const data = await response.json();
       console.log("Fetched versions:", data);
       if (data.success) {
@@ -131,7 +134,7 @@ const Firmware = () => {
         const savedPublishData = JSON.parse(localStorage.getItem("publishData")) || [];
         const newPublishData = data.result.map((url) => {
           const savedItem = savedPublishData.find((item) => item.url === url);
-          const selectedBroker = brokerOptions.find((b) => b.brokerIp === brokerIp) || brokerOptions[0];
+          const selectedBroker = brokerOptions.find((b) => b.brokerIp === brokerIp && b.value === savedItem?.brokerId) || brokerOptions[0];
           return {
             url,
             brokerId: savedItem?.brokerId || selectedBroker?.value || "",
@@ -150,8 +153,9 @@ const Firmware = () => {
         console.error("Failed to fetch versions:", data.message);
       }
     } catch (err) {
-      setUploadStatus("Error fetching versions");
+      setUploadStatus(`Error fetching versions: ${err.message}`);
       console.error("Error fetching versions:", err.message);
+      toast.error(`Error fetching versions: ${err.message}`);
     }
   };
 
@@ -178,6 +182,7 @@ const Firmware = () => {
 
     try {
       const token = localStorage.getItem("authToken");
+      console.log("Uploading file with token:", token ? "Token present" : "No token");
       const response = await fetch("http://localhost:5000/api/upload", {
         method: "POST",
         headers: {
@@ -188,14 +193,17 @@ const Firmware = () => {
       const data = await response.json();
       if (data.success) {
         setUploadStatus(`File uploaded successfully: ${selectedFile.name}`);
+        toast.success(`File uploaded successfully: ${selectedFile.name}`);
         setSelectedFile(null);
         const selectedBroker = brokerOptions.find((b) => b.value === publishData[0]?.brokerId) || brokerOptions[0];
         await fetchVersions(selectedBroker?.brokerIp || "192.168.1.100");
       } else {
         setUploadStatus(`Upload failed: ${data.message}`);
+        toast.error(`Upload failed: ${data.message}`);
       }
     } catch (err) {
       setUploadStatus(`Upload error: ${err.message}`);
+      toast.error(`Upload error: ${err.message}`);
       console.error("Upload error:", err);
     } finally {
       setUploading(false);
@@ -203,33 +211,46 @@ const Firmware = () => {
   };
 
   const handleDeleteClick = (index) => {
+    console.log(`Delete clicked for index: ${index}, file: ${apiData[index]}`);
     setDeleteIndex(index);
     setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
+    if (deleteIndex === null) {
+      console.error("No file selected for deletion");
+      toast.error("No file selected for deletion");
+      setIsDeleteModalOpen(false);
+      return;
+    }
+
     const url = apiData[deleteIndex];
     const filename = url.split("/").pop();
+    console.log(`Attempting to delete file: ${filename}`);
 
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
+        console.error("No auth token found for delete operation");
         toast.error("Please log in to delete files.");
         navigate("/");
         setIsDeleteModalOpen(false);
         return;
       }
 
+      console.log(`Sending DELETE request to: http://localhost:5000/api/delete/${filename}`);
       const response = await axios.delete(`http://localhost:5000/api/delete/${filename}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log("Delete response:", response.data);
       if (response.data.success) {
         setUploadStatus(`File ${filename} deleted successfully`);
         toast.success(`File ${filename} deleted successfully`);
         const selectedBroker = brokerOptions.find((b) => b.value === publishData[deleteIndex]?.brokerId) || brokerOptions[0];
+        setPublishData((prev) => prev.filter((_, i) => i !== deleteIndex));
         await fetchVersions(selectedBroker?.brokerIp || "192.168.1.100");
       } else {
         setUploadStatus(`Delete failed: ${response.data.message}`);
@@ -237,11 +258,17 @@ const Firmware = () => {
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message;
-      console.error("Delete error:", errorMessage);
+      console.error("Delete error:", {
+        message: errorMessage,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
       setUploadStatus(`Delete error: ${errorMessage}`);
       toast.error(`Delete error: ${errorMessage}`);
       if (error.response?.status === 401) {
+        console.error("Unauthorized: Clearing token and redirecting to login");
         localStorage.removeItem("authToken");
+        toast.error("Unauthorized: Please log in again.");
         navigate("/");
       }
     } finally {
@@ -251,12 +278,14 @@ const Firmware = () => {
   };
 
   const handleDeleteCancel = () => {
+    console.log("Delete operation cancelled");
     setIsDeleteModalOpen(false);
     setDeleteIndex(null);
   };
 
   const handleBrokerChange = (index, value) => {
     const selectedBroker = brokerOptions.find((b) => b.value === value);
+    console.log(`Broker changed for index ${index}:`, selectedBroker);
     setPublishData((prev) =>
       prev.map((item, i) =>
         i === index
@@ -273,13 +302,11 @@ const Firmware = () => {
           : item
       )
     );
-    // Refresh versions for the selected broker's IP
-    if (selectedBroker) {
-      fetchVersions(selectedBroker.brokerIp);
-    }
+    // Do not call fetchVersions here to avoid overwriting other rows
   };
 
   const handleTopicChange = (index, value) => {
+    console.log(`Topic changed for index ${index}: ${value}`);
     setPublishData((prev) =>
       prev.map((item, i) => (i === index ? { ...item, topic: value } : item))
     );
@@ -381,8 +408,8 @@ const Firmware = () => {
     }
   };
 
-  console.log("Api data: ", apiData);
-  console.log("Publish data: ", publishData);
+  console.log("Api data:", apiData);
+  console.log("Publish data:", publishData);
 
   return (
     <div className="firmware">
