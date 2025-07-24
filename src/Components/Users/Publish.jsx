@@ -246,20 +246,14 @@ const Subscribe = ({ brokerOptions }) => {
   };
 
   const handleClear = () => {
-    if (subscribeInputSets.length > 1) {
-      setSubscribeInputSets(subscribeInputSets.slice(0, -1));
-    } else {
-      setSubscribeInputSets([
-        {
-          brokerIp: brokerOptions.length > 0 ? brokerOptions[0].value : "",
-          topicFilter: "",
-          qosLevel: "0",
-          mqttUsername: brokerOptions.length > 0 ? brokerOptions[0].username : "",
-          mqttPassword: brokerOptions.length > 0 ? brokerOptions[0].password : "",
-          messages: [],
-        },
-      ]);
-    }
+    setSubscribeInputSets((prev) =>
+      prev.map((set) => ({
+        ...set,
+        messages: [],
+        topicFilter: "",
+        qosLevel: "0",
+      }))
+    );
     setIsSubscribed(false);
   };
 
@@ -344,28 +338,28 @@ const Subscribe = ({ brokerOptions }) => {
             <div className="messages-wrapper" style={{padding: "14px"}}>
               <h3 style={{ color: "white" }} className="messages-title">Received Messages</h3>
               <div className="messages-scroll-container">
-                {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
-                  <ul className="messages-list">
-                    {subscribeInputSets
-                      .flatMap((set) => set.messages || [])
-                      .map((msg, index) => (
-                        <li key={index} className="message-item">
-                          <div className="message-content">
-                            <strong>Topic:</strong> {msg.topic}
-                          </div>
-                          <div className="message-content">
-                            <strong>Payload:</strong> {msg.payload}
-                          </div>
-                          <div className="message-content">
-                            <strong>QoS:</strong> {msg.qos}
-                          </div>
-                        </li>
-                      ))}
-                  </ul>
-                ) : (
-                  <p className="no-messages">No messages received yet.</p>
-                )}
-              </div>
+  {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
+    <ul className="messages-list">
+      {subscribeInputSets
+        .flatMap((set) => set.messages || [])
+        .map((msg, index) => (
+          <li key={index} className="message-item">
+            <div className="message-content">
+              <strong>Topic:</strong> {msg.topic}
+            </div>
+            <div className="message-content">
+              <strong>Payload:</strong> {msg.payload}
+            </div>
+            <div className="message-content">
+              <strong>QoS:</strong> {msg.qos}
+            </div>
+          </li>
+        ))}
+    </ul>
+  ) : (
+    <p className="no-messages">No messages received yet.</p>
+  )}
+</div>
             </div>
           </div>
         </Card.Body>
@@ -685,12 +679,12 @@ const Publish = () => {
                       Clear
                     </Button>
                   </div>
-                  <Form.Group className="mb-3" style={{ marginTop: "30px" }}>
+                  <Form.Group className="mb-3" style={{ marginTop: "30px", }}>
                     <Form.Label style={{ color: "white" }}>Payload</Form.Label>
                     <Form.Control
                       as="textarea"
                       name="payload"
-                      className="py-5"
+                      className="Payload-message py-5"
                       placeholder="Enter Payload (e.g., JSON data)"
                       value={inputSet.payload}
                       onChange={(e) => handleChange(index, e)}

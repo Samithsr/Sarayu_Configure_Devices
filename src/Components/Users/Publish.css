@@ -114,6 +114,14 @@ textarea.form-control {
   background-color: #2d3748;
   padding: 1rem;
 }
+.messages-list {
+  padding: 0;
+  max-height: 167px;
+}
+.message-item {
+  background-color: #ffffff;
+  color: #000000;
+}
 
 .messages-title {
   font-size: 1.1rem;
@@ -122,15 +130,17 @@ textarea.form-control {
 }
 
 .messages-scroll-container {
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
 }
 
 .message-item {
-  background-color: #4a5568;
+  background-color: #ffffff;
   padding: 0.5rem;
   margin-bottom: 0.5rem;
   border-radius: 5px;
+  height: 12vh;
+  /* background-color: red; */
 }
 
 /* Style Received Messages to match Payload container */
