@@ -52,7 +52,7 @@ const Firmware = () => {
           return;
         }
 
-        const res = await axios.get("http://localhost:5000/api/brokers", {
+        const res = await axios.get("http://3.110.131.251:5000/api/brokers", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -121,7 +121,7 @@ const Firmware = () => {
   const fetchVersions = async (brokerIp) => {
     try {
       console.log(`Fetching versions for IP: ${brokerIp}`);
-      const response = await fetch(`http://localhost:5000/api/get-all-versions?ip=${brokerIp}`);
+      const response = await fetch(`http://3.110.131.251:5000/api/get-all-versions?ip=${brokerIp}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
@@ -183,7 +183,7 @@ const Firmware = () => {
     try {
       const token = localStorage.getItem("authToken");
       console.log("Uploading file with token:", token ? "Token present" : "No token");
-      const response = await fetch("http://localhost:5000/api/upload", {
+      const response = await fetch("http://3.110.131.251:5000/api/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -238,8 +238,8 @@ const Firmware = () => {
         return;
       }
 
-      console.log(`Sending DELETE request to: http://localhost:5000/api/delete/${filename}`);
-      const response = await axios.delete(`http://localhost:5000/api/delete/${filename}`, {
+      console.log(`Sending DELETE request to: http://3.110.131.251:5000/api/delete/${filename}`);
+      const response = await axios.delete(`http://3.110.131.251:5000/api/delete/${filename}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -353,7 +353,7 @@ const Firmware = () => {
 
       console.log("Publishing request:", { brokerIp, topic, url, mqttUsername });
       const response = await axios.post(
-        `http://localhost:5000/api/publish`,
+        `http://3.110.131.251:5000/api/publish`,
         {
           brokerIp,
           topic,

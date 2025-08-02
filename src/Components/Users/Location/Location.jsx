@@ -9,6 +9,7 @@ const Location = () => {
     locationName: '',
     topic: '',
   });
+  const [receivedData, setReceivedData] = useState(''); // New state for received data
 
   const { brokerId, userId, userRole, setError } = useOutletContext();
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ const Location = () => {
     };
 
     try {
-      const response = await fetch(`http://3.110.131.251:5000/api/brokers/${brokerId}/publish`, {
+      const response = await fetch(`http://localhost:5000/api/brokers/${brokerId}/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,6 +74,8 @@ const Location = () => {
         throw new Error(errorMessage);
       }
 
+      // Update received data with the new topic and location
+      setReceivedData(`Topic: ${formData.topic}, Location: ${formData.locationName}`);
       toast.success(`Location Configuration Published: Location - ${formData.locationName}, Topic - ${formData.topic}`);
       setFormData({
         locationName: '',
@@ -124,6 +127,23 @@ const Location = () => {
             Submit
           </button>
         </form>
+      </div>
+      <div className="received-data-panel">
+        <h1 className="received-data-heading">Current Location</h1>
+        <div className="input-section">
+          <label htmlFor="receivedData" className="input-label">
+            Current Location
+          </label>
+          <input
+            className="received-input-field"
+            type="text"
+            name="receivedData"
+            id="receivedData"
+            placeholder="Received Data"
+            value={receivedData}
+            readOnly
+          />
+        </div>
       </div>
     </div>
   );

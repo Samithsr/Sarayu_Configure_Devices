@@ -1,10 +1,11 @@
 /* Location Config Wrapper */
 .loc-config-wrapper {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: stretch;
   width: 100%;
   padding: 1.5rem;
+  gap: 1.5rem;
 }
 
 /* Location Config Panel */
@@ -13,15 +14,36 @@
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 1200px;
+  width: 50%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
+/* Received Data Panel */
+.received-data-panel {
+  background-color: #2d3748;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
 /* Location Config Heading */
 .loc-config-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  text-align: center;
+}
+
+/* Received Data Heading */
+.received-data-heading {
   font-size: 1.5rem;
   font-weight: 600;
   color: #ffffff;
@@ -34,6 +56,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  flex: 1;
 }
 
 /* Input Section (Label + Input Wrapper) */
@@ -54,7 +77,7 @@
 
 /* Input Styles */
 .input-field {
-  width: 100%;
+  width: 160%;
   background: #4a5568;
   border: 1px solid transparent;
   padding: 0.625rem 1rem;
@@ -64,15 +87,33 @@
   box-sizing: border-box;
 }
 
-.input-field::-moz-placeholder {
+/* Received Data Input Styles */
+.received-input-field {
+  width: 280%;
+  background: #4a5568;
+  border: 1px solid transparent;
+  padding: 0.625rem 1rem;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  box-sizing: border-box;
+  height: 12rem; /* CHANGED: Doubled height from 6rem to 12rem */
+}
+
+/* Placeholder Styles */
+.input-field::-moz-placeholder,
+.received-input-field::-moz-placeholder {
   color: #a0aec0;
 }
 
-.input-field::placeholder {
+.input-field::placeholder,
+.received-input-field::placeholder {
   color: #a0aec0;
 }
 
-.input-field:focus {
+/* Focus Styles */
+.input-field:focus,
+.received-input-field:focus {
   outline: none;
   border: 1px solid #ffffff;
 }
@@ -102,14 +143,20 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
   .loc-config-wrapper {
+    flex-direction: column;
     padding: 1rem;
+    align-items: center;
   }
 
-  .loc-config-panel {
+  .loc-config-panel,
+  .received-data-panel {
+    width: 100%;
     padding: 1.5rem;
+    min-height: auto;
   }
 
-  .loc-config-heading {
+  .loc-config-heading,
+  .received-data-heading {
     font-size: 1.3rem;
   }
 
@@ -121,9 +168,14 @@
     font-size: 0.9rem;
   }
 
-  .input-field {
+  .input-field,
+  .received-input-field {
     padding: 0.5rem 0.875rem;
     font-size: 0.9rem;
+  }
+
+  .received-input-field {
+    height: 9rem; /* CHANGED: Doubled height from 4.5rem to 9rem */
   }
 
   .submit-btn {
@@ -137,7 +189,8 @@
     width: 50%;
   }
 
-  .loc-config-heading {
+  .loc-config-heading,
+  .received-data-heading {
     font-size: 1.4rem;
   }
 }
@@ -147,12 +200,14 @@
     padding: 2rem;
   }
 
-  .loc-config-panel {
+  .loc-config-panel,
+  .received-data-panel {
     padding: 2.5rem;
     max-width: 1400px;
   }
 
-  .loc-config-heading {
+  .loc-config-heading,
+  .received-data-heading {
     font-size: 1.6rem;
   }
 
@@ -164,9 +219,14 @@
     font-size: 1.1rem;
   }
 
-  .input-field {
+  .input-field,
+  .received-input-field {
     padding: 0.75rem 1.25rem;
     font-size: 1.1rem;
+  }
+
+  .received-input-field {
+    height: 13rem; /* CHANGED: Doubled height from 6.5rem to 13rem */
   }
 
   .submit-btn {

@@ -12,11 +12,10 @@
 .table-sidebar {
   height: 94vh;
   position: sticky;
-  top : 6vh;
   background: #1A2533;
   padding: 20px;
   position: sticky;
-  top: 0;
+  top : 6vh;
   display: flex;
   flex-direction: column;
   gap: 13px;

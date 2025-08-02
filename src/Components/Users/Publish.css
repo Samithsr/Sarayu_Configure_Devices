@@ -90,9 +90,9 @@ textarea.form-control {
   margin: 0;
 }
 
-.left-side-publish-page, .right-side-subscribe-page {
+/* .left-side-publish-page, .right-side-subscribe-page {
   padding: 15px;
-}
+} */
 
 .publish-content, .subscribe-topics-content {
   height: 100%;
@@ -130,7 +130,8 @@ textarea.form-control {
 }
 
 .messages-scroll-container {
-  max-height: 200px;
+  max-height: 170px;
+  position: relative;
   overflow-y: auto;
 }
 
