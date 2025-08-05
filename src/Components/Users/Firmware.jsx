@@ -15,6 +15,7 @@ const Firmware = () => {
   const [brokerOptions, setBrokerOptions] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
 
   // Inline DeleteModal Component
@@ -29,11 +30,19 @@ const Firmware = () => {
             Are you sure you want to delete the file "{filename}"?
           </p>
           <div className="firmware-delete-modal-actions">
-            <button className="firmware-delete-modal-btn firmware-cancel-btn" onClick={onCancel}>
+            <button
+              className="firmware-delete-modal-btn firmware-cancel-btn"
+              onClick={onCancel}
+              disabled={deleting}
+            >
               Cancel
             </button>
-            <button className="firmware-delete-modal-btn firmware-confirm-btn" onClick={onConfirm}>
-              Delete
+            <button
+              className="firmware-delete-modal-btn firmware-confirm-btn"
+              onClick={onConfirm}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Delete"}
             </button>
           </div>
         </div>
@@ -45,22 +54,18 @@ const Firmware = () => {
     const getAllBrokers = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        console.log("Fetching brokers with token:", token ? "Token present" : "No token");
         if (!token) {
           toast.error("Please log in to access brokers.");
           navigate("/");
           return;
         }
 
-        const res = await axios.get("http://3.110.131.251:5000/api/brokers", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const res = await axios.get("http://localhost:5000/api/brokers", {
+          headers: { Authorization: `Bearer ${token}` },
         });
         const brokers = res?.data;
 
         if (!brokers || brokers.length === 0) {
-          console.warn("No brokers returned from the API.");
           toast.warn("No brokers available. Please add brokers in the admin page.");
           const demoBrokers = [
             {
@@ -93,11 +98,9 @@ const Firmware = () => {
           username: broker.username || "",
           password: broker.password || "",
         }));
-        console.log("Broker Options:", options);
         setBrokerOptions(options);
         await fetchVersions(options[0]?.brokerIp || "192.168.1.100");
       } catch (error) {
-        console.error("Error fetching brokers:", error.message, error.response?.data);
         toast.error("Failed to fetch brokers: " + (error.response?.data?.message || error.message));
         if (error.response?.status === 401) {
           localStorage.removeItem("authToken");
@@ -120,25 +123,27 @@ const Firmware = () => {
 
   const fetchVersions = async (brokerIp) => {
     try {
-      console.log(`Fetching versions for IP: ${brokerIp}`);
-      const response = await fetch(`http://3.110.131.251:5000/api/get-all-versions?ip=${brokerIp}`);
+      const response = await fetch(`http://localhost:5000/api/get-all-versions?ip=${brokerIp}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Fetched versions:", data);
       if (data.success) {
         setApiData(data.result);
 
         const savedPublishData = JSON.parse(localStorage.getItem("publishData")) || [];
         const newPublishData = data.result.map((url) => {
           const savedItem = savedPublishData.find((item) => item.url === url);
-          const selectedBroker = brokerOptions.find((b) => b.brokerIp === brokerIp && b.value === savedItem?.brokerId) || brokerOptions[0];
+          // Only use saved brokerId if it exists and matches a valid broker option
+          const brokerId = savedItem?.brokerId && brokerOptions.some(b => b.value === savedItem.brokerId)
+            ? savedItem.brokerId
+            : "";
+          const selectedBroker = brokerOptions.find((b) => b.value === brokerId) || null;
           return {
             url,
-            brokerId: savedItem?.brokerId || selectedBroker?.value || "",
-            brokerIp: savedItem?.brokerIp || brokerIp,
+            brokerId,
+            brokerIp: selectedBroker ? selectedBroker.brokerIp : brokerIp,
             topic: savedItem?.topic || selectedBroker?.topic || "",
             mqttUsername: savedItem?.mqttUsername || selectedBroker?.username || "",
             mqttPassword: savedItem?.mqttPassword || selectedBroker?.password || "",
@@ -150,11 +155,10 @@ const Firmware = () => {
         setPublishing(data.result.map(() => false));
       } else {
         setUploadStatus(data.message || "Failed to fetch versions");
-        console.error("Failed to fetch versions:", data.message);
+        toast.error(data.message || "Failed to fetch versions");
       }
     } catch (err) {
       setUploadStatus(`Error fetching versions: ${err.message}`);
-      console.error("Error fetching versions:", err.message);
       toast.error(`Error fetching versions: ${err.message}`);
     }
   };
@@ -182,12 +186,9 @@ const Firmware = () => {
 
     try {
       const token = localStorage.getItem("authToken");
-      console.log("Uploading file with token:", token ? "Token present" : "No token");
-      const response = await fetch("http://3.110.131.251:5000/api/upload", {
+      const response = await fetch("http://localhost:5000/api/upload", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
       const data = await response.json();
@@ -195,7 +196,8 @@ const Firmware = () => {
         setUploadStatus(`File uploaded successfully: ${selectedFile.name}`);
         toast.success(`File uploaded successfully: ${selectedFile.name}`);
         setSelectedFile(null);
-        const selectedBroker = brokerOptions.find((b) => b.value === publishData[0]?.brokerId) || brokerOptions[0];
+        // Use the first broker's IP or fallback, but new files will default to empty brokerId
+        const selectedBroker = brokerOptions[0];
         await fetchVersions(selectedBroker?.brokerIp || "192.168.1.100");
       } else {
         setUploadStatus(`Upload failed: ${data.message}`);
@@ -204,48 +206,49 @@ const Firmware = () => {
     } catch (err) {
       setUploadStatus(`Upload error: ${err.message}`);
       toast.error(`Upload error: ${err.message}`);
-      console.error("Upload error:", err);
     } finally {
       setUploading(false);
     }
   };
 
   const handleDeleteClick = (index) => {
-    console.log(`Delete clicked for index: ${index}, file: ${apiData[index]}`);
+    if (index < 0 || index >= apiData.length) {
+      toast.error("Invalid file selected for deletion");
+      return;
+    }
     setDeleteIndex(index);
     setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (deleteIndex === null) {
-      console.error("No file selected for deletion");
-      toast.error("No file selected for deletion");
+    if (deleteIndex === null || deleteIndex < 0 || deleteIndex >= apiData.length) {
+      toast.error("No valid file selected for deletion");
       setIsDeleteModalOpen(false);
       return;
     }
 
     const url = apiData[deleteIndex];
     const filename = url.split("/").pop();
-    console.log(`Attempting to delete file: ${filename}`);
+    if (!filename || !filename.endsWith(".bin")) {
+      toast.error("Invalid file name");
+      setIsDeleteModalOpen(false);
+      return;
+    }
 
+    setDeleting(true);
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
-        console.error("No auth token found for delete operation");
         toast.error("Please log in to delete files.");
         navigate("/");
         setIsDeleteModalOpen(false);
         return;
       }
 
-      console.log(`Sending DELETE request to: http://3.110.131.251:5000/api/delete/${filename}`);
-      const response = await axios.delete(`http://3.110.131.251:5000/api/delete/${filename}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await axios.delete(`http://localhost:5000/api/delete/${encodeURIComponent(filename)}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Delete response:", response.data);
       if (response.data.success) {
         setUploadStatus(`File ${filename} deleted successfully`);
         toast.success(`File ${filename} deleted successfully`);
@@ -258,34 +261,26 @@ const Firmware = () => {
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message;
-      console.error("Delete error:", {
-        message: errorMessage,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      setUploadStatus(`Delete error: ${errorMessage}`);
       toast.error(`Delete error: ${errorMessage}`);
       if (error.response?.status === 401) {
-        console.error("Unauthorized: Clearing token and redirecting to login");
         localStorage.removeItem("authToken");
         toast.error("Unauthorized: Please log in again.");
         navigate("/");
       }
     } finally {
+      setDeleting(false);
       setIsDeleteModalOpen(false);
       setDeleteIndex(null);
     }
   };
 
   const handleDeleteCancel = () => {
-    console.log("Delete operation cancelled");
     setIsDeleteModalOpen(false);
     setDeleteIndex(null);
   };
 
   const handleBrokerChange = (index, value) => {
     const selectedBroker = brokerOptions.find((b) => b.value === value);
-    console.log(`Broker changed for index ${index}:`, selectedBroker);
     setPublishData((prev) =>
       prev.map((item, i) =>
         i === index
@@ -302,11 +297,9 @@ const Firmware = () => {
           : item
       )
     );
-    // Do not call fetchVersions here to avoid overwriting other rows
   };
 
   const handleTopicChange = (index, value) => {
-    console.log(`Topic changed for index ${index}: ${value}`);
     setPublishData((prev) =>
       prev.map((item, i) => (i === index ? { ...item, topic: value } : item))
     );
@@ -314,24 +307,9 @@ const Firmware = () => {
 
   const handlePublish = async (index) => {
     const { url, brokerIp, topic, mqttUsername, mqttPassword, label } = publishData[index];
-    if (!brokerIp) {
-      setPublishStatus("Please select a company name");
-      toast.error("Please select a company name");
-      return;
-    }
-    if (!topic) {
-      setPublishStatus("Please enter a topic");
-      toast.error("Please enter a topic");
-      return;
-    }
-    if (!mqttUsername || !mqttPassword) {
-      setPublishStatus("MQTT credentials are missing");
-      toast.error("MQTT credentials are missing");
-      return;
-    }
-    if (!url) {
-      setPublishStatus("Firmware URL is missing");
-      toast.error("Firmware URL is missing");
+    if (!brokerIp || !topic || !mqttUsername || !mqttPassword || !url) {
+      setPublishStatus("All fields are required for publishing");
+      toast.error("All fields are required for publishing");
       return;
     }
 
@@ -343,7 +321,6 @@ const Firmware = () => {
 
     try {
       const token = localStorage.getItem("authToken");
-      console.log("Publishing with token:", token ? "Token present" : "No token");
       if (!token) {
         setPublishStatus("Please log in to publish.");
         toast.error("Please log in to publish.");
@@ -351,53 +328,27 @@ const Firmware = () => {
         return;
       }
 
-      console.log("Publishing request:", { brokerIp, topic, url, mqttUsername });
       const response = await axios.post(
-        `http://3.110.131.251:5000/api/publish`,
-        {
-          brokerIp,
-          topic,
-          message: url,
-          mqttUsername,
-          mqttPassword,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `http://localhost:5000/api/publish`,
+        { brokerIp, topic, message: url, mqttUsername, mqttPassword },
+        { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }
       );
 
-      if (!response.data) {
-        throw new Error("No data returned from the server");
-      }
-
-      const data = response.data;
-      if (data.success) {
+      if (response.data.success) {
         const filename = url.split("/").pop();
-        setPublishStatus(`Published URL "${url}" to topic "${topic}" for company ${label}`);
+        setPublishStatus(`Published "${filename}" to topic "${topic}" for company ${label}`);
         toast.success(`Published "${filename}" to topic "${topic}" for company ${label}`);
       } else {
-        setPublishStatus(`Publish failed: ${data.message || "Unknown error"}`);
-        toast.error(`Publish failed: ${data.message || "Unknown error"}`);
+        setPublishStatus(`Publish failed: ${response.data.message}`);
+        toast.error(`Publish failed: ${response.data.message}`);
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message;
-      console.error("Publish error:", {
-        message: errorMessage,
-        status: error.response?.status,
-        data: error.response?.data,
-        stack: error.stack,
-      });
+      setPublishStatus(`Publish error: ${errorMessage}`);
+      toast.error(`Publish error: ${errorMessage}`);
       if (error.response?.status === 401) {
-        setPublishStatus("Unauthorized: Please log in again.");
-        toast.error("Unauthorized: Please log in again.");
         localStorage.removeItem("authToken");
         navigate("/");
-      } else {
-        setPublishStatus(`Publish error: ${errorMessage}`);
-        toast.error(`Publish error: ${errorMessage}`);
       }
     } finally {
       setPublishing((prev) => {
@@ -408,9 +359,6 @@ const Firmware = () => {
     }
   };
 
-  console.log("Api data:", apiData);
-  console.log("Publish data:", publishData);
-
   return (
     <div className="firmware">
       <div className="firmware__top">
@@ -418,7 +366,6 @@ const Firmware = () => {
           <header className="firmware__header">
             <h3 className="firmware__title">Drag and drop a file or browse to upload</h3>
           </header>
-
           <section className="firmware__upload">
             <input
               type="file"
@@ -439,7 +386,6 @@ const Firmware = () => {
             )}
             {uploadStatus && <p className="firmware__status">{uploadStatus}</p>}
           </section>
-
           <button
             className="firmware__upload-button"
             onClick={handleUpload}
@@ -449,7 +395,6 @@ const Firmware = () => {
           </button>
         </div>
       </div>
-
       <div className="firmware__bottom">
         {publishStatus && <p className="firmware__published">{publishStatus}</p>}
         <table className="firmware__table">
@@ -518,6 +463,7 @@ const Firmware = () => {
                     <button
                       className="url-section-button delete-button"
                       onClick={() => handleDeleteClick(index)}
+                      disabled={deleting}
                     >
                       Delete
                     </button>
@@ -532,12 +478,11 @@ const Firmware = () => {
           </tbody>
         </table>
       </div>
-
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
-        filename={deleteIndex !== null ? apiData[deleteIndex]?.split("/").pop() : ""}
+        filename={deleteIndex !== null && apiData[deleteIndex] ? apiData[deleteIndex].split("/").pop() : ""}
       />
     </div>
   );
