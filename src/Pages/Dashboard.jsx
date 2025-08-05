@@ -70,7 +70,7 @@ const Dashboard = () => {
         try {
           console.log(`Fetching status for brokerId: ${brokerId}`);
           const response = await fetch(
-            `http://3.203.94.252:5000/api/brokers/${brokerId}/status`,
+            `http://localhost:5000/api/brokers/${brokerId}/status`,
             {
               method: 'GET',
               headers: {
@@ -123,7 +123,7 @@ const Dashboard = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch('http://3.203.94.252:5000/api/brokers/assigned', {
+      const response = await fetch('http://localhost:5000/api/brokers/assigned', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -174,7 +174,7 @@ const Dashboard = () => {
 
     try {
       const response = await fetch(
-        `http://3.203.94.252:5000/api/brokers/${brokerId}/disconnect`,
+        `http://localhost:5000/api/brokers/${brokerId}/disconnect`,
         {
           method: 'POST',
           headers: {

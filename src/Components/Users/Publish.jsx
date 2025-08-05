@@ -29,7 +29,7 @@ const Subscribe = ({ brokerOptions }) => {
       return;
     }
 
-    const newSocket = io("http://3.203.94.252:5000", {
+    const newSocket = io("http://localhost:5000", {
       query: { token: authToken },
     });
 
@@ -78,7 +78,7 @@ const Subscribe = ({ brokerOptions }) => {
           navigate("/");
           return;
         }
-        const response = await fetch("http://3.203.94.252:5000/api/messages", {
+        const response = await fetch("http://localhost:5000/api/messages", {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -160,7 +160,7 @@ const Subscribe = ({ brokerOptions }) => {
         }
       }
 
-      const response = await fetch("http://3.203.94.252:5000/api/subscribe", {
+      const response = await fetch("http://localhost:5000/api/subscribe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -209,7 +209,7 @@ const Subscribe = ({ brokerOptions }) => {
         }
       }
 
-      const response = await fetch("http://3.203.94.252:5000/api/unsubscribe", {
+      const response = await fetch("http://localhost:5000/api/unsubscribe", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -395,7 +395,7 @@ const Publish = () => {
           return;
         }
 
-        const response = await fetch("http://3.203.94.252:5000/api/brokers", {
+        const response = await fetch("http://localhost:5000/api/brokers", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -551,7 +551,7 @@ const Publish = () => {
         };
         console.log(`Publishing request payload for set ${index + 1}:`, payloadData);
 
-        const response = await fetch("http://3.203.94.252:5000/api/pub/publish", {
+        const response = await fetch("http://localhost:5000/api/pub/publish", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -713,7 +713,7 @@ export default function App() {
           return;
         }
 
-        const response = await fetch("http://3.203.94.252:5000/api/brokers", {
+        const response = await fetch("http://localhost:5000/api/brokers", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
