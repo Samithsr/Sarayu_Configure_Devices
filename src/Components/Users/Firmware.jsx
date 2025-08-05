@@ -60,7 +60,7 @@ const Firmware = () => {
           return;
         }
 
-        const res = await axios.get("http://localhost:5000/api/brokers", {
+        const res = await axios.get("http://13.203.94.252:5000/api/brokers", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const brokers = res?.data;
@@ -123,7 +123,7 @@ const Firmware = () => {
 
   const fetchVersions = async (brokerIp) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/get-all-versions?ip=${brokerIp}`);
+      const response = await fetch(`http://13.203.94.252:5000/api/get-all-versions?ip=${brokerIp}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
@@ -186,7 +186,7 @@ const Firmware = () => {
 
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch("http://localhost:5000/api/upload", {
+      const response = await fetch("http://13.203.94.252:5000/api/upload", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -245,7 +245,7 @@ const Firmware = () => {
         return;
       }
 
-      const response = await axios.delete(`http://localhost:5000/api/delete/${encodeURIComponent(filename)}`, {
+      const response = await axios.delete(`http://13.203.94.252:5000/api/delete/${encodeURIComponent(filename)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -329,7 +329,7 @@ const Firmware = () => {
       }
 
       const response = await axios.post(
-        `http://localhost:5000/api/publish`,
+        `http://13.203.94.252:5000/api/publish`,
         { brokerIp, topic, message: url, mqttUsername, mqttPassword },
         { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }
       );

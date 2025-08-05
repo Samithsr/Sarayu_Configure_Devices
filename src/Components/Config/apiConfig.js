@@ -4,7 +4,7 @@ import axios from "axios";
 
 const API_CONFIG = axios.create({
 //   baseURL: 'http://localhost:5000', // ✅ Correct key
-  baseURL: 'http://3.203.94.252:5000', // ✅ Correct key
+  baseURL: 'http://13.203.94.252:5000', // ✅ Correct key
   timeout: 10000,
 });
 
