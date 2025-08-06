@@ -456,7 +456,7 @@ const Firmware = () => {
                         publishing[index]
                       }
                     >
-                      {publishing[index] ? "Sending..." : "Upgrade"}
+                      {publishing[index] ? "Sending..." : "Publish"}
                     </button>
                   </td>
                   <td>
