@@ -115,7 +115,7 @@ const AddBrokerModal = ({ isOpen, onConfirm, onCancel, title = "Add Broker" }) =
             />
           </div>
           <div className="add-modal-form-group">
-            <label htmlFor="label">Label *:</label>
+            <label htmlFor="label">Company Name *:</label>
             <input
               type="text"
               id="label"

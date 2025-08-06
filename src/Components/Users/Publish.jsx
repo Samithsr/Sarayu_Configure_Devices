@@ -153,7 +153,7 @@ const Subscribe = ({ brokerOptions }) => {
 
       for (const [index, set] of subscribeInputSets.entries()) {
         if (!set.brokerIp) {
-          throw new Error(`Set ${index + 1}: Please select a broker IP`);
+          // throw new Error(`Set ${index + 1}: Please select a broker IP`);
         }
         if (!set.topicFilter) {
           throw new Error(`Set ${index + 1}: Please enter a topic filter`);
@@ -202,10 +202,10 @@ const Subscribe = ({ brokerOptions }) => {
 
       for (const [index, set] of subscribeInputSets.entries()) {
         if (!set.brokerIp) {
-          throw new Error(`Set ${index + 1}: Please select a broker IP`);
+          // throw new Error(`Set ${index + 1}: Please select a broker IP`);
         }
         if (!set.topicFilter) {
-          throw new Error(`Set ${index + 1}: Please enter a topic filter`);
+          // throw new Error(`Set ${index + 1}: Please enter a topic filter`);
         }
       }
 
@@ -499,14 +499,14 @@ const Publish = () => {
       const { brokerIp, topic, qosLevel, payload, mqttUsername, mqttPassword } = inputSets[index];
 
       if (!brokerIp) {
-        newPublishStatuses[index] = "Please select a broker IP";
-        toast.error(`Set ${index + 1}: Please select a broker IP`);
+        // newPublishStatuses[index] = "Please select a broker IP";
+        // toast.error(`Set ${index + 1}: Please select a broker IP`);
         hasError = true;
         continue;
       }
       if (!topic) {
-        newPublishStatuses[index] = "Please enter a topic";
-        toast.error(`Set ${index + 1}: Please enter a topic`);
+        // newPublishStatuses[index] = "Please enter a topic";
+        // toast.error(`Set ${index + 1}: Please enter a topic`);
         hasError = true;
         continue;
       }
