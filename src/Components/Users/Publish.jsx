@@ -511,8 +511,8 @@ const Publish = () => {
         continue;
       }
       if (!payload) {
-        newPublishStatuses[index] = "Please enter a payload";
-        toast.error(`Set ${index + 1}: Please enter a payload`);
+        // newPublishStatuses[index] = "Please enter a payload";
+        // toast.error(`Set ${index + 1}: Please enter a payload`);
         hasError = true;
         continue;
       }
