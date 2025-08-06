@@ -500,19 +500,19 @@ const Publish = () => {
 
       if (!brokerIp) {
         // newPublishStatuses[index] = "Please select a broker IP";
-        // toast.error(`Set ${index + 1}: Please select a broker IP`);
+        toast.error(`Set ${index + 1}: Please select a broker IP`);
         hasError = true;
         continue;
       }
       if (!topic) {
         // newPublishStatuses[index] = "Please enter a topic";
-        // toast.error(`Set ${index + 1}: Please enter a topic`);
+        toast.error(`Set ${index + 1}: Please enter a topic`);
         hasError = true;
         continue;
       }
       if (!payload) {
         // newPublishStatuses[index] = "Please enter a payload";
-        // toast.error(`Set ${index + 1}: Please enter a payload`);
+        toast.error(`Set ${index + 1}: Please enter a payload`);
         hasError = true;
         continue;
       }
@@ -620,8 +620,8 @@ const Publish = () => {
               {inputSets.map((inputSet, index) => (
                 <div key={index} className="publish-input-set mb-3">
                   {publishStatuses[index] && (
-                    <div className="alert alert-warning" role="alert">
-                      {publishStatuses[index]}
+                    <div className="">
+                      {/* {publishStatuses[index]} */}
                     </div>
                   )}
                   <Form.Group className="mb-3">
