@@ -576,6 +576,7 @@ const handleEditConfirm = async (updatedData) => {
       updatedData.username !== brokerToEdit.user ||
       updatedData.password !== brokerToEdit.rawPassword;
 
+    // Update the broker data first
     const response = await fetch(`http://13.203.94.252:5000/api/brokers/${brokerToEdit.brokerId}`, {
       method: 'PUT',
       headers: {
@@ -597,8 +598,7 @@ const handleEditConfirm = async (updatedData) => {
       const errorMessage = errorData.message || `Failed to update broker (Status: ${response.status})`;
       const validationErrors = errorData.validationErrors || ['Unknown error'];
       console.error(`[handleEditConfirm] API error: ${errorMessage}, errors: ${validationErrors.join(", ")}`);
-      toast.error(`${errorMessage}: ${validationErrors.join(", ")}`);
-
+      
       const updatedTableData = tableData.map((item) =>
         item.brokerId === brokerToEdit.brokerId
           ? {
@@ -609,6 +609,7 @@ const handleEditConfirm = async (updatedData) => {
           : item
       );
       setTableData(updatedTableData);
+      toast.error(`${errorMessage}: ${validationErrors.join(", ")}`);
       setShowEditModal(false);
       setBrokerToEdit(null);
       return;
@@ -617,39 +618,81 @@ const handleEditConfirm = async (updatedData) => {
     const updatedBroker = await response.json();
     console.log(`[handleEditConfirm] Updated broker response:`, updatedBroker);
 
-    let connectionStatus = updatedBroker.connectionStatus || 'disconnected';
-    let connectionErrors = updatedBroker.lastValidationError ? [updatedBroker.lastValidationError] : [];
+    let connectionStatus = 'disconnected';
+    let connectionErrors = [];
 
-    // If critical fields changed, ensure connection status is accurate
-    if (hasCriticalChanges && connectionStatus === 'connected') {
-      const isConnected = await checkBrokerStatus(updatedBroker.brokerIp);
-      console.log(`[handleEditConfirm] checkBrokerStatus result: ${isConnected}`);
-
-      if (isConnected) {
-        const connectResponse = await fetch(`http://13.203.94.252:5000/api/brokers/${brokerToEdit.brokerId}/connect`, {
+    // If critical fields changed, test the connection with new credentials
+    if (hasCriticalChanges) {
+      try {
+        toast.info('Testing connection with new credentials...');
+        
+        // Test the broker connection with new credentials
+        const testResponse = await fetch('http://13.203.94.252:5000/api/test-broker', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,
           },
+          body: JSON.stringify({
+            brokerIp: updatedData.brokerIp,
+            portNumber: parseInt(updatedData.portNumber, 10),
+            username: updatedData.username || '',
+            password: updatedData.password || '',
+          }),
         });
-        if (connectResponse.ok) {
-          const connectData = await connectResponse.json();
-          connectionStatus = connectData.connectionStatus || connectionStatus;
-          connectionErrors = connectData.validationErrors || [];
-          console.log(`[handleEditConfirm] Reconnection attempt result: ${connectionStatus}`);
-        } else {
-          const connectErrorData = await connectResponse.json();
+
+        if (!testResponse.ok) {
+          const errorData = await testResponse.json();
+          const validationErrors = errorData.validationErrors || [];
+          let displayError = 'Broker is not available';
+
+          if (validationErrors.includes('Incorrect username') || validationErrors.includes('Incorrect password')) {
+            displayError = 'Not authorized';
+          } else if (validationErrors.includes('Check the broker IP and port.')) {
+            displayError = 'Connection timeout';
+          } else if (validationErrors.length > 0) {
+            displayError = validationErrors.join(', ');
+          }
+
           connectionStatus = 'disconnected';
-          connectionErrors = connectErrorData.validationErrors || ['Connection failed'];
-          console.log(`[handleEditConfirm] Reconnection failed: ${connectionErrors.join(", ")}`);
+          connectionErrors = [displayError];
+          toast.error(`Connection test failed: ${displayError}`);
+        } else {
+          // If test is successful, connect to the broker
+          const connectResponse = await fetch(`http://13.203.94.252:5000/api/brokers/${brokerToEdit.brokerId}/connect`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+
+          if (connectResponse.ok) {
+            const connectData = await connectResponse.json();
+            connectionStatus = connectData.connectionStatus || 'connected';
+            connectionErrors = [];
+            toast.success('Successfully connected with new credentials!');
+          } else {
+            const connectErrorData = await connectResponse.json();
+            const validationErrors = connectErrorData.validationErrors || [];
+            connectionStatus = 'disconnected';
+            connectionErrors = validationErrors.length > 0 ? validationErrors : ['Failed to connect to broker'];
+            toast.error(`Connection failed: ${connectionErrors.join(', ')}`);
+          }
         }
-      } else {
+      } catch (err) {
+        console.error('[handleEditConfirm] Error testing connection:', err);
         connectionStatus = 'disconnected';
-        connectionErrors = updatedBroker.lastValidationError ? [updatedBroker.lastValidationError] : ['Connection failed'];
+        connectionErrors = ['Error testing connection'];
+        toast.error('Error testing connection with new credentials');
       }
+    } else {
+      // If no critical changes, maintain the current connection status
+      connectionStatus = brokerToEdit.connectionStatus || 'disconnected';
+      connectionErrors = brokerToEdit.connectionErrors || [];
     }
 
+    // Update the table with the latest data and connection status
     const updatedTableData = tableData.map((item) =>
       item.brokerId === brokerToEdit.brokerId
         ? {
