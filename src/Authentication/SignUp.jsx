@@ -63,7 +63,7 @@ const SignUp = () => {
     }
 
     try {
-      const response = await axios.post('http://13.202.129.139:5000/api/auth/signup', {
+      const response = await axios.post('http://13.201.135.43:5000/api/auth/signup', {
         email: formData.email,
         password: formData.password,
       });

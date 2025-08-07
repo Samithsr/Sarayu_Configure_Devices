@@ -3,8 +3,8 @@
 import axios from "axios";
 
 const API_CONFIG = axios.create({
-//   baseURL: 'http://13.202.129.139:5000', // ✅ Correct key
-  baseURL: 'http://13.202.129.139:5000', // ✅ Correct key
+//   baseURL: 'http://13.201.135.43:5000', // ✅ Correct key
+  baseURL: 'http://13.201.135.43:5000', // ✅ Correct key
   timeout: 10000,
 });
 
