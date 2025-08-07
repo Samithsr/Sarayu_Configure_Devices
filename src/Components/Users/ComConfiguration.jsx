@@ -116,7 +116,7 @@ const ComConfiguration = () => {
 
     try {
       const publishResponse = await fetch(
-        `http://13.203.94.252:5000/api/brokers/${brokerId}/publish`,
+        `http://13.202.129.139:5000/api/brokers/${brokerId}/publish`,
         {
           method: 'POST',
           headers: {

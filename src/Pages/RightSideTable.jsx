@@ -85,7 +85,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://13.203.94.252:5000/api/auth/users', {
+      const response = await fetch('http://13.202.129.139:5000/api/auth/users', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +100,11 @@ const RightSideTable = () => {
 
       const data = await response.json();
       console.log('[fetchUsers] Fetched users:', data);
-      return data;
+      
+      // Filter out admin users before returning
+      const nonAdminUsers = data.filter(user => user.role !== 'admin');
+      console.log('[fetchUsers] Non-admin users:', nonAdminUsers);
+      return nonAdminUsers;
     } catch (err) {
       console.error('Error fetching users:', err);
       toast.error(err.message || 'An error occurred while fetching users.');
@@ -116,7 +120,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch('http://13.203.94.252:5000/api/check-broker-status', {
+      const response = await fetch('http://13.202.129.139:5000/api/check-broker-status', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +151,7 @@ const RightSideTable = () => {
     }
 
     try {
-      const response = await fetch(`http://13.203.94.252:5000/api/auth/users`, {
+      const response = await fetch(`http://13.202.129.139:5000/api/auth/users`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +184,7 @@ const RightSideTable = () => {
   }
 
   try {
-    const response = await fetch('http://13.203.94.252:5000/api/brokers', {
+    const response = await fetch('http://13.202.129.139:5000/api/brokers', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -253,7 +257,7 @@ const RightSideTable = () => {
 
   const fetchAssignedBroker = async (userId, token) => {
     try {
-      const response = await fetch("http://13.203.94.252:5000/api/brokers/assigned", {
+      const response = await fetch("http://13.202.129.139:5000/api/brokers/assigned", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -288,7 +292,7 @@ const handleAssignUser = async (brokerId, userId) => {
   console.log(`[handleAssignUser] Assigning userId=${userId} to brokerId=${brokerId}`);
 
   try {
-    const assignResponse = await fetch(`http://13.203.94.252:5000/api/brokers/${brokerId}/assign-user`, {
+    const assignResponse = await fetch(`http://13.202.129.139:5000/api/brokers/${brokerId}/assign-user`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -346,7 +350,7 @@ const handleAssignUser = async (brokerId, userId) => {
     toast.info(`Validating broker ${row.label || row.brokerId}...`);
 
     try {
-      const testResponse = await fetch('http://13.203.94.252:5000/api/test-broker', {
+      const testResponse = await fetch('http://13.202.129.139:5000/api/test-broker', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -386,7 +390,7 @@ const handleAssignUser = async (brokerId, userId) => {
 
       toast.success(`Broker ${row.label || row.brokerId} is available. Connecting...`);
 
-      const connectResponse = await fetch(`http://13.203.94.252:5000/api/brokers/${row.brokerId}/connect`, {
+      const connectResponse = await fetch(`http://13.202.129.139:5000/api/brokers/${row.brokerId}/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -458,7 +462,7 @@ const handleAssignUser = async (brokerId, userId) => {
     }
 
     try {
-      const logoutResponse = await fetch('http://13.203.94.252:5000/api/auth/logout', {
+      const logoutResponse = await fetch('http://13.202.129.139:5000/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -520,7 +524,7 @@ const handleAssignUser = async (brokerId, userId) => {
     }
 
     try {
-      const response = await fetch(`http://13.203.94.252:5000/api/brokers/${brokerIdToDelete}`, {
+      const response = await fetch(`http://13.202.129.139:5000/api/brokers/${brokerIdToDelete}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -577,7 +581,7 @@ const handleEditConfirm = async (updatedData) => {
       updatedData.password !== brokerToEdit.rawPassword;
 
     // Update the broker data first
-    const response = await fetch(`http://13.203.94.252:5000/api/brokers/${brokerToEdit.brokerId}`, {
+    const response = await fetch(`http://13.202.129.139:5000/api/brokers/${brokerToEdit.brokerId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -627,7 +631,7 @@ const handleEditConfirm = async (updatedData) => {
         toast.info('Testing connection with new credentials...');
         
         // Test the broker connection with new credentials
-        const testResponse = await fetch('http://13.203.94.252:5000/api/test-broker', {
+        const testResponse = await fetch('http://13.202.129.139:5000/api/test-broker', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -659,7 +663,7 @@ const handleEditConfirm = async (updatedData) => {
           toast.error(`Connection test failed: ${displayError}`);
         } else {
           // If test is successful, connect to the broker
-          const connectResponse = await fetch(`http://13.203.94.252:5000/api/brokers/${brokerToEdit.brokerId}/connect`, {
+          const connectResponse = await fetch(`http://13.202.129.139:5000/api/brokers/${brokerToEdit.brokerId}/connect`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -752,9 +756,10 @@ const handleEditConfirm = async (updatedData) => {
       setShowAddModal(false);
       return;
     }
-  
+    
     try {
-      const response = await fetch('http://13.203.94.252:5000/api/brokers', {
+      // First, add the new broker
+      const response = await fetch('http://13.202.129.139:5000/api/brokers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -777,6 +782,75 @@ const handleEditConfirm = async (updatedData) => {
       }
   
       const newBroker = await response.json();
+      
+      // Initialize connection status as disconnected
+      let connectionStatus = 'disconnected';
+      let connectionErrors = [];
+      
+      // Try to connect to the broker after adding it
+      try {
+        toast.info('Testing connection to the new broker...');
+        
+        // Test the broker connection
+        const testResponse = await fetch('http://13.202.129.139:5000/api/test-broker', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            brokerIp: newBrokerData.brokerIp,
+            portNumber: parseInt(newBrokerData.portNumber, 10),
+            username: newBrokerData.username || '',
+            password: newBrokerData.password || '',
+          }),
+        });
+
+        if (!testResponse.ok) {
+          const errorData = await testResponse.json();
+          const validationErrors = errorData.validationErrors || [];
+          let displayError = 'Broker is not available';
+
+          if (validationErrors.includes('Incorrect username') || validationErrors.includes('Incorrect password')) {
+            displayError = 'Not authorized';
+          } else if (validationErrors.includes('Check the broker IP and port.')) {
+            displayError = 'Connection timeout';
+          } else if (validationErrors.length > 0) {
+            displayError = validationErrors.join(', ');
+          }
+
+          connectionStatus = 'disconnected';
+          connectionErrors = [displayError];
+          toast.error(`Connection test failed: ${displayError}`);
+        } else {
+          // If test is successful, connect to the broker
+          const connectResponse = await fetch(`http://13.202.129.139:5000/api/brokers/${newBroker._id}/connect`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+
+          if (connectResponse.ok) {
+            const connectData = await connectResponse.json();
+            connectionStatus = connectData.connectionStatus || 'connected';
+            connectionErrors = [];
+            toast.success('Successfully connected to the new broker!');
+          } else {
+            const connectErrorData = await connectResponse.json();
+            const validationErrors = connectErrorData.validationErrors || [];
+            connectionStatus = 'disconnected';
+            connectionErrors = validationErrors.length > 0 ? validationErrors : ['Failed to connect to broker'];
+            toast.error(`Connection failed: ${connectionErrors.join(', ')}`);
+          }
+        }
+      } catch (err) {
+        console.error('[handleAddConfirm] Error testing connection:', err);
+        connectionStatus = 'disconnected';
+        connectionErrors = ['Error testing connection'];
+        toast.error('Error testing connection with new broker');
+      }
   
       const mappedBroker = {
         brokerId: newBroker._id,
@@ -787,12 +861,13 @@ const handleEditConfirm = async (updatedData) => {
         rawPassword: newBroker.password || '',
         label: newBroker.label || 'N/A',
         topic: newBroker.topic || 'N/A',
-        connectionStatus: newBroker.connectionStatus || 'disconnected',
-        connectionErrors: [],
+        connectionStatus,
+        connectionErrors,
         assignedUserId: newBroker.assignedUserId?._id || newBroker.assignedUserId || null,
         assignedUserEmail: newBroker.assignedUserId?.email || null,
       };
   
+      // Add the new broker to the table with the connection status
       setTableData([...tableData, mappedBroker]);
       toast.success(`Broker ${newBroker.label || newBroker._id} added successfully!`);
       setShowAddModal(false);

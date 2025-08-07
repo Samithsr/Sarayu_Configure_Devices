@@ -27,7 +27,7 @@ const Navbar = () => {
 
     if (userRole === 'admin' && authToken) {
       try {
-        const response = await fetch('http://13.203.94.252:5000/api/brokers/disconnect-all', {
+        const response = await fetch('http://13.202.129.139:5000/api/brokers/disconnect-all', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
