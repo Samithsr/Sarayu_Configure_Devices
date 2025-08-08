@@ -130,29 +130,56 @@ const Firmware = () => {
       }
       const data = await response.json();
       if (data.success) {
-        setApiData(data.result);
+        const currentFiles = data.result;
+        setApiData(currentFiles);
 
+        // Get saved data from localStorage
         const savedPublishData = JSON.parse(localStorage.getItem("publishData")) || [];
-        const newPublishData = data.result.map((url) => {
-          const savedItem = savedPublishData.find((item) => item.url === url);
-          // Only use saved brokerId if it exists and matches a valid broker option
-          const brokerId = savedItem?.brokerId && brokerOptions.some(b => b.value === savedItem.brokerId)
-            ? savedItem.brokerId
-            : "";
-          const selectedBroker = brokerOptions.find((b) => b.value === brokerId) || null;
+
+        // Create a map of existing files for quick lookup
+        const existingFiles = new Set(currentFiles);
+
+        // Filter out saved data for files that no longer exist
+        const validSavedData = savedPublishData.filter(item => existingFiles.has(item.url));
+
+        // Create new publish data by matching with saved data
+        const newPublishData = currentFiles.map((url) => {
+          // Try to find saved data for this URL
+          const savedItem = validSavedData.find(item => item.url === url);
+
+          // If we have valid saved data, use it
+          if (savedItem) {
+            const broker = brokerOptions.find(b => b.value === savedItem.brokerId);
+            return {
+              url,
+              brokerId: savedItem.brokerId || "",
+              brokerIp: broker ? broker.brokerIp : (savedItem.brokerIp || brokerIp),
+              topic: savedItem.topic || (broker ? broker.topic : ""),
+              mqttUsername: savedItem.mqttUsername || (broker ? broker.username : ""),
+              mqttPassword: savedItem.mqttPassword || (broker ? broker.password : ""),
+              label: savedItem.label || (broker ? broker.label : ""),
+              isNew: false // Mark as existing data
+            };
+          }
+
+          // For new files, return default empty values
           return {
             url,
-            brokerId,
-            brokerIp: selectedBroker ? selectedBroker.brokerIp : brokerIp,
-            topic: savedItem?.topic || selectedBroker?.topic || "",
-            mqttUsername: savedItem?.mqttUsername || selectedBroker?.username || "",
-            mqttPassword: savedItem?.mqttPassword || selectedBroker?.password || "",
-            label: savedItem?.label || selectedBroker?.label || "",
+            brokerId: "",
+            brokerIp: brokerIp,
+            topic: "",
+            mqttUsername: "",
+            mqttPassword: "",
+            label: "",
+            isNew: true // Mark as new data
           };
         });
 
+        // Save the updated data back to localStorage
+        localStorage.setItem("publishData", JSON.stringify(validSavedData));
+
         setPublishData(newPublishData);
-        setPublishing(data.result.map(() => false));
+        setPublishing(currentFiles.map(() => false));
       } else {
         setUploadStatus(data.message || "Failed to fetch versions");
         toast.error(data.message || "Failed to fetch versions");
@@ -196,7 +223,8 @@ const Firmware = () => {
         setUploadStatus(`File uploaded successfully: ${selectedFile.name}`);
         toast.success(`File uploaded successfully: ${selectedFile.name}`);
         setSelectedFile(null);
-        // Use the first broker's IP or fallback, but new files will default to empty brokerId
+
+        // After successful upload, fetch versions to update the list
         const selectedBroker = brokerOptions[0];
         await fetchVersions(selectedBroker?.brokerIp || "192.168.1.100");
       } else {
@@ -288,11 +316,10 @@ const Firmware = () => {
               ...item,
               brokerId: value,
               brokerIp: selectedBroker ? selectedBroker.brokerIp : "",
-              topic: selectedBroker ? selectedBroker.topic : "",
+              topic: selectedBroker ? selectedBroker.topic : "", // Always update topic when company changes
               mqttUsername: selectedBroker ? selectedBroker.username : "",
               mqttPassword: selectedBroker ? selectedBroker.password : "",
               label: selectedBroker ? selectedBroker.label : "",
-              url: selectedBroker ? `http://${selectedBroker.brokerIp}:5000/api/updates/${item.url.split("/").pop()}` : item.url,
             }
           : item
       )
@@ -301,7 +328,14 @@ const Firmware = () => {
 
   const handleTopicChange = (index, value) => {
     setPublishData((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, topic: value } : item))
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              topic: value,
+            }
+          : item
+      )
     );
   };
 
@@ -440,7 +474,8 @@ const Firmware = () => {
                       type="text"
                       value={publishData[index]?.topic || ""}
                       onChange={(e) => handleTopicChange(index, e.target.value)}
-                      placeholder="Enter MQTT topic"
+                      placeholder={publishData[index]?.brokerId ? "" : "Select a company first"}
+                      disabled={!publishData[index]?.brokerId}
                       className="firmware__input"
                     />
                   </td>

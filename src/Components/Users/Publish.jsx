@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useEffect } from "react";
 import "./Publish.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -338,28 +341,28 @@ const Subscribe = ({ brokerOptions }) => {
             <div className="messages-wrapper" style={{padding: "14px"}}>
               <h3 style={{ color: "white" }} className="messages-title">Received Messages</h3>
               <div className="messages-scroll-container">
-  {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
-    <ul className="messages-list">
-      {subscribeInputSets
-        .flatMap((set) => set.messages || [])
-        .map((msg, index) => (
-          <li key={index} className="message-item">
-            <div className="message-content">
-              <strong>Topic:</strong> {msg.topic}
-            </div>
-            <div className="message-content">
-              <strong>Payload:</strong> {msg.payload}
-            </div>
-            <div className="message-content">
-              <strong>QoS:</strong> {msg.qos}
-            </div>
-          </li>
-        ))}
-    </ul>
-  ) : (
-    <p className="no-messages">No messages received yet.</p>
-  )}
-</div>
+                {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
+                  <ul className="messages-list">
+                    {subscribeInputSets
+                      .flatMap((set) => set.messages || [])
+                      .map((msg, index) => (
+                        <li key={index} className="message-item">
+                          <div className="message-content">
+                            <strong>Topic:</strong> {msg.topic}
+                          </div>
+                          <div className="message-content">
+                            <strong>Payload:</strong> {msg.payload}
+                          </div>
+                          <div className="message-content">
+                            <strong>QoS:</strong> {msg.qos}
+                          </div>
+                        </li>
+                      ))}
+                  </ul>
+                ) : (
+                  <div className="no-messages">No messages received yet.</div>
+                )}
+              </div>
             </div>
           </div>
         </Card.Body>

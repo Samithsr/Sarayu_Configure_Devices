@@ -2,29 +2,36 @@
 body {
   background-color: #1a202c;
   color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
 }
 
 .card {
   background-color: #2d3748;
   border: none;
-  border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
 }
 
 .card-header {
   background-color: #4a5568;
   color: #ffffff;
   border-bottom: none;
-  padding: 1rem;
+  padding: 1.2rem;
+  border-radius: 12px 12px 0 0;
 }
 
 .card-title {
-  font-size: 1.3rem;
-  font-weight: 500;
+  font-size: 1.4rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   margin: 0;
-  color: #ffffff; /* Updated to white */
+  color: #ffffff;
 }
 
 .form-control {
@@ -32,19 +39,21 @@ body {
   color: #ffffff;
   border: 1px solid transparent;
   border-radius: 8px;
+  transition: border-color 0.2s ease;
 }
 
 .form-control:focus {
   background-color: #4a5568;
   color: #ffffff;
-  border-color: #ffffff;
-  box-shadow: none;
+  border-color: #63b3ed;
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2);
 }
 
 .btn {
   font-weight: 600;
-  border-radius: 10px;
-  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  padding: 0.6rem 1.6rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .btn-primary {
@@ -71,16 +80,14 @@ body {
 
 /* Ensure textarea height */
 textarea.form-control {
-  min-height: 150px;
-  max-height: 300px;
+  height: 150px;
   resize: vertical;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   textarea.form-control {
-    min-height: 100px;
-    max-height: 200px;
+    height: 100px;
   }
 }
 
@@ -90,92 +97,97 @@ textarea.form-control {
   margin: 0;
 }
 
-/* .left-side-publish-page, .right-side-subscribe-page {
-  padding: 15px;
-} */
-
 .publish-content, .subscribe-topics-content {
   height: 100%;
 }
 
 .publish-inputs-container, .subscribe-inputs-container {
   background-color: #2d3748;
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
 .subscribe-buttons-container, .publish-buttons-container {
   display: flex;
-  justify-content: space-between;
-  padding: 0.5rem;
+  justify-content: flex-end;
+  padding: 0.75rem;
   background-color: #2d3748;
 }
 
 .messages-wrapper {
   background-color: #2d3748;
-  padding: 1rem;
+  padding: 1.5rem;
 }
+
 .messages-list {
   padding: 0;
-  max-height: 167px;
-}
-.message-item {
-  background-color: #ffffff;
-  color: #000000;
+  margin: 0;
+  list-style: none;
 }
 
 .messages-title {
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
 }
 
 .messages-scroll-container {
-  max-height: 170px;
-  position: relative;
+  height: 160px;
   overflow-y: auto;
+  background-color: #3a4658;
+  border-radius: 8px;
+  padding: 0.75rem;
+  border: 1px solid #4a5568;
 }
 
 .message-item {
   background-color: #ffffff;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-radius: 5px;
-  height: 12vh;
-  /* background-color: red; */
-}
-
-/* Style Received Messages to match Payload container */
-.messages-scroll-container .form-control {
-  background-color: #4a5568;
-  color: #e2e8f0;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  min-height: 150px;
-  max-height: 300px;
-  resize: vertical;
+  color: #1a202c;
   padding: 0.75rem;
   margin-bottom: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  transition: background-color 0.2s ease;
 }
 
-.messages-scroll-container .form-control:focus {
-  background-color: #4a5568;
-  color: #e2e8f0;
-  border-color: #ffffff;
-  box-shadow: none;
+.message-item:hover {
+  background-color: #f7fafc;
 }
 
 .no-messages {
   color: #a0aec0;
   padding: 0.75rem;
-  background-color: #4a5568;
+  background-color: #3a4658;
   border-radius: 8px;
-  min-height: 150px;
-  max-height: 300px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .message-content {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
+  word-break: break-word;
+}
+
+/* Custom scrollbar for messages-scroll-container */
+.messages-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages-scroll-container::-webkit-scrollbar-track {
+  background: #2d3748;
+  border-radius: 4px;
+}
+
+.messages-scroll-container::-webkit-scrollbar-thumb {
+  background: #63b3ed;
+  border-radius: 4px;
+}
+
+.messages-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #2b6cb0;
 }
