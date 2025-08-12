@@ -116,6 +116,8 @@ textarea.form-control {
 .messages-wrapper {
   background-color: #2d3748;
   padding: 1.5rem;
+  /* min-height: 40px; */
+  max-height: 216px;
 }
 
 .messages-list {
@@ -125,6 +127,7 @@ textarea.form-control {
 }
 
 .messages-title {
+  margin-top: 20px;
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -132,7 +135,7 @@ textarea.form-control {
 }
 
 .messages-scroll-container {
-  height: 153px;
+  height: 150px;
   overflow-y: auto;
   background-color: #3a4658;
   border-radius: 8px;

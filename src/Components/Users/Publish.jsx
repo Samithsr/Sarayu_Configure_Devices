@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import "./Publish.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,7 +20,6 @@ const Subscribe = ({ brokerOptions }) => {
     },
   ]);
   const [socket, setSocket] = useState(null);
-  const [mqttClient, setMqttClient] = useState(null);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -67,12 +65,8 @@ const Subscribe = ({ brokerOptions }) => {
     return () => {
       newSocket.disconnect();
       console.log("Socket.IO disconnected");
-      if (mqttClient) {
-        mqttClient.end();
-        console.log("MQTT client disconnected");
-      }
     };
-  }, [navigate, mqttClient]);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -238,19 +232,6 @@ const Subscribe = ({ brokerOptions }) => {
           messages: [],
         }))
       );
-      if (mqttClient) {
-        for (const { topicFilter } of subscribeInputSets) {
-          mqttClient.unsubscribe(topicFilter, (err) => {
-            if (err) {
-              console.error(`Failed to unsubscribe from topic ${topicFilter}:`, err.message);
-            } else {
-              console.log(`Unsubscribed from topic: ${topicFilter}`);
-            }
-          });
-        }
-        mqttClient.end();
-        setMqttClient(null);
-      }
       const summary = subscribeInputSets
         .map(
           (set, index) =>
@@ -274,29 +255,17 @@ const Subscribe = ({ brokerOptions }) => {
       }))
     );
     setIsSubscribed(false);
-    if (mqttClient) {
-      for (const { topicFilter } of subscribeInputSets) {
-        mqttClient.unsubscribe(topicFilter, (err) => {
-          if (err) {
-            console.error(`Failed to unsubscribe from topic ${topicFilter}:`, err.message);
-          } else {
-            console.log(`Unsubscribed from topic: ${topicFilter}`);
-          }
-        });
-      }
-      mqttClient.end();
-      setMqttClient(null);
-    }
   };
 
   return (
     <Col md={6} className="right-side-subscribe-page">
       <Card className="subscribe-topics-content">
         <Card.Header className="card-header" style={{ backgroundColor: "#4a5568", display: "flex", justifyContent: "center" }}>
-          <h2 style={{color: "white"}} className="card-title">Subscribe Topics</h2>
+          <h2 style={{ color: "white" }} className="card-title">Subscribe Topics</h2>
         </Card.Header>
         <Card.Body className="p-0">
           <div className="subscribe-content-wrapper">
+            
             <div className="subscribe-form-wrapper">
               <Form
                 className="subscribe-topics-form"
@@ -362,6 +331,32 @@ const Subscribe = ({ brokerOptions }) => {
                           Clear
                         </Button>
                       </div>
+                      <div className="messages-wrapper" style={{ padding: "14px" }}>
+              <h3 style={{ color: "white" }} className="messages-title">Received Messages</h3>
+              <div className="messages-scroll-container">
+                {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
+                  <ul className="messages-list">
+                    {subscribeInputSets
+                      .flatMap((set) => set.messages || [])
+                      .map((msg, index) => (
+                        <li key={index} className="message-item">
+                          <div className="message-content">
+                            <strong>Topic:</strong> {msg.topic}
+                          </div>
+                          <div className="message-content payload-content">
+                            <strong>Payload:</strong> {msg.payload}
+                          </div>
+                          <div className="message-content">
+                            <strong>QoS:</strong> {msg.qos}
+                          </div>
+                        </li>
+                      ))}
+                  </ul>
+                ) : (
+                  <div className="no-messages">No messages received yet.</div>
+                )}
+              </div>
+            </div>
                     </div>
                   ))}
                   <div className="subscribe-buttons-container p-2 d-flex justify-content-end">
@@ -376,32 +371,6 @@ const Subscribe = ({ brokerOptions }) => {
                   </div>
                 </div>
               </Form>
-            </div>
-            <div className="messages-wrapper" style={{padding: "14px"}}>
-              <h3 style={{ color: "white" }} className="messages-title">Received Messages</h3>
-              <div className="messages-scroll-container">
-                {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
-                  <ul className="messages-list">
-                    {subscribeInputSets
-                      .flatMap((set) => set.messages || [])
-                      .map((msg, index) => (
-                        <li key={index} className="message-item">
-                          <div className="message-content">
-                            <strong>Topic:</strong> {msg.topic}
-                          </div>
-                          <div className="message-content">
-                            <strong>Payload:</strong> {msg.payload}
-                          </div>
-                          <div className="message-content">
-                            <strong>QoS:</strong> {msg.qos}
-                          </div>
-                        </li>
-                      ))}
-                  </ul>
-                ) : (
-                  <div className="no-messages">No messages received yet.</div>
-                )}
-              </div>
             </div>
           </div>
         </Card.Body>
@@ -651,7 +620,7 @@ const Publish = () => {
     <Col md={6} className="left-side-publish-page">
       <Card className="publish-content">
         <Card.Header className="card-header" style={{ backgroundColor: "#4a5568", display: "flex", justifyContent: "center" }}>
-          <h2 style={{color: "white"}} className="card-title style">Publish Page</h2>
+          <h2 style={{ color: "white" }} className="card-title">Publish Page</h2>
         </Card.Header>
         <Card.Body className="p-0">
           <Form className="publish-form">
@@ -659,9 +628,7 @@ const Publish = () => {
               {inputSets.map((inputSet, index) => (
                 <div key={index} className="publish-input-set mb-3">
                   {publishStatuses[index] && (
-                    <div className="">
-                      {/* {publishStatuses[index]} */}
-                    </div>
+                    <div className=""></div>
                   )}
                   <Form.Group className="mb-3">
                     <Form.Label>Broker IP</Form.Label>
@@ -672,7 +639,7 @@ const Publish = () => {
                       onChange={(e) => handleChange(index, e)}
                     >
                       <option value="" disabled>
-                         Select Broker IP
+                        Select Broker IP
                       </option>
                       {brokerOptions.map((item) => (
                         <option key={item.value} value={item.value} disabled={item.value === ""}>
@@ -723,7 +690,7 @@ const Publish = () => {
                     <Form.Control
                       as="textarea"
                       name="payload"
-                      className="Payload-message py-5"
+                      className="Payload-message payload-content"
                       placeholder="Enter Payload (e.g., JSON data)"
                       value={inputSet.payload}
                       onChange={(e) => handleChange(index, e)}
