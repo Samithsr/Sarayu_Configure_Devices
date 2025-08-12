@@ -331,7 +331,7 @@ const Subscribe = ({ brokerOptions }) => {
                           Clear
                         </Button>
                       </div>
-                      <div className="messages-wrapper" style={{ padding: "14px" }}>
+                      <div className="messages-wrapper" style={{ padding: "5px", marginTop: "10px"}}>
               <h3 style={{ color: "white" }} className="messages-title">Received Messages</h3>
               <div className="messages-scroll-container">
                 {subscribeInputSets.some((set) => set.messages?.length > 0) ? (
