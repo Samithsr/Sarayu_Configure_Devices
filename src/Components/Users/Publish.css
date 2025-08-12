@@ -13,9 +13,9 @@ body {
   transition: transform 0.2s ease;
 }
 
-.card:hover {
+/* .card:hover {
   transform: translateY(-2px);
-}
+} */
 
 .card-header {
   background-color: #4a5568;
@@ -132,7 +132,7 @@ textarea.form-control {
 }
 
 .messages-scroll-container {
-  height: 160px;
+  height: 153px;
   overflow-y: auto;
   background-color: #3a4658;
   border-radius: 8px;

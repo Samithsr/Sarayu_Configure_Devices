@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import "./Publish.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -20,6 +21,7 @@ const Subscribe = ({ brokerOptions }) => {
     },
   ]);
   const [socket, setSocket] = useState(null);
+  const [mqttClient, setMqttClient] = useState(null);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -65,8 +67,12 @@ const Subscribe = ({ brokerOptions }) => {
     return () => {
       newSocket.disconnect();
       console.log("Socket.IO disconnected");
+      if (mqttClient) {
+        mqttClient.end();
+        console.log("MQTT client disconnected");
+      }
     };
-  }, [navigate]);
+  }, [navigate, mqttClient]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -153,7 +159,7 @@ const Subscribe = ({ brokerOptions }) => {
 
       for (const [index, set] of subscribeInputSets.entries()) {
         if (!set.brokerIp) {
-          // throw new Error(`Set ${index + 1}: Please select a broker IP`);
+          throw new Error(`Set ${index + 1}: Please select a broker IP`);
         }
         if (!set.topicFilter) {
           throw new Error(`Set ${index + 1}: Please enter a topic filter`);
@@ -202,10 +208,10 @@ const Subscribe = ({ brokerOptions }) => {
 
       for (const [index, set] of subscribeInputSets.entries()) {
         if (!set.brokerIp) {
-          // throw new Error(`Set ${index + 1}: Please select a broker IP`);
+          throw new Error(`Set ${index + 1}: Please select a broker IP`);
         }
         if (!set.topicFilter) {
-          // throw new Error(`Set ${index + 1}: Please enter a topic filter`);
+          throw new Error(`Set ${index + 1}: Please enter a topic filter`);
         }
       }
 
@@ -232,6 +238,19 @@ const Subscribe = ({ brokerOptions }) => {
           messages: [],
         }))
       );
+      if (mqttClient) {
+        for (const { topicFilter } of subscribeInputSets) {
+          mqttClient.unsubscribe(topicFilter, (err) => {
+            if (err) {
+              console.error(`Failed to unsubscribe from topic ${topicFilter}:`, err.message);
+            } else {
+              console.log(`Unsubscribed from topic: ${topicFilter}`);
+            }
+          });
+        }
+        mqttClient.end();
+        setMqttClient(null);
+      }
       const summary = subscribeInputSets
         .map(
           (set, index) =>
@@ -255,6 +274,19 @@ const Subscribe = ({ brokerOptions }) => {
       }))
     );
     setIsSubscribed(false);
+    if (mqttClient) {
+      for (const { topicFilter } of subscribeInputSets) {
+        mqttClient.unsubscribe(topicFilter, (err) => {
+          if (err) {
+            console.error(`Failed to unsubscribe from topic ${topicFilter}:`, err.message);
+          } else {
+            console.log(`Unsubscribed from topic: ${topicFilter}`);
+          }
+        });
+      }
+      mqttClient.end();
+      setMqttClient(null);
+    }
   };
 
   return (
@@ -317,21 +349,31 @@ const Subscribe = ({ brokerOptions }) => {
                           <option value="2">2 - Exactly Once</option>
                         </Form.Control>
                       </Form.Group>
+                      <div className="subscribe-buttons-container p-2 d-flex justify-content-end">
+                        <Button
+                          type="submit"
+                          variant={isSubscribed ? "secondary" : "primary"}
+                          disabled={brokerOptions[0]?.value === ""}
+                          className="mx-2"
+                        >
+                          {isSubscribed ? "Unsubscribe" : "Subscribe Topics"}
+                        </Button>
+                        <Button type="button" variant="secondary" onClick={handleClear}>
+                          Clear
+                        </Button>
+                      </div>
                     </div>
                   ))}
-                </div>
-                <div className="subscribe-buttons-container px-4 d-flex justify-content-end">
-                  <Button
-                    type="submit"
-                    variant={isSubscribed ? "secondary" : "primary"}
-                    disabled={brokerOptions[0]?.value === ""}
-                    className="mx-2"
-                  >
-                    {isSubscribed ? "Unsubscribe" : "Subscribe Topics"}
-                  </Button>
-                  <Button type="button" variant="secondary" onClick={handleClear}>
-                    Clear
-                  </Button>
+                  <div className="subscribe-buttons-container p-2 d-flex justify-content-end">
+                    {/* <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleAddTopic}
+                      className="mx-2"
+                    >
+                      Add Topic
+                    </Button> */}
+                  </div>
                 </div>
               </Form>
             </div>
@@ -499,19 +541,16 @@ const Publish = () => {
       const { brokerIp, topic, qosLevel, payload, mqttUsername, mqttPassword } = inputSets[index];
 
       if (!brokerIp) {
-        // newPublishStatuses[index] = "Please select a broker IP";
         toast.error(`Set ${index + 1}: Please select a broker IP`);
         hasError = true;
         continue;
       }
       if (!topic) {
-        // newPublishStatuses[index] = "Please enter a topic";
         toast.error(`Set ${index + 1}: Please enter a topic`);
         hasError = true;
         continue;
       }
       if (!payload) {
-        // newPublishStatuses[index] = "Please enter a payload";
         toast.error(`Set ${index + 1}: Please enter a payload`);
         hasError = true;
         continue;
@@ -679,7 +718,7 @@ const Publish = () => {
                       Clear
                     </Button>
                   </div>
-                  <Form.Group className="mb-3" style={{ marginTop: "30px", }}>
+                  <Form.Group className="mb-3" style={{ marginTop: "30px" }}>
                     <Form.Label style={{ color: "white" }}>Payload</Form.Label>
                     <Form.Control
                       as="textarea"
@@ -693,6 +732,16 @@ const Publish = () => {
                   </Form.Group>
                 </div>
               ))}
+              <div className="publish-buttons-container p-2 d-flex justify-content-end">
+                {/* <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleAddTopic}
+                  className="mx-2"
+                >
+                  Add Topic
+                </Button> */}
+              </div>
             </div>
           </Form>
         </Card.Body>
